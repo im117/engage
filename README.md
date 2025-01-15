@@ -15,3 +15,4 @@ Engage (name tentative) is a mobile/web application that aims to host short form
 <br> 
 - **Long Nguyen Thanh Le**: Hi, I’m Long, a junior Computer Science student with a strong passion for technology and problem-solving. Currently, I’m gaining hands-on experience working part-time at my university’s IT help desk, where I assist in troubleshooting technical issues and providing support to students and staff. With a solid foundation in programming languages like Java, Python, HTML,SQL. I’m always looking to expand my skill set. I’m particularly interested in software development, networking, AI and eager to explore opportunities in the tech field.
 <br> 
+- **Maksim Spitsyn**: Computer Science major and Management minor. Taking 481 and a lot of other 400 level cs classes. Planning to create the greatest platform ever existed on the planet earth with my cool friend(teammates).
