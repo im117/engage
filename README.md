@@ -5,4 +5,4 @@ Your team name and the team policy
 Write a brief overview of your project
 ## Team Member Bios
 
-Riyat Leiyate : Graphic Designer and Junior Developer.
+Riyat Leiyate : CompSci Major with Art Minor, Currently Senior, Part of EMU Esports LOL Team, Hate warm fruit. 
