@@ -1,6 +1,7 @@
 # Engage
 ## Team Info
-Your team name and the team policy
+- **Team name**: Holy Hand Grenade LLC
+- **Team members**: Joshua Randall, Long Nguyen Thanh Le, Johnny Zheng, Hope Heck, Riyat Leiyate, Maksim Spitsyn
 ## Project Description
 Write a brief overview of your project
 ## Team Member Bios
