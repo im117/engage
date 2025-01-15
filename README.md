@@ -1,10 +1,8 @@
 # Engage
 ## Team Info
-Your team name and the team policy
+The Longshort?
 ## Project Description
-Write a brief overview of your project
+Creating new videoplatform project that is going to combine best elements from all video platforms and make user experience super smooth and friendly.
 ## Team Member Bios
-Each team member should provide a short bio (one small paragraph each)
-Hope Heck: Senior, CompSci Major with a Business Minor. Very tired and ready to graduate. Currently taking 481W, 480, and 411. Hoping to get a job offer by the end of the semester.
-
+Maksim Spitsyn: Computer Science major and Management minor. Taking 481 and a lot of other 400 level cs classes. Planning to create the greatest platform ever existed on the planet earth with my cool friend(teammates). 
 
