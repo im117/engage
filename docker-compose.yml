@@ -1,0 +1,12 @@
+services:
+  engage:
+    image: engage:latest
+    build:
+      context: .
+      dockerfile: engage.dockerfile
+    ports:
+      - "8081:80"
+    environment:
+      - ENV_VAR_NAME=example_value
+    # volumes:
+    #   - ./data:/app/data
