@@ -4,13 +4,14 @@
 import './upload.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import FileUploader from './components/FileUploader';
 
 function Upload() {
 
   return (
     <>
       <h1>Upload your video</h1>
-      <button>Upload</button>
+      <FileUploader />
     </>
   )
 }
