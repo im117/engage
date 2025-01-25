@@ -24,9 +24,13 @@ export default function FileUploader() {
         formData.append('file', file);
 
         try {
+            // TODO: Change where the upload is pointed to
+            // ? Trying to point the upload to a local server, meaning ourselves.
+            // * Trying to upload locally to ./media
             await axios.post("https://httpbin.org/post", formData, { headers: {
                 'Content-Type': 'multipart/form-data',
             },
+            // Cosmetic, showing upload progress on html
             onUploadProgress: (progressEvent) => {
                 const progress = progressEvent.total ? /* "?" is there because its an "optional" */ 
                     Math.round((progressEvent.loaded * 100) / progressEvent.total)
