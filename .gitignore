@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# MacOS files
+.DS_Store
+**.DS_Store
+
+# Engage data files
+data
