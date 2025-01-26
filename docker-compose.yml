@@ -10,3 +10,10 @@ services:
       - ENV_VAR_NAME=example_value
     # volumes:
     #   - ./data:/app/data
+  upload-server:
+    image: upload-server:latest
+    build:
+      context: .
+      dockerfile: upload-server.dockerfile
+    ports:
+      - "127.0.0.1:3000:3000" # for upload server
