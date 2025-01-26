@@ -1,4 +1,6 @@
-$uploadColor: red;
+@import './global.scss';
+
+
 .upload-bar{
     border: 4px solid $uploadColor;
     background-color: $uploadColor;

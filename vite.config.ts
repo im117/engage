@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from "vite-plugin-fs";
 // import { dirname, resolve } from 'node:path'
 // import { fileURLToPath } from 'node:url'
 
@@ -7,7 +8,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), fs()],
   base: "./",
   root:"./",
   build: {

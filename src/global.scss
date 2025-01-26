@@ -1,0 +1,17 @@
+// Color Variables
+$background-color: #245526;
+$button-color: #1d4d2f;
+$button-hover-color: #87b8da;
+$text-color: #333;
+$uploadColor: red;
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: $background-color;
+    color: $text-color;
+    // display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }

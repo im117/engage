@@ -10,8 +10,11 @@ function Upload() {
 
   return (
     <>
+    <div>
+      <button onClick={() => window.location.href = '/'}>Home</button>
       <h1>Upload your video</h1>
       <FileUploader />
+    </div>
     </>
   )
 }
