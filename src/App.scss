@@ -1,7 +1,7 @@
 // Variables
-$background-color: #f5f5f5;
-$button-color: #3498db;
-$button-hover-color: #2980b9;
+$background-color: #245526;
+$button-color: #1d4d2f;
+$button-hover-color: #87b8da;
 $text-color: #333;
 
 // General styles
@@ -17,7 +17,9 @@ body {
 }
 
 .app-container {
+  position: relative; // positioning context
   width: 800px;
+  height: 650px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -26,7 +28,7 @@ body {
 }
 
 .video-player {
-  background: #e0ffe0;
+  background: #93b3a1;
   height: 400px;
   display: flex;
   justify-content: center;
@@ -56,20 +58,31 @@ body {
 }
 
 .upload-section {
-  display: flex;
-  justify-content: flex-end;
+  position: absolute; 
+  top: 5px; 
+  right: 10px;
 }
 
-.upload-button {
-  padding: 10px 20px;
-  background-color: $button-color;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-
-  &:hover {
-    background-color: $button-hover-color;
+.myButton {
+      background-color:#7892c2;
+      border-radius:19px;
+      border:2px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family:Courier New;
+      font-size:16px;
+      font-weight:bold;
+      padding:16px 31px;
+      text-decoration:none;
+      text-shadow:0px 0px 13px #283966;
   }
-}
+  .myButton:hover {
+      background-color:#476e9e;
+  }
+  .myButton:active {
+      position:relative;
+      top:1px;
+  }
+  
+
