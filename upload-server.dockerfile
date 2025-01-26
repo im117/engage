@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code
-COPY . .
+COPY ./upload-server.js .
 
 # Expose the port the app runs on
 EXPOSE 3000

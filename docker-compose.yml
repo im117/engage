@@ -6,14 +6,16 @@ services:
       dockerfile: engage.dockerfile
     ports:
       - "8081:80"
-    environment:
-      - ENV_VAR_NAME=example_value
+    # environment:
+      # - ENV_VAR_NAME=example_value
     # volumes:
-    #   - ./data:/app/data
+    #   - ./media:/usr/share/nginx/html/media
   upload-server:
     image: upload-server:latest
     build:
       context: .
       dockerfile: upload-server.dockerfile
+    volumes:
+     - ./media:/usr/src/app/media
     ports:
       - "127.0.0.1:3000:3000" # for upload server
