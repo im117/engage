@@ -1,0 +1,75 @@
+// Variables
+$background-color: #f5f5f5;
+$button-color: #3498db;
+$button-hover-color: #2980b9;
+$text-color: #333;
+
+// General styles
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: $background-color;
+  color: $text-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.app-container {
+  width: 800px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-player {
+  background: #e0ffe0;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.control-button {
+  padding: 10px 20px;
+  background-color: $button-color;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: $button-hover-color;
+  }
+}
+
+.upload-section {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.upload-button {
+  padding: 10px 20px;
+  background-color: $button-color;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: $button-hover-color;
+  }
+}
