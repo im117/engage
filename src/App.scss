@@ -1,10 +1,8 @@
-// Variables
 $background-color: #245526;
 $button-color: #1d4d2f;
 $button-hover-color: #87b8da;
 $text-color: #333;
 
-// General styles
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -49,13 +47,18 @@ body {
 }
 
 .control-button {
-  padding: 10px 20px;
-  background-color: $button-color;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+  background-color:#065527;
+  border-radius:19px;
+  border:2px solid #4e6096;
+  display:inline-block;
+  cursor:pointer;
+  color:#ffffff;
+  font-family:Courier New;
+  font-size:16px;
+  font-weight:bold;
+  padding:16px 31px;
+  text-decoration:none;
+  text-shadow:0px 0px 13px #283966;
 
   &:hover {
     background-color: $button-hover-color;
@@ -68,8 +71,8 @@ body {
   right: 20px; // Align to the right of app-container
 }
 
-.myButton {
-      background-color:#7892c2;
+.upload-button {
+      background-color:#065527;
       border-radius:19px;
       border:2px solid #4e6096;
       display:inline-block;
@@ -82,10 +85,10 @@ body {
       text-decoration:none;
       text-shadow:0px 0px 13px #283966;
   }
-  .myButton:hover {
+  .upload-button:hover {
       background-color:#476e9e;
   }
-  .myButton:active {
+  .upload-button:active {
       position:relative;
       top:1px;
   }

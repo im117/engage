@@ -7,11 +7,11 @@ function App() {
         <h2>Video Player</h2>
       </div>
       <div className="controls">
-        <button className="control-button">Previous Video</button>
-        <button className="control-button">Next Video</button>
+        <button className="control-button">PREVIOUS</button>
+        <button className="control-button">NEXT</button>
       </div>
       <div className="upload-section">
-        <button className="upload-button">Upload Video</button>
+        <button className="upload-button">UPLOAD</button>
       </div>
     </div>
   );
