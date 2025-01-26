@@ -9,7 +9,7 @@ const port = 3000;
 // Enable CORS for your React app (localhost:5173)
 app.use(cors({
   origin: '*',  // This is the origin of your React app 
-  // ! ORIGIN IS STAR FOR DEV ONLY
+  // ! ORIGIN IS WILDCARD FOR DEV ONLY
   methods: ['GET', 'POST'],  // Allow only GET and POST methods (you can customize this)
   allowedHeaders: ['Content-Type', 'Authorization']  // Allow necessary headers
 }));
