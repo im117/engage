@@ -4,7 +4,10 @@ import VideoPlayer from "./components/VideoPlayer.tsx"
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <VideoPlayer/>
+    <VideoPlayer />
+    
   </StrictMode>
+
+  
 )
 

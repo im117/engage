@@ -1,12 +1,22 @@
 import ReactPlayer from "react-player";
 
 
-function VideoPlayer() {
+const directory = "../../media/"
+
+
+export default function VideoPlayer() {
+
     return (
-      <div>
-        <ReactPlayer url="../../media/video.mp4" playing={true}/>
-      </div>
+        <div>
+            <ReactPlayer 
+                id = "video"
+                url={directory + ".mp4"} 
+                playing={true} 
+                muted={true}
+            />
+        </div>
     );
   }
 
-  export default VideoPlayer
+
+
