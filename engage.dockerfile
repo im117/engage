@@ -25,5 +25,6 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start both nginx and a simple HTTP server on port 3000
+CMD ["sh", "-c", "nginx -g 'daemon off;'"]
+
