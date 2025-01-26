@@ -10,7 +10,7 @@ export default function VideoPlayer() {
         <div>
             <ReactPlayer 
                 id = "video"
-                url={directory + ".mp4"} 
+                url={directory + "video.mp4"} 
                 playing={true} 
                 muted={true}
             />
