@@ -1,10 +1,11 @@
 import './App.scss';
+import VideoPlayer from "./components/VideoPlayer.tsx"
 
 function App() {
   return (
     <div className="app-container">
       <div className="video-player">
-        <h2>Video Player</h2>
+        <h2><VideoPlayer /></h2>
       </div>
       <div className="controls">
         <button className="control-button">PREVIOUS</button>
