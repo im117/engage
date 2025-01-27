@@ -1,7 +1,7 @@
 @import './global.scss';
 
 $uploadColor: #4CAF50;
-$backgroundImageUrl: url('src/assets/eagle.jpg');  
+$backgroundImageUrl: url('src/assets/blob.png');  
 
 .upload-container {
   display: flex;
@@ -9,6 +9,10 @@ $backgroundImageUrl: url('src/assets/eagle.jpg');
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background-image: $backgroundImageUrl;
+  background-position: top;
+  background-repeat: no-repeat;
+  background-size: 300px;
   background-color: #e0f7e0;
   padding: 20px;
 }
