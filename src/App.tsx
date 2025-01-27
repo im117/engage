@@ -59,9 +59,12 @@ console.log(filteredArray);
 
 
 function App() {
+  let initState = 1;
+  if(filteredArray.length < 2){
+    initState = 0;
+  }
 
-
-  const [videoIndex, setVideoIndex] = useState(1);
+  const [videoIndex, setVideoIndex] = useState(initState);
   const currentVideoRef = useRef(filteredArray[0] || '');
   useEffect(() => {
     currentVideoRef.current = filteredArray[videoIndex] || '';
@@ -71,7 +74,7 @@ function App() {
   //   setVideoIndex(() => (0));
   // }
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length)
+    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length)
     console.log(videoIndex)
   };
 
@@ -105,10 +108,10 @@ function App() {
       </div>
       <div className="controls">
         <a className="control-button" href={currentVideoRef.current} download><i className="fa-solid fa-download"></i> DOWNLOAD</a>
-        <button className="control-button" onClick={handleNext}><i className="fa-solid fa-shuffle"></i> SHUFFLE</button>
+        <button className="control-button" onClick={handleNext}>NEXT <i className="fa-solid fa-arrow-right"></i></button>
       </div>
       <div className="upload-section">
-        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}><i className="fa-solid fa-upload"></i> UPLOAD</button>
+        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>UPLOAD <i className="fa-solid fa-upload"></i></button>
       </div>
     </div>
   );
