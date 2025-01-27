@@ -58,9 +58,9 @@ function App() {
 
 
   const [videoIndex, setVideoIndex] = useState(1);
-  const currentVideoRef = useRef(filteredArray[0]);
+  const currentVideoRef = useRef(filteredArray[0] || '');
   useEffect(() => {
-    currentVideoRef.current = filteredArray[videoIndex];
+    currentVideoRef.current = filteredArray[videoIndex] || '';
   }, [videoIndex]);
 
   // function initializeVideoRef(){
@@ -89,7 +89,7 @@ function App() {
         <h2><div>
         <ReactPlayer 
                 id = "video"
-                url={currentVideoRef.current} 
+                url={currentVideoRef.current || ''} 
                 playing={true} 
                 muted={true}
                 controls={true}
