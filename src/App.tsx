@@ -3,26 +3,30 @@ import './App.scss';
 import ReactPlayer from "react-player";
 import { useState, useEffect, useRef } from 'react';
 
-import path from 'path-browserify';
+// import path from 'path-browserify';
 
-import fs from "vite-plugin-fs/browser";
+// import fs from "vite-plugin-fs/browser";
+const videos = import.meta.glob('../media/*.{mp4,mov,avi,mkv,webm}');
 
-const mediaPath: string = './media';
+// const mediaPath: string = './media';
 
 // const currentVideoIndex = 0;
 
-async function createVideoArray(dirPath: string){
-  const files = await fs.readdir(dirPath);
+async function createVideoArray(){
+  // const files = await fs.readdir(dirPath);
   const vidPaths: Array<string | null> = []; //video paths
 
-  for (const file of files){
-    const filePath = path.join(dirPath, file); //specific file path of file
-    // const stat = ;
-    // const stat = await fs.stat(filePath);
-    const ext = path.extname(file).toLowerCase();
-      if (ext === '.mp4' || ext === '.mov' || ext === '.avi' || ext === '.mkv' || ext === '.webm') {
-        vidPaths.push(filePath);
-    }
+  // for (const file of files){
+  //   const filePath = path.join(dirPath, file); //specific file path of file
+  //   // const stat = ;
+  //   // const stat = await fs.stat(filePath);
+  //   const ext = path.extname(file).toLowerCase();
+  //     if (ext === '.mp4' || ext === '.mov' || ext === '.avi' || ext === '.mkv' || ext === '.webm') {
+  //       vidPaths.push(filePath);
+  //   }
+  // }
+  for (const videoKey of Object.keys(videos)){
+    vidPaths.push(videoKey);
   }
   return vidPaths;
 }
@@ -44,7 +48,7 @@ function randomizeArray(array: Array<string | null>){
   }
 }
 
-const array: Array<string | null> = await createVideoArray(mediaPath);
+const array: Array<string | null> = await createVideoArray();
 randomizeArray(array);
 
 const filteredArray = array.filter((item) => item !== undefined);
