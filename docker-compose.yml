@@ -6,7 +6,7 @@ services:
       dockerfile: engage.dockerfile
     ports:
       - "8081:5173"
-      - "7070:7070"
+      # - "7070:7070"
     # environment:
       # - ENV_VAR_NAME=example_value
     volumes:
