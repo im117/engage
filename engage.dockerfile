@@ -14,8 +14,9 @@ RUN npm install
 COPY . .
 
 EXPOSE 5173
+EXPOSE 7070
 
-CMD ["npm run docker"]
+CMD ["sh", "-c", "npm run docker -- --host"]
 
 # # Build the application
 # RUN npm run build
