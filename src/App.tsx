@@ -75,10 +75,10 @@ function App() {
     console.log(videoIndex)
   };
 
-  const handlePrevious = () => {
-    setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
-    console.log(videoIndex)
-  };
+  // const handlePrevious = () => {
+  //   setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
+  //   console.log(videoIndex)
+  // };
   // function initVideoIndex(){
   //   setVideoIndex((prevIndex) => (prevIndex + 1));
   //   console.log(videoIndex);
@@ -104,11 +104,11 @@ function App() {
           </div></h2>
       </div>
       <div className="controls">
-        <button className="control-button" onClick={handlePrevious}>PREVIOUS</button>
-        <button className="control-button" onClick={handleNext}>NEXT</button>
+        <a className="control-button" href={currentVideoRef.current} download><i className="fa-solid fa-download"></i> DOWNLOAD</a>
+        <button className="control-button" onClick={handleNext}><i className="fa-solid fa-shuffle"></i> SHUFFLE</button>
       </div>
       <div className="upload-section">
-        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>UPLOAD</button>
+        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}><i className="fa-solid fa-upload"></i> UPLOAD</button>
       </div>
     </div>
   );
