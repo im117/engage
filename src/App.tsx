@@ -1,11 +1,15 @@
 import './App.scss';
-import VideoPlayer from "./components/VideoPlayer.tsx"
+// import VideoPlayer from "./components/VideoPlayer.tsx"
+import ReactPlayer from "react-player";
+import { useState, useEffect, useRef } from 'react';
 
 import path from 'path-browserify';
 
 import fs from "vite-plugin-fs/browser";
 
 const mediaPath: string = './media';
+
+// const currentVideoIndex = 0;
 
 async function createVideoArray(dirPath: string){
   const files = await fs.readdir(dirPath);
@@ -22,8 +26,6 @@ async function createVideoArray(dirPath: string){
   }
   return vidPaths;
 }
-
-const array: Array<string | null> = await createVideoArray(mediaPath);
 
 function randomizeArray(array: Array<string | null>){
   let index = array.length;
@@ -42,19 +44,62 @@ function randomizeArray(array: Array<string | null>){
   }
 }
 
+const array: Array<string | null> = await createVideoArray(mediaPath);
 randomizeArray(array);
+
+const filteredArray = array.filter((item) => item !== undefined);
+console.log(filteredArray);
+
+
 
 
 
 function App() {
+
+
+  const [videoIndex, setVideoIndex] = useState(1);
+  const currentVideoRef = useRef(filteredArray[0]);
+  useEffect(() => {
+    currentVideoRef.current = filteredArray[videoIndex];
+  }, [videoIndex]);
+
+  // function initializeVideoRef(){
+  //   setVideoIndex(() => (0));
+  // }
+  const handleNext = () => {
+    setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length)
+    console.log(videoIndex)
+  };
+
+  const handlePrevious = () => {
+    setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
+    console.log(videoIndex)
+  };
+  // function initVideoIndex(){
+  //   setVideoIndex((prevIndex) => (prevIndex + 1));
+  //   console.log(videoIndex);
+  // };
+  // setVideoIndex(0);
+  // initializeVideoRef();
   return (
+    
     <div className="app-container">
+      <h1>Engage</h1>
       <div className="video-player">
-        <h2><VideoPlayer /></h2>
+        <h2><div>
+        <ReactPlayer 
+                id = "video"
+                url={currentVideoRef.current} 
+                playing={true} 
+                muted={true}
+                controls={true}
+                loop={true}
+            />
+          </div></h2>
       </div>
       <div className="controls">
-        <button className="control-button">PREVIOUS</button>
-        <button className="control-button">NEXT</button>
+        <button className="control-button" onClick={handlePrevious}>PREVIOUS</button>
+        <button className="control-button" onClick={handleNext}>NEXT</button>
       </div>
       <div className="upload-section">
         <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>UPLOAD</button>

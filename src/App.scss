@@ -6,8 +6,8 @@ body{
 }
 .app-container {
   position: relative; // Ensure container acts as a positioning context
-  width: 800px;
-  height: 600px; // Ensure enough height for content
+  width: 90vw;
+  height: 80vh; // Ensure enough height for content
   background: white;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -18,11 +18,16 @@ body{
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
 }
+#video{
+  video{
+    height: 80vh;
+  }
+}
 
 .video-player {
   background: #e0ffe0;
   width: 100%; // Adjust width to fit container if necessary
-  height: 400px;
+  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;
