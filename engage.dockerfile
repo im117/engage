@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node AS build
+FROM node
 
 # Set working directory
 WORKDIR /app
@@ -13,18 +13,22 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Build the application
-RUN npm run build
+EXPOSE 5173
 
-# Stage 2: Serve the application with nginx
-FROM nginx:alpine
+CMD ["npm run docker"]
 
-# Copy the build output to nginx html directory
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Start both nginx and a simple HTTP server on port 3000
-CMD ["sh", "-c", "nginx -g 'daemon off;'"]
+# # Build the application
+# RUN npm run build
+# 
+# # Stage 2: Serve the application with nginx
+# FROM nginx:alpine
+# 
+# # Copy the build output to nginx html directory
+# COPY --from=build /app/dist /usr/share/nginx/html
+# 
+# # Expose port 80
+# EXPOSE 80
+# 
+# # Start both nginx and a simple HTTP server on port 3000
+# CMD ["sh", "-c", "nginx -g 'daemon off;'"]
 
