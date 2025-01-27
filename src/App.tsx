@@ -9,7 +9,7 @@ import fs from "vite-plugin-fs/browser";
 
 const mediaPath: string = './media';
 
-const currentVideoIndex = 0;
+// const currentVideoIndex = 0;
 
 async function createVideoArray(dirPath: string){
   const files = await fs.readdir(dirPath);
@@ -57,19 +57,30 @@ console.log(filteredArray);
 function App() {
 
 
-  const [videoIndex, setVideoIndex] = useState(currentVideoIndex);
-  const currentVideoRef = useRef(filteredArray[currentVideoIndex]);
+  const [videoIndex, setVideoIndex] = useState(1);
+  const currentVideoRef = useRef(filteredArray[0]);
   useEffect(() => {
     currentVideoRef.current = filteredArray[videoIndex];
   }, [videoIndex]);
 
+  // function initializeVideoRef(){
+  //   setVideoIndex(() => (0));
+  // }
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length);
+    setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length)
+    console.log(videoIndex)
   };
 
   const handlePrevious = () => {
     setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
+    console.log(videoIndex)
   };
+  // function initVideoIndex(){
+  //   setVideoIndex((prevIndex) => (prevIndex + 1));
+  //   console.log(videoIndex);
+  // };
+  // setVideoIndex(0);
+  // initializeVideoRef();
   return (
     
     <div className="app-container">
@@ -82,6 +93,7 @@ function App() {
                 playing={true} 
                 muted={true}
                 controls={true}
+                loop={true}
             />
           </div></h2>
       </div>
