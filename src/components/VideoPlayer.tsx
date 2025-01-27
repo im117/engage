@@ -1,20 +1,20 @@
-import ReactPlayer from "react-player";
+// import ReactPlayer from "react-player";
 
 
-const directory = "../../media/"
+// const directory = "../../media/"
 
-//  Will return back to this component later
+// //  Will return back to this component later
 
 
 
-export default function VideoPlayer() {
+// export default function VideoPlayer() {
 
-    return (
-        <div>
+//     return (
+//         <div>
             
-        </div>
-    );
-  }
+//         </div>
+//     );
+//   }
 
 
 

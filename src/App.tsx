@@ -94,6 +94,8 @@ function App() {
                 muted={true}
                 controls={true}
                 loop={true}
+                width="80vw"
+                height="60vh"
             />
           </div></h2>
       </div>

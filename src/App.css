@@ -27,10 +27,6 @@ body {
   align-items: center;
 }
 
-#video video {
-  height: 80vh;
-}
-
 .video-player {
   background: #e0ffe0;
   width: 100%;
