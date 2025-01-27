@@ -1,0 +1,90 @@
+@import 'global.scss';
+
+
+body{
+    display: flex;
+}
+.app-container {
+  position: relative; // Ensure container acts as a positioning context
+  width: 90vw;
+  height: 80vh; // Ensure enough height for content
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex; // Flexbox to center the video player
+  flex-direction: column; // Stack items vertically
+  justify-content: center; // Vertically center the video player
+  align-items: center; // Horizontally center the video player
+}
+
+// #video{
+//   video{
+//     height: 80vh;
+//   }
+// }
+
+.video-player {
+  background: #e0ffe0;
+  width: 100%; // Adjust width to fit container if necessary
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  margin-bottom: 20px; // Add spacing for other content
+}
+
+.controls {
+  width: 100%; // Ensure controls take up full width
+  display: flex;
+  justify-content: space-between;
+}
+
+.control-button {
+  background-color:#065527;
+  border-radius:19px;
+  border:2px solid #4e6096;
+  display:inline-block;
+  cursor:pointer;
+  color:#ffffff;
+  font-family:Courier New;
+  font-size:16px;
+  font-weight:bold;
+  padding:16px 31px;
+  text-decoration:none;
+  text-shadow:0px 0px 13px #283966;
+
+  &:hover {
+    background-color: $button-hover-color;
+  }
+}
+
+.upload-section {
+  position: absolute; // Allows precise positioning within app-container
+  top: 20px; // Align to the top of app-container
+  right: 20px; // Align to the right of app-container
+}
+
+.upload-button {
+      background-color:#065527;
+      border-radius:19px;
+      border:2px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family:Courier New;
+      font-size:16px;
+      font-weight:bold;
+      padding:16px 31px;
+      text-decoration:none;
+      text-shadow:0px 0px 13px #283966;
+  }
+  .upload-button:hover {
+      background-color:#476e9e;
+  }
+  .upload-button:active {
+      position:relative;
+      top:1px;
+  }
