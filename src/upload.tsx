@@ -6,15 +6,16 @@ import FileUploader from "./components/FileUploader";
 function Upload() {
   return (
     <div className="upload-container">
-      <p style={{ color: "green" }}>Disclaimer: The host is not responsible for any content on this site.</p>
+      <h3 style={{ color: "green" }}>Disclaimer: The host is not responsible for any content on this site.</h3>
       <button
         className="back-button"
         onClick={() => (window.location.href = "/")}
-      >
+        >
         Home
       </button>
       <h1 className="upload-title">Upload Your Video</h1>
       <FileUploader />
+        <p>We only accept .mp4 and .mkv for now</p>
     </div>
   );
 }
