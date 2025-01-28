@@ -69,22 +69,22 @@ body{
 
 @keyframes engage {
   0% {
-    background-color: #ff0000; // Red
+    background-color: #065527; // Dark Green
   }
-  20% {
-    background-color: #ff7f00; // Orange
-  }
-  40% {
-    background-color: #ffff00; // Yellow
-  }
-  60% {
-    background-color: #00ff00; // Green
-  }
-  80% {
-    background-color: #0000ff; // Blue
+  50% {
+    background-color: #e0ffe0; // Light Green
   }
   100% {
-    background-color: #8b00ff; // Violet
+    background-color: #065527; // Dark Green
+  }
+}
+
+@keyframes engage-fade{
+  0% {
+    background-color: #e0ffe0; // Dark Green
+  }
+  100% {
+    background-color: #065527; // Dark Green
   }
 }
 
