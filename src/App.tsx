@@ -113,7 +113,7 @@ function App() {
         <button className="control-button" onClick={handleNext}>NEXT <i className="fa-solid fa-arrow-right"></i></button>
       </div>
       <div className="upload-section">
-        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>UPLOAD <i className="fa-solid fa-upload"></i></button>
+        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>ENGAGE <i className="fa-solid fa-upload"></i></button>
       </div>
     </div>
   );
