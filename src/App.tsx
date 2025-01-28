@@ -3,7 +3,7 @@ import './App.scss';
 import ReactPlayer from "react-player";
 import { useState, useEffect, useRef } from 'react';
 
-// import path from 'path-browserify';
+import path from 'path-browserify';
 
 // import fs from "vite-plugin-fs/browser";
 const videos = import.meta.glob('../media/*.{mp4,mov,avi,mkv,webm}');
@@ -24,9 +24,11 @@ async function createVideoArray(){
   //     if (ext === '.mp4' || ext === '.mov' || ext === '.avi' || ext === '.mkv' || ext === '.webm') {
   //       vidPaths.push(filePath);
   //   }
-  // }
+  // }]
   for (const videoKey of Object.keys(videos)){
-    vidPaths.push(videoKey);
+    const ext = path.extname(videoKey).toLowerCase();
+    if (ext === '.mp4' || ext === '.mkv' || ext === '.webm')
+      vidPaths.push(videoKey);
   }
   return vidPaths;
 }
