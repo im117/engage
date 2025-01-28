@@ -6,6 +6,7 @@ import FileUploader from "./components/FileUploader";
 function Upload() {
   return (
     <div className="upload-container">
+      <p style={{ color: "green" }}>Disclaimer: The host is not responsible for any content on this site.</p>
       <button
         className="back-button"
         onClick={() => (window.location.href = "/")}
