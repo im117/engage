@@ -15,7 +15,7 @@ function Upload() {
       </button>
       <h1 className="upload-title">Upload Your Video</h1>
       <FileUploader />
-        <p>We only accept .mp4 and .mkv for now</p>
+        <p>We only accept .mp4 for now</p>
     </div>
   );
 }
