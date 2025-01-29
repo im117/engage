@@ -19,4 +19,4 @@ services:
     volumes:
      - ./media:/usr/src/app/media
     ports:
-      - "127.0.0.1:3000:3000" # for upload server
+      - "3000:3000" # for upload server
