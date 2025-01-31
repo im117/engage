@@ -27,7 +27,7 @@ async function createVideoArray(){
   // }]
   for (const videoKey of Object.keys(videos)){
     const ext = path.extname(videoKey).toLowerCase();
-    if (ext === '.mp4' || ext === '.mkv')
+    if (ext === '.mp4')
       vidPaths.push(videoKey);
   }
   return vidPaths;
