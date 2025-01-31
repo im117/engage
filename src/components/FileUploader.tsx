@@ -15,9 +15,9 @@ export default function FileUploader() {
       setFile(e.target.files[0]);
     }
   }
-  function isMP4(file) {
-    const fileName = file.name;
-    const fileExtension = fileName.split('.').pop().toLowerCase();
+  function isMP4(file: File) {
+    const fileName: string = file.name;
+    const fileExtension = fileName?.split('.').pop()?.toLowerCase();
     return fileExtension === 'mp4';
   }
 
