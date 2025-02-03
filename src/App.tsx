@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import path from 'path-browserify';
 
 // import fs from "vite-plugin-fs/browser";
-const videos = import.meta.glob('../media/*.{mp4,mov,avi,mkv,webm}');
+const videos = import.meta.glob('../media/*.mp4');
 
 // const mediaPath: string = './media';
 
