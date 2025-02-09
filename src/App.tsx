@@ -2,8 +2,12 @@ import "./App.scss";
 // import VideoPlayer from "./components/VideoPlayer.tsx"
 import ReactPlayer from "react-player";
 import { useState, useEffect, useRef } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Login from "./login.tsx";
+import Signup from "./signup.tsx";
+import Dashboard from "./Dashboard";
+import PrivateRoute from "./PrivateRoute"; //
+import { useNavigate } from "react-router-dom";
 import path from "path-browserify";
 
 // import fs from "vite-plugin-fs/browser";
@@ -55,7 +59,7 @@ randomizeArray(array);
 const filteredArray = array.filter((item) => item !== undefined);
 console.log(filteredArray);
 
-function App() {
+function VideoPlayer() {
   let initState = 1;
   if (filteredArray.length < 2) {
     initState = 0;
@@ -75,6 +79,12 @@ function App() {
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
     console.log(videoIndex);
+  };
+
+  // Handle Back to Dashboard button
+  const navigate = useNavigate();
+  const handleBackToDashboard = () => {
+    navigate("/dashboard");
   };
 
   // const handlePrevious = () => {
@@ -122,8 +132,28 @@ function App() {
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
+      <div className="back-button-section">
+        <button className="control-button" onClick={handleBackToDashboard}>
+          Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
+        </button>
+      </div>
     </div>
   );
 }
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Protected Route for Dashboard and Video Player */}
+
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/videoplayer" element={<VideoPlayer />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 export default App;
