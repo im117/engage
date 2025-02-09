@@ -1,7 +1,5 @@
 @import "./global.scss";
 
-// login.scss
-
 .login__body {
   display: flex;
   align-items: center;
@@ -57,8 +55,14 @@
 }
 
 .login__text-danger {
-  color: #e74c3c;
-  font-size: 0.875rem;
+  color: #ff4d4f;
+  background-color: #ffeaea;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ff4d4f;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .login__btn {
@@ -87,6 +91,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  gap: 10px;
 }
 
 .login__button {
@@ -134,5 +139,11 @@
   .login__btn {
     padding: 10px;
     font-size: 0.9rem;
+  }
+
+  .login__links {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 }

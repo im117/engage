@@ -43,6 +43,8 @@ const ResetPassword: React.FC = () => {
     <div className="reset-password__body">
       <div className="reset-password__form">
         <h2>Reset Password</h2>
+        {message && <div className="reset-password__success">{message}</div>}
+        {error && <div className="reset-password__error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <label>
             <strong>Email:</strong>
@@ -80,8 +82,6 @@ const ResetPassword: React.FC = () => {
           <button type="submit">Reset Password</button>
         </form>
 
-        {message && <div className="reset-password__success">{message}</div>}
-        {error && <div className="reset-password__error">{error}</div>}
         <div className="reset__buttons-container">
           <Link to="/">
             <button className="reset__button">Go to Login</button>

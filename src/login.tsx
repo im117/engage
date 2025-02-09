@@ -78,6 +78,12 @@ const Login: React.FC = () => {
     <div className="login__body">
       <div className="login__form">
         <h2>Login</h2>
+        {errors.password && (
+          <span className="login__text-danger">{errors.password}</span>
+        )}
+        {errors.email && (
+          <span className="login__text-danger">{errors.email}</span>
+        )}
         {successMessage && (
           <div className="login__success-message">{successMessage}</div> // Show success message
         )}
@@ -94,9 +100,6 @@ const Login: React.FC = () => {
               placeholder="Enter Email"
               className="login__form-control"
             />
-            {errors.email && (
-              <span className="login__text-danger">{errors.email}</span>
-            )}
           </div>
           <div className="login__container">
             <label htmlFor="password" className="login__label">
@@ -110,20 +113,22 @@ const Login: React.FC = () => {
               placeholder="Enter Password"
               className="login__form-control"
             />
-            {errors.password && (
-              <span className="login__text-danger">{errors.password}</span>
-            )}
           </div>
           <div className="login__buttons-container">
             <button type="submit" className="login__btn login__btn--success">
               Login
             </button>
-            <Link to="/reset-password" className="login__button">
-              Reset Password
-            </Link>
-            <Link to="/signup" className="login__button">
-              Create Account
-            </Link>
+            <div className="login__links">
+              <Link
+                to="/reset-password"
+                className="login__button login__btn--reset"
+              >
+                Reset Password
+              </Link>
+              <Link to="/signup" className="login__button login__btn--create">
+                Create Account
+              </Link>
+            </div>
           </div>
         </form>
       </div>
