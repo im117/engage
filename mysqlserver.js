@@ -29,7 +29,7 @@ db.connect((err) => {
   console.log("Connected to MySQL database");
 });
 
-// Signup route
+// Signup Route
 app.post("/signup", (req, res) => {
   const { name, email, password } = req.body;
 
@@ -38,32 +38,47 @@ app.post("/signup", (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Hash the password before storing it
-  bcrypt.hash(password, 10, (err, hashedPassword) => {
+  // Check if the email already exists
+  const checkEmailQuery = "SELECT * FROM login WHERE email = ?";
+  db.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
-      console.error("Error hashing password: ", err);
-      return res.status(500).json({ message: "Server error" });
+      console.error("Error checking email existence: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
     }
 
-    // SQL query to insert new user with hashed password
-    const sql = "INSERT INTO login (name, email, password) VALUES (?, ?, ?)";
-    const values = [name, email, hashedPassword];
+    if (results.length > 0) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
 
-    db.query(sql, values, (err, result) => {
+    // If email is unique, hash the password before storing
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
-        console.error("Error inserting data: ", err);
-        return res.status(500).json({ message: "Database error", error: err });
+        console.error("Error hashing password: ", err);
+        return res.status(500).json({ message: "Server error" });
       }
-      // Respond with success message
-      return res.status(201).json({
-        message: "User signed up successfully",
-        userId: result.insertId,
+
+      // Insert new user into the database
+      const insertQuery =
+        "INSERT INTO login (name, email, password) VALUES (?, ?, ?)";
+      const values = [name, email, hashedPassword];
+
+      db.query(insertQuery, values, (err, result) => {
+        if (err) {
+          console.error("Error inserting data: ", err);
+          return res
+            .status(500)
+            .json({ message: "Database error", error: err });
+        }
+        return res.status(201).json({
+          message: "User signed up successfully",
+          userId: result.insertId,
+        });
       });
     });
   });
 });
 
-// Login route
+// Login Route (Unchanged)
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -72,7 +87,7 @@ app.post("/login", (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // SQL query to find user by email
+  // Find user by email
   const sql = "SELECT * FROM login WHERE email = ?";
   db.query(sql, [email], (err, results) => {
     if (err) {
@@ -86,7 +101,7 @@ app.post("/login", (req, res) => {
 
     const user = results[0];
 
-    // Compare password with hashed password in the database
+    // Compare passwords
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) {
         console.error("Error comparing passwords: ", err);
@@ -112,7 +127,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-// Start the server
+// Start the Server
 app.listen(8081, () => {
   console.log("Server is running on port 8081");
 });

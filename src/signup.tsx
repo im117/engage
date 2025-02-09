@@ -8,7 +8,8 @@ const Signup: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>(""); // New state for confirmation password
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
@@ -40,7 +41,8 @@ const Signup: React.FC = () => {
     const formValues = { name, email, password, confirmPassword };
     const validationErrors = validation(formValues);
     setErrors(validationErrors);
-
+    setErrorMessage(""); // Clear previous error message
+    setSuccessMessage(""); // Clear previous success message
     if (
       !validationErrors.name &&
       !validationErrors.email &&
@@ -57,7 +59,11 @@ const Signup: React.FC = () => {
           setConfirmPassword("");
         })
         .catch((error) => {
-          console.error("There was an error!", error);
+          if (error.response && error.response.status === 409) {
+            setErrorMessage("Email already exists");
+          } else {
+            setErrorMessage("An unexpected error occurred. Please try again.");
+          }
         });
     }
   };
@@ -69,6 +75,9 @@ const Signup: React.FC = () => {
         <div className="signup__container">
           {successMessage && (
             <div className="signup__success-message">{successMessage}</div> // Display success message
+          )}
+          {errorMessage && (
+            <div className="signup__error-message">{errorMessage}</div>
           )}
           <form onSubmit={handleSubmit}>
             <div className="signup__form-group">
