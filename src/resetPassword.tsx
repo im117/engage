@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./resetPassword.scss";
+import { Link, useNavigate } from "react-router-dom";
 
 const ResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ const ResetPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +31,9 @@ const ResetPassword: React.FC = () => {
         }
       );
       setMessage(response.data.message);
+      setTimeout(() => {
+        navigate("/"); // Redirect to Login after success message
+      }, 1500); // Redirect after 1.5 seconds
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred");
     }
@@ -77,6 +82,11 @@ const ResetPassword: React.FC = () => {
 
         {message && <div className="reset-password__success">{message}</div>}
         {error && <div className="reset-password__error">{error}</div>}
+        <div className="reset__buttons-container">
+          <Link to="/">
+            <button className="reset__button">Go to Login</button>
+          </Link>
+        </div>
       </div>
     </div>
   );

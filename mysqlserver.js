@@ -164,7 +164,9 @@ app.post("/reset-password", (req, res) => {
           return res.status(500).json({ message: "Database error" });
         }
 
-        return res.status(200).json({ message: "Password reset successfully" });
+        return res
+          .status(200)
+          .json({ message: "Password reset successfully! Redirecting..." });
       });
     });
   });
