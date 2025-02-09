@@ -7,6 +7,7 @@ import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 import Dashboard from "./Dashboard";
 import PrivateRoute from "./PrivateRoute"; //
+import ResetPassword from "./resetPassword.tsx";
 import { useNavigate } from "react-router-dom";
 import path from "path-browserify";
 
@@ -146,7 +147,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />

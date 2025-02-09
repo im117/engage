@@ -60,7 +60,16 @@ const Login: React.FC = () => {
         })
         .catch((error) => {
           console.error("There was an error during login", error);
-          setErrors({ ...errors, password: "An error occurred during login" });
+          if (error.response && error.response.status === 404) {
+            // Email not found error
+            setErrors({ email: "Email does not exist! Please sign up!" });
+          } else if (error.response && error.response.status === 401) {
+            // Invalid password
+            setErrors({ password: "Incorrect password! Please try again!" });
+          } else {
+            // General error
+            setErrors({ password: "An error occurred during login" });
+          }
         });
     }
   };
@@ -109,6 +118,9 @@ const Login: React.FC = () => {
             <button type="submit" className="login__btn login__btn--success">
               Login
             </button>
+            <Link to="/reset-password" className="login__button">
+              Reset Password
+            </Link>
             <Link to="/signup" className="login__button">
               Create Account
             </Link>

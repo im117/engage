@@ -97,7 +97,8 @@ app.post("/login", (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      // Email not found - return 404
+      return res.status(404).json({ message: "Email does not exist!" });
     }
 
     const user = results[0];
@@ -123,6 +124,47 @@ app.post("/login", (req, res) => {
       return res.status(200).json({
         message: "Login successful",
         token: token,
+      });
+    });
+  });
+});
+
+app.post("/reset-password", (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Email and new password are required" });
+  }
+
+  const findUserQuery = "SELECT * FROM login WHERE email = ?";
+  db.query(findUserQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Email does not exist" });
+    }
+
+    // Hash the new password
+    bcrypt.hash(newPassword, 10, (hashErr, hashedPassword) => {
+      if (hashErr) {
+        console.error("Error hashing password:", hashErr);
+        return res.status(500).json({ message: "Server error" });
+      }
+
+      // Update the password in the database
+      const updateQuery = "UPDATE login SET password = ? WHERE email = ?";
+      db.query(updateQuery, [hashedPassword, email], (updateErr) => {
+        if (updateErr) {
+          console.error("Error updating password:", updateErr);
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        return res.status(200).json({ message: "Password reset successfully" });
       });
     });
   });
