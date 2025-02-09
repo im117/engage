@@ -86,7 +86,7 @@ const Signup: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <div className="signup__form-group">
               <label htmlFor="name" className="signup__label">
-                Name
+                <strong>Name</strong>
               </label>
               <input
                 type="text"
@@ -103,7 +103,7 @@ const Signup: React.FC = () => {
 
             <div className="signup__form-group">
               <label htmlFor="email" className="signup__label">
-                Email
+                <strong>Email</strong>
               </label>
               <input
                 type="email"
@@ -120,7 +120,7 @@ const Signup: React.FC = () => {
 
             <div className="signup__form-group">
               <label htmlFor="password" className="signup__label">
-                Password
+                <strong>Password</strong>
               </label>
               <input
                 type="password"
@@ -137,7 +137,7 @@ const Signup: React.FC = () => {
 
             <div className="signup__form-group">
               <label htmlFor="confirmPassword" className="signup__label">
-                Confirm Password
+                <strong>Confirm Password</strong>
               </label>
               <input
                 type="password"
