@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate for redirection
+import { Link, useNavigate } from "react-router-dom";
 import "./login.scss";
 import validation from "./loginValidation";
 import axios from "axios";
@@ -19,7 +19,8 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [values, setValues] = useState<FormValues>({ email: "", password: "" });
   const [errors, setErrors] = useState<FormErrors>({});
-  const navigate = useNavigate(); // Initialize navigate function for redirection
+  const [successMessage, setSuccessMessage] = useState<string>(""); // New state for success message
+  const navigate = useNavigate();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -45,11 +46,13 @@ const Login: React.FC = () => {
         .post("http://localhost:8081/login", values)
         .then((response) => {
           // Check if the response has a token or success message
-          console.log(response.data); // Add logging here for debugging
-          // Check if login was successful and redirect
+          console.log(response.data);
           if (response.data.token) {
             localStorage.setItem("authToken", response.data.token); // Save token if needed
-            navigate("/videoplayer"); // Redirect to VideoPlayer
+            setSuccessMessage("Login successful! Redirecting..."); // Display success message
+            setTimeout(() => {
+              navigate("/videoplayer"); // Redirect to VideoPlayer after success message
+            }, 1500); // Redirect after 1.5 seconds
           } else {
             setErrors({ ...errors, password: "Invalid email or password" });
           }
@@ -62,14 +65,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div
-      className="d-flex justify-content-center align-items-center bg-primary"
-      style={{ height: "100vh" }}
-    >
-      <div className="bg-white p-5 rounded" style={{ width: 400 }}>
+    <div className="login__body">
+      <div className="login__form">
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="email">
+          <div className="login__container">
+            <label htmlFor="email" className="login__label">
               <strong>Email</strong>
             </label>
             <input
@@ -78,14 +78,14 @@ const Login: React.FC = () => {
               value={email}
               onChange={handleEmailChange}
               placeholder="Enter Email"
-              className="form-control rounded-0"
+              className="login__form-control"
             />
             {errors.email && (
-              <span className="text-danger">{errors.email}</span>
+              <span className="login__text-danger">{errors.email}</span>
             )}
           </div>
-          <div className="mb-3">
-            <label htmlFor="password">
+          <div className="login__container">
+            <label htmlFor="password" className="login__label">
               <strong>Password</strong>
             </label>
             <input
@@ -94,22 +94,26 @@ const Login: React.FC = () => {
               value={password}
               onChange={handlePasswordChange}
               placeholder="Enter Password"
-              className="form-control"
+              className="login__form-control"
             />
             {errors.password && (
-              <span className="text-danger">{errors.password}</span>
+              <span className="login__text-danger">{errors.password}</span>
             )}
           </div>
-          <button type="submit" className="btn btn-success w-100">
-            Login
-          </button>
-          <p>You agree to our terms and policies</p>
-          <Link
-            to="/signup"
-            className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none"
-          >
-            Create Account
-          </Link>
+          <div className="login__buttons-container">
+            <button type="submit" className="login__btn login__btn--success">
+              Login
+            </button>
+            {successMessage && (
+              <div className="login__success-message">{successMessage}</div> // Show success message
+            )}
+            <p className="login__terms-text">
+              You agree to our terms and policies
+            </p>
+            <Link to="/signup" className="login__button">
+              Create Account
+            </Link>
+          </div>
         </form>
       </div>
     </div>
