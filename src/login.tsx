@@ -47,8 +47,9 @@ const Login: React.FC = () => {
         .then((response) => {
           // Check if the response has a token or success message
           console.log(response.data);
-          if (response.data.token) {
-            localStorage.setItem("authToken", response.data.token); // Save token if needed
+          const token = response.data.token; // Get JWT from response
+          if (token) {
+            localStorage.setItem("authToken", token); // Store JWT token in localStorage
             setSuccessMessage("Login successful! Redirecting..."); // Display success message
             setTimeout(() => {
               navigate("/videoplayer"); // Redirect to VideoPlayer after success message

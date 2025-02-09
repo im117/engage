@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./signup.scss";
 import validation from "./signupValidation";
 import axios from "axios";
@@ -35,6 +35,7 @@ const Signup: React.FC = () => {
   ) => {
     setConfirmPassword(e.target.value);
   };
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +53,10 @@ const Signup: React.FC = () => {
       axios
         .post("http://localhost:8081/signup", formValues)
         .then((response) => {
-          setSuccessMessage("You have successfully signed up!"); // Display success message
+          setSuccessMessage("You have successfully signed up! Redirecting..."); // Display success message
+          setTimeout(() => {
+            navigate("/"); // Redirect to login after success message
+          }, 1500); // Redirect after 1.5 seconds
           setName("");
           setEmail("");
           setPassword("");

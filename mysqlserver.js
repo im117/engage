@@ -112,7 +112,7 @@ app.post("/login", (req, res) => {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Generate JWT token
+      // After successfully login, will generate JWT token for authentication in PrivateRoute
       const token = jwt.sign(
         { userId: user.id, email: user.email },
         "secretkey", // Secret key for JWT
