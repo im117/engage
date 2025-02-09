@@ -119,13 +119,10 @@ const Login: React.FC = () => {
               Login
             </button>
             <div className="login__links">
-              <Link
-                to="/reset-password"
-                className="login__button login__btn--reset"
-              >
+              <Link to="/reset-password" className="login__button">
                 Reset Password
               </Link>
-              <Link to="/signup" className="login__button login__btn--create">
+              <Link to="/signup" className="login__button">
                 Create Account
               </Link>
             </div>
