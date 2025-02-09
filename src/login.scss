@@ -39,7 +39,7 @@
 }
 
 .login__form-control {
-  width: 100%;
+  width: 90%;
   padding: 12px;
   margin-top: 8px;
   margin-bottom: 15px;
@@ -89,6 +89,7 @@
 }
 
 .login__button {
+  width: 95%;
   display: inline-block;
   margin-top: 1rem;
   padding: 10px;
@@ -134,11 +135,5 @@
   .login__btn {
     padding: 10px;
     font-size: 0.9rem;
-  }
-
-  .login__links {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
   }
 }

@@ -142,7 +142,7 @@ const Signup: React.FC = () => {
             </div>
 
             {/* Terms and Conditions Checkbox */}
-            <div className="signup__form-group signup__terms">
+            <div className="signup__terms">
               <input
                 type="checkbox"
                 id="agreeToTerms"
