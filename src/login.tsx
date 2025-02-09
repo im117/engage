@@ -69,6 +69,9 @@ const Login: React.FC = () => {
     <div className="login__body">
       <div className="login__form">
         <h2>Login</h2>
+        {successMessage && (
+          <div className="login__success-message">{successMessage}</div> // Show success message
+        )}
         <form onSubmit={handleSubmit}>
           <div className="login__container">
             <label htmlFor="email" className="login__label">
@@ -106,12 +109,6 @@ const Login: React.FC = () => {
             <button type="submit" className="login__btn login__btn--success">
               Login
             </button>
-            {successMessage && (
-              <div className="login__success-message">{successMessage}</div> // Show success message
-            )}
-            <p className="login__terms-text">
-              You agree to our terms and policies
-            </p>
             <Link to="/signup" className="login__button">
               Create Account
             </Link>

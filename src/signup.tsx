@@ -9,6 +9,7 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [agreeToTerms, setAgreeToTerms] = useState<boolean>(false); // New state for the checkbox
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errors, setErrors] = useState<{
     name?: string;
@@ -16,25 +17,8 @@ const Signup: React.FC = () => {
     password?: string;
     confirmPassword?: string;
   }>({});
-  const [successMessage, setSuccessMessage] = useState<string>(""); // State for success message
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setConfirmPassword(e.target.value);
-  };
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,25 +26,28 @@ const Signup: React.FC = () => {
     const formValues = { name, email, password, confirmPassword };
     const validationErrors = validation(formValues);
     setErrors(validationErrors);
-    setErrorMessage(""); // Clear previous error message
-    setSuccessMessage(""); // Clear previous success message
+    setErrorMessage("");
+    setSuccessMessage("");
+
     if (
       !validationErrors.name &&
       !validationErrors.email &&
       !validationErrors.password &&
-      !validationErrors.confirmPassword
+      !validationErrors.confirmPassword &&
+      agreeToTerms // Ensure checkbox is checked
     ) {
       axios
         .post("http://localhost:8081/signup", formValues)
         .then((response) => {
-          setSuccessMessage("You have successfully signed up! Redirecting..."); // Display success message
+          setSuccessMessage("You have successfully signed up! Redirecting...");
           setTimeout(() => {
-            navigate("/"); // Redirect to login after success message
-          }, 1500); // Redirect after 1.5 seconds
+            navigate("/"); // Redirect after 1.5 seconds
+          }, 1500);
           setName("");
           setEmail("");
           setPassword("");
           setConfirmPassword("");
+          setAgreeToTerms(false);
         })
         .catch((error) => {
           if (error.response && error.response.status === 409) {
@@ -78,7 +65,7 @@ const Signup: React.FC = () => {
         <h2>Sign up</h2>
         <div className="signup__container">
           {successMessage && (
-            <div className="signup__success-message">{successMessage}</div> // Display success message
+            <div className="signup__success-message">{successMessage}</div>
           )}
           {errorMessage && (
             <div className="signup__error-message">{errorMessage}</div>
@@ -92,7 +79,7 @@ const Signup: React.FC = () => {
                 type="text"
                 id="name"
                 value={name}
-                onChange={handleNameChange}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Name"
                 className="signup__form-control"
               />
@@ -109,7 +96,7 @@ const Signup: React.FC = () => {
                 type="email"
                 id="email"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
                 className="signup__form-control"
               />
@@ -126,7 +113,7 @@ const Signup: React.FC = () => {
                 type="password"
                 id="password"
                 value={password}
-                onChange={handlePasswordChange}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
                 className="signup__form-control"
               />
@@ -143,7 +130,7 @@ const Signup: React.FC = () => {
                 type="password"
                 id="confirmPassword"
                 value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm Password"
                 className="signup__form-control"
               />
@@ -154,10 +141,24 @@ const Signup: React.FC = () => {
               )}
             </div>
 
+            {/* Terms and Conditions Checkbox */}
+            <div className="signup__form-group signup__terms">
+              <input
+                type="checkbox"
+                id="agreeToTerms"
+                checked={agreeToTerms}
+                onChange={() => setAgreeToTerms(!agreeToTerms)}
+              />
+              <label htmlFor="agreeToTerms" className="signup__terms-label">
+                I agree to the <Link to="/terms">Terms and Conditions</Link>
+              </label>
+            </div>
+
             <div className="signup__buttons-container">
               <button
                 type="submit"
                 className="signup__btn signup__btn--success"
+                disabled={!agreeToTerms} // Disable the button if the checkbox is unchecked
               >
                 Sign up
               </button>

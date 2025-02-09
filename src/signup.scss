@@ -146,3 +146,8 @@
   text-align: center;
   font-weight: bold;
 }
+.signup__btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
