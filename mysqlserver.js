@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"; // For hashing passwords
 import jwt from "jsonwebtoken"; // For generating tokens
 
 const app = express();
+const port = 8081;
 
 // Middleware to parse incoming JSON requests
 app.use(express.json());
@@ -128,6 +129,6 @@ app.post("/login", (req, res) => {
 });
 
 // Start the Server
-app.listen(8081, () => {
-  console.log("Server is running on port 8081");
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
