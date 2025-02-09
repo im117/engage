@@ -1,20 +1,16 @@
-// will protect routes like /dashboard and /videoplayer, ensuring that only authenticated users can access them.
+// This is a simple implementation to protect routes that require authentication.
 import React from "react";
-import { Route, Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-interface PrivateRouteProps {
-  children: React.ReactNode;
-}
+// This is a simple implementation to check for auth token in localStorage
+const PrivateRoute: React.FC = () => {
+  const isAuthenticated = !!localStorage.getItem("authToken");
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const authToken = localStorage.getItem("authToken");
-
-  // If there's no auth token, navigate to login
-  if (!authToken) {
-    return <Navigate to="/" />;
-  }
-
-  return <>{children}</>;
+  return isAuthenticated ? (
+    <Outlet /> // Renders the child routes if authenticated
+  ) : (
+    <Navigate to="/" /> // Redirect to login if not authenticated
+  );
 };
 
 export default PrivateRoute;

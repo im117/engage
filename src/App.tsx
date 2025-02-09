@@ -148,9 +148,10 @@ const App: React.FC = () => {
         <Route path="/signup" element={<Signup />} />
 
         {/* Protected Route for Dashboard and Video Player */}
-
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/videoplayer" element={<VideoPlayer />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/videoplayer" element={<VideoPlayer />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
