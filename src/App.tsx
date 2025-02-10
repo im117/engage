@@ -150,6 +150,7 @@ const App: React.FC = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
+          
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/videoplayer" element={<VideoPlayer />} />
         </Route>
