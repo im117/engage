@@ -9,7 +9,7 @@ services:
       - "8081:5173"
       # - "7070:7070"
     # environment:
-      # - ENV_VAR_NAME=example_value
+      # - VITE_UPLOAD_SERVER="https://localhost:3000/upload"
     volumes:
       - ./media:/app/media
   upload-server:

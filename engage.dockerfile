@@ -11,7 +11,7 @@ COPY package*.json /app
 RUN npm install
 
 # Set upload server environment variable
-# ENV UPLOAD_SERVER=http://localhost:3000/upload
+# ENV VITE_UPLOAD_SERVER="http://localhost:3000/upload"
 
 # Copy the rest of the application code
 COPY . .

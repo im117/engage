@@ -2,9 +2,11 @@ import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import "dotenv";
 
+
 let uploadServer = "http://localhost:3000/upload"
-if(import.meta.env.UPLOAD_SERVER !== null){
-  uploadServer = import.meta.env.UPLOAD_SERVER;
+if(import.meta.env.VITE_UPLOAD_SERVER !== undefined){
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
