@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: engage.dockerfile
+    env_file: ".env"
     ports:
       - "8081:5173"
       # - "7070:7070"

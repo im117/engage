@@ -1,5 +1,11 @@
 import { ChangeEvent, useState } from "react";
 import axios from "axios";
+import "dotenv";
+
+let uploadServer = "http://localhost:3000/upload"
+if(process.env.UPLOAD_SERVER){
+  uploadServer = process.env.UPLOAD_SERVER;
+}
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -23,7 +29,7 @@ export default function FileUploader() {
     formData.append("file", file);
 
     try {
-      await axios.post("http://localhost:3000/upload", formData, {
+      await axios.post(uploadServer, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

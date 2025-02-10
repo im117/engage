@@ -30,3 +30,6 @@ dist-ssr
 # Engage data files
 data
 media
+
+# Environment File
+.env
