@@ -3,7 +3,7 @@ import axios from "axios";
 import "dotenv";
 
 let uploadServer = "http://localhost:3000/upload"
-if(import.meta.env.UPLOAD_SERVER){
+if(import.meta.env.UPLOAD_SERVER !== null){
   uploadServer = import.meta.env.UPLOAD_SERVER;
 }
 
