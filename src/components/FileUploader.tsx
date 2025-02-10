@@ -9,6 +9,8 @@ if(process.env.UPLOAD_SERVER){
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
+const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
+
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
@@ -19,9 +21,24 @@ export default function FileUploader() {
       setFile(e.target.files[0]);
     }
   }
+  function isMP4(file: File) {
+    const fileName: string = file.name;
+    const fileExtension = fileName?.split('.').pop()?.toLowerCase();
+    return fileExtension === 'mp4';
+  }
 
   async function handleFileUpload() {
     if (!file) return;
+    console.log("File size: " + file.size);
+    console.log("Max file size: " + MAX_FILE_SIZE);
+    if(!isMP4(file)){
+      alert('File is not an mp4.');
+      return;
+    }
+    if(file.size > MAX_FILE_SIZE) {
+      alert('File is too big. Max file size is 80MB');
+      return;
+    }
 
     setStatus("uploading");
 
