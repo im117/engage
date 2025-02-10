@@ -10,6 +10,7 @@ import PrivateRoute from "./PrivateRoute"; //
 import ResetPassword from "./resetPassword.tsx";
 import { useNavigate } from "react-router-dom";
 import path from "path-browserify";
+import Upload from "./upload.tsx";
 
 // import fs from "vite-plugin-fs/browser";
 const videos = import.meta.glob("../media/*.mp4");
@@ -150,6 +151,7 @@ const App: React.FC = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
+          <Route path="/upload" element={<Upload />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/videoplayer" element={<VideoPlayer />} />
         </Route>
