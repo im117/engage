@@ -56,10 +56,6 @@ randomizeArray(array);
 const filteredArray = array.filter((item) => item !== undefined);
 console.log(filteredArray);
 
-
-
-
-
 function App() {
   let initState = 1;
   if(filteredArray.length < 2){
@@ -90,30 +86,47 @@ function App() {
   // };
   // setVideoIndex(0);
   // initializeVideoRef();
+  
   return (
-    
     <div className="app-container">
       <h1>Engage</h1>
       <div className="video-player">
-        <h2><div>
-        <ReactPlayer 
-                id = "video"
-                url={currentVideoRef.current || ''} 
-                playing={true} 
-                muted={true}
-                controls={true}
-                loop={true}
-                width="80vw"
-                height="60vh"
+        <h2>
+          <div>
+            <ReactPlayer 
+              id="video"
+              url={currentVideoRef.current || ''} 
+              playing={true} 
+              muted={true}
+              controls={true}
+              loop={true}
+              width="80vw"
+              height="60vh"
             />
-          </div></h2>
+          </div>
+        </h2>
       </div>
+
+      {/* Updated Controls with User Button */}
       <div className="controls">
-        <a className="control-button" href={currentVideoRef.current} download><i className="fa-solid fa-download"></i> DOWNLOAD</a>
-        <button className="control-button" onClick={handleNext}>NEXT <i className="fa-solid fa-arrow-right"></i></button>
+        <a className="control-button" href={currentVideoRef.current} download>
+          <i className="fa-solid fa-download"></i> DOWNLOAD
+        </a>
+        
+        {/* Added user function button */}
+        <button className="control-button user-button" onClick={() => alert("User Profile Clicked!")}>
+          USER <i className="fa-solid fa-user"></i>
+        </button>
+        
+        <button className="control-button" onClick={handleNext}>
+          NEXT <i className="fa-solid fa-arrow-right"></i>
+        </button>
       </div>
+
       <div className="upload-section">
-        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>ENGAGE <i className="fa-solid fa-upload"></i></button>
+        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>
+          ENGAGE <i className="fa-solid fa-upload"></i>
+        </button>
       </div>
     </div>
   );
