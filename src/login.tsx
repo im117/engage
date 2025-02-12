@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./login.scss";
+import "./styles/login.scss";
 import validation from "./loginValidation";
 import axios from "axios";
 

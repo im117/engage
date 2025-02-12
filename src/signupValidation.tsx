@@ -13,7 +13,7 @@ interface FormErrors {
 }
 
 const validation = (values: FormValues): FormErrors => {
-  let errors: FormErrors = {};
+  const errors: FormErrors = {};
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d]{8,}$/;

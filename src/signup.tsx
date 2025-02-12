@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./signup.scss";
+import "./styles/signup.scss";
 import validation from "./signupValidation";
 import axios from "axios";
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./resetPassword.scss";
+import "./styles/resetPassword.scss";
 import { Link, useNavigate } from "react-router-dom";
 
 const ResetPassword: React.FC = () => {

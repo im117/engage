@@ -1,4 +1,4 @@
-import "./App.scss";
+import "./styles/App.scss";
 // import VideoPlayer from "./components/VideoPlayer.tsx"
 import ReactPlayer from "react-player";
 import { useState, useEffect, useRef } from "react";
