@@ -115,7 +115,7 @@ function App() {
         
         {/* Added user function button */}
         <button className="control-button user-button" onClick={() => alert("User Profile Clicked!")}>
-          USER <i className="fa-solid fa-user"></i>
+          ENGAGER <i className="fa-solid fa-user"></i>
         </button>
         
         <button className="control-button" onClick={handleNext}>
