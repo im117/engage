@@ -6,7 +6,7 @@ services:
       dockerfile: engage.dockerfile
     env_file: ".env"
     ports:
-      - "8081:5173"
+      - "8080:5173"
       # - "7070:7070"
     # environment:
       # - VITE_UPLOAD_SERVER="https://localhost:3000/upload"
@@ -21,3 +21,16 @@ services:
      - ./media:/usr/src/app/media
     ports:
       - "3000:3000" # for upload server
+  mysql:
+    image: mysql
+    privileged: true
+    environment:
+      MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_DATABASE: signup
+      MYSQL_USER: engageuser
+      MYSQL_PASSWORD: engagepassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
