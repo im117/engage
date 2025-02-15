@@ -1,108 +1,110 @@
-@import 'global.scss';
+@import 'global.scss'; // Imports global styles, e.g., color variables, base resets, etc.
+
+.user-page-wrapper {
+  // The wrapper for the entire User Page, ensuring full viewport coverage
+  position: relative;
+  width: 100vw; // Full width of the viewport
+  height: 100vh; // Full height of the viewport
+  display: flex;
+  justify-content: center; // Center horizontally
+  align-items: center; // Center vertically
+}
 
 .user-container {
+  // Container holding the video grid and the Home button
   position: relative;
   width: 90vw;
   height: 80vh;
   background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  border: 1px solid #ddd; // Subtle border for contrast
+  border-radius: 10px; // Rounded corners for modern design
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Light shadow for elevation
   display: flex;
-  flex-direction: column;
+  flex-direction: column; // Stack child elements vertically
   justify-content: flex-start;
   align-items: center;
+  transition: filter 0.3s ease; // Smooth transition for blur effect
+
+  &.blur {
+    filter: blur(8px); // Apply blur when fullscreen video is open
+  }
 }
 
 .video-grid {
+  // Grid layout for displaying video thumbnails in 3 columns
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  background-color: #e0ffe0;
+  grid-template-columns: repeat(3, 1fr); // 3 columns with equal width
+  gap: 15px; // Spacing between grid items
+  background-color: #e0ffe0; // Light green background
   width: 100%;
-  height: 70vh; // More height for ovals
-  border-radius: 10px;
+  height: 70vh;
+  border-radius: 10px; // Rounded corners
   padding: 10px;
   box-sizing: border-box;
-  align-content: center;
+  align-content: center; // Center the grid items vertically
 }
 
 .video-thumbnail {
+  // Container for each small video thumbnail (oval shape)
   background-color: #f9f9f9;
-  border-radius: 60px;
+  border-radius: 50px; // Oval shape for thumbnails
   width: 100%;
-  height: 100px;
+  height: 120px;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  cursor: pointer;
+  overflow: hidden; // Crop overflowing content to maintain oval shape
+  cursor: pointer; // Show clickable cursor
   position: relative;
 
-  .react-player__preview,
-  img,
-  video {
+  .thumbnail-video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; // Fill the oval shape, crop excess if needed
   }
 }
-
-.video-thumbnail.placeholder {
-  background-color: #d9d9d9;
-  border: 1px dashed #aaa;
-
-  .placeholder-text {
-    font-size: 24px;
-    color: #aaa;
-    user-select: none;
-  }
-}
-
+// Button to navigate back to the Home page
 .home-button {
-  margin-top: 5px; // Less gap above button
+  margin-top: 5px;
   background-color: #065527;
   color: white;
   padding: 8px 24px;
   border: none;
-  border-radius: 19px;
+  border-radius: 19px; // Rounded button shape
   cursor: pointer;
   font-size: 1rem;
-  font-family: Courier New;
+  font-family: Courier New; // Classic style font
   text-shadow: 0px 0px 13px #283966;
   border: 2px solid #4e6096;
   transition: transform 0.2s ease;
 
   &:hover {
-    background-color: #004488;
-    transform: scale(1.1);
+    background-color: #004488; // Darken on hover
+    transform: scale(1.1); // Slight zoom effect
   }
 }
 
+/* Fullscreen Video Overlay */
 .fullscreen-overlay {
+  // Dark overlay covering the entire screen when a video is enlarged
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.8); // Semi-transparent dark background..
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 1000; // Insurance, lol
+}
 
-  .fullscreen-video {
-    position: relative;
-
-    .close-button {
-      margin-top: 10px;
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-  }
+.fullscreen-video {
+  // Enlarged video player with rounded rectangle shape
+  width: 80vw; // Large video width (80% of viewport width)
+  height: 45vh; // Large video height (45% of viewport height), roughly 16:9 ratio
+  object-fit: contain; // Ensure the entire video fits within the rectangle without cropping
+  background-color: black; // Fill empty areas with black
+  border-radius: 20px; // Slightly rounded corners for a modern look
 }

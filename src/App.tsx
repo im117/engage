@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import { useState, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import User from './User';
-
 import path from 'path-browserify';
 
 const videos = import.meta.glob('../media/*.mp4');
@@ -19,7 +18,7 @@ async function createVideoArray() {
 
 function randomizeArray(array: Array<string | null>) {
   let index = array.length;
-  while (index != 0) {
+  while (index !== 0) {
     const randomIndex = Math.floor(Math.random() * index);
     [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
     index--;
@@ -28,7 +27,6 @@ function randomizeArray(array: Array<string | null>) {
 
 const array: Array<string | null> = await createVideoArray();
 randomizeArray(array);
-
 const filteredArray = array.filter((item) => item !== undefined);
 
 function Home() {
@@ -44,7 +42,7 @@ function Home() {
     setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
   };
 
-  const navigate = useNavigate(); // React Router hook
+  const navigate = useNavigate();
 
   return (
     <div className="app-container">
@@ -67,7 +65,6 @@ function Home() {
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
 
-        {/* Navigate to User Page */}
         <button className="control-button user-button" onClick={() => navigate('/user')}>
           ENGAGER <i className="fa-solid fa-user"></i>
         </button>
@@ -78,7 +75,7 @@ function Home() {
       </div>
 
       <div className="upload-section">
-        <button className="upload-button" onClick={() => window.location.href = '/upload.html'}>
+        <button className="upload-button" onClick={() => (window.location.href = '/upload.html')}>
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
