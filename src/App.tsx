@@ -1,51 +1,27 @@
 import './styles/App.scss';
-// import VideoPlayer from "./components/VideoPlayer.tsx"
-import ReactPlayer from "react-player";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import ReactPlayer from 'react-player';
+import User from './User';
 
 import path from 'path-browserify';
 
-// import fs from "vite-plugin-fs/browser";
 const videos = import.meta.glob('../media/*.mp4');
 
-// const mediaPath: string = './media';
-
-// const currentVideoIndex = 0;
-
-async function createVideoArray(){
-  // const files = await fs.readdir(dirPath);
-  const vidPaths: Array<string | null> = []; //video paths
-
-  // for (const file of files){
-  //   const filePath = path.join(dirPath, file); //specific file path of file
-  //   // const stat = ;
-  //   // const stat = await fs.stat(filePath);
-  //   const ext = path.extname(file).toLowerCase();
-  //     if (ext === '.mp4' || ext === '.mov' || ext === '.avi' || ext === '.mkv' || ext === '.webm') {
-  //       vidPaths.push(filePath);
-  //   }
-  // }]
-  for (const videoKey of Object.keys(videos)){
+async function createVideoArray() {
+  const vidPaths: Array<string | null> = [];
+  for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase();
-    if (ext === '.mp4')
-      vidPaths.push(videoKey);
+    if (ext === '.mp4') vidPaths.push(videoKey);
   }
   return vidPaths;
 }
 
-function randomizeArray(array: Array<string | null>){
+function randomizeArray(array: Array<string | null>) {
   let index = array.length;
-
-  // While loop to shuffle the array until the index is at zero
   while (index != 0) {
-    // Generate a random index with Math.random(), and round it to the lowest int.
     const randomIndex = Math.floor(Math.random() * index);
-    
-    // Shuffle the positions
-    [array[index], array[randomIndex]] = [
-      array[randomIndex], array[index]];
-
-    // Bring the index down by 1
+    [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
     index--;
   }
 }
@@ -54,70 +30,48 @@ const array: Array<string | null> = await createVideoArray();
 randomizeArray(array);
 
 const filteredArray = array.filter((item) => item !== undefined);
-console.log(filteredArray);
 
-function App() {
-  let initState = 1;
-  if(filteredArray.length < 2){
-    initState = 0;
-  }
-
+function Home() {
+  let initState = filteredArray.length < 2 ? 0 : 1;
   const [videoIndex, setVideoIndex] = useState(initState);
   const currentVideoRef = useRef(filteredArray[0] || '');
+
   useEffect(() => {
     currentVideoRef.current = filteredArray[videoIndex] || '';
   }, [videoIndex]);
 
-  // function initializeVideoRef(){
-  //   setVideoIndex(() => (0));
-  // }
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length)
-    console.log(videoIndex)
+    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
   };
 
-  // const handlePrevious = () => {
-  //   setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
-  //   console.log(videoIndex)
-  // };
-  // function initVideoIndex(){
-  //   setVideoIndex((prevIndex) => (prevIndex + 1));
-  //   console.log(videoIndex);
-  // };
-  // setVideoIndex(0);
-  // initializeVideoRef();
-  
+  const navigate = useNavigate(); // React Router hook
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
       <div className="video-player">
-        <h2>
-          <div>
-            <ReactPlayer 
-              id="video"
-              url={currentVideoRef.current || ''} 
-              playing={true} 
-              muted={true}
-              controls={true}
-              loop={true}
-              width="80vw"
-              height="60vh"
-            />
-          </div>
-        </h2>
+        <ReactPlayer
+          id="video"
+          url={currentVideoRef.current || ''}
+          playing={true}
+          muted={true}
+          controls={true}
+          loop={true}
+          width="80vw"
+          height="60vh"
+        />
       </div>
 
-      {/* Updated Controls with User Button */}
       <div className="controls">
         <a className="control-button" href={currentVideoRef.current} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
-        
-        {/* Added user function button */}
-        <button className="control-button user-button" onClick={() => alert("User Profile Clicked!")}>
+
+        {/* Navigate to User Page */}
+        <button className="control-button user-button" onClick={() => navigate('/user')}>
           ENGAGER <i className="fa-solid fa-user"></i>
         </button>
-        
+
         <button className="control-button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
@@ -129,6 +83,29 @@ function App() {
         </button>
       </div>
     </div>
+  );
+}
+
+function App() {
+  const userVideos = [
+    '/media/video1.mp4',
+    '/media/video2.mp4',
+    '/media/video3.mp4',
+    '/media/video4.mp4',
+    '/media/video5.mp4',
+    '/media/video6.mp4',
+    '/media/video7.mp4',
+    '/media/video8.mp4',
+    '/media/video9.mp4',
+  ];
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/user" element={<User userVideos={userVideos} />} />
+      </Routes>
+    </Router>
   );
 }
 
