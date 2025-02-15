@@ -1,7 +1,7 @@
-import './styles/User.scss'; // Import the User page specific styles
+import './styles/User.scss';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Hook to navigate between routes
-import { motion, AnimatePresence } from 'framer-motion'; // Animation library for smooth transitions
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Props interface to accept an array of video URLs as a prop
 interface UserProps {
@@ -11,23 +11,26 @@ interface UserProps {
 function User({ userVideos }: UserProps) {
   const navigate = useNavigate();
 
-  // State to track which video is currently selected for full-screen view
+  // Example username (replace later when you have database integration)
+  const username = 'EngageUser123';
+
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
-  // Opens the fullscreen video overlay with the selected video
+  // Opens fullscreen video overlay with the selected video
   const handleOpenVideo = (videoSrc: string) => {
     setSelectedVideo(videoSrc);
   };
 
-  // Closes the fullscreen video overlay
+  // Closes fullscreen video overlay
   const handleCloseVideo = () => {
     setSelectedVideo(null);
   };
 
   return (
     <div className="user-page-wrapper">
-      {/* Page Content (Video Grid + Home Button) - This part will get blurred when fullscreen video is open */}
+      {/* Page Content (Video Grid + Username + Home Button) - This part will get blurred */}
       <div className={`user-container ${selectedVideo ? 'blur' : ''}`}>
+        {/* Video Thumbnails */}
         <div className="video-grid">
           {userVideos.map((video, index) => (
             <div
@@ -46,7 +49,12 @@ function User({ userVideos }: UserProps) {
           ))}
         </div>
 
-        {/* Button to navigate back to the Home page */}
+        {/* Username Display */}
+        <div className="username-display">
+          Logged in as: <span className="username">{username}</span>
+        </div>
+
+        {/* Home Button */}
         <button className="home-button" onClick={() => navigate('/')}>
           Home
         </button>
@@ -57,21 +65,21 @@ function User({ userVideos }: UserProps) {
         {selectedVideo && (
           <motion.div
             className="fullscreen-overlay"
-            initial={{ opacity: 0 }} // Animation starts with opacity 0 (hidden)
-            animate={{ opacity: 1 }} // Animate to fully visible
-            exit={{ opacity: 0 }} // Animate to hidden on exit
-            onClick={handleCloseVideo} // Close fullscreen if overlay is clicked
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCloseVideo}
           >
             <motion.video
               src={selectedVideo}
               className="fullscreen-video"
-              initial={{ scale: 0.8 }} // Scale up from 0.8x size
-              animate={{ scale: 1 }} // Animate to normal size
-              exit={{ scale: 0.8 }} // Scale down on exit
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
               autoPlay
               controls
               loop
-              onClick={(e) => e.stopPropagation()} // Prevent closing overlay when clicking the video itself
+              onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
         )}
