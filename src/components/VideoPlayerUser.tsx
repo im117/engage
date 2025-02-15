@@ -1,57 +1,41 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-interface VideoPlayerUserProps {
-  src: string;
-}
+// VideoPlayer Component - Toggles between a small and expanded video
+export default function VideoPlayer() {
+  // State to track if the video is expanded or not
+  const [isExpanded, setIsExpanded] = useState(false);
 
-export default function VideoPlayerUser({ src }: VideoPlayerUserProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleVideo = () => {
-    setIsOpen((prev) => !prev);
+  // Handle click on video to expand/shrink and play/pause accordingly
+  const handleVideoClick = (
+    event: React.MouseEvent<HTMLVideoElement, MouseEvent>
+  ) => {
+    setIsExpanded(!isExpanded);
+    if (!isExpanded) {
+      event.currentTarget.play(); // Play video when expanding
+    } else {
+      event.currentTarget.pause(); // Pause video when shrinking
+    }
   };
 
   return (
-    <>
-      {/* Small Oval Thumbnail */}
-      <motion.div
-        className="cursor-pointer w-full h-full rounded-[50px] overflow-hidden"
-        whileHover={{ scale: 1.05 }}
-        onClick={toggleVideo}
-      >
-        <motion.video
-          src={src}
-          className="w-full h-full object-cover"
-          autoPlay
-          loop
-          muted
-        />
-      </motion.div>
-
-      {/* Enlarged Video Modal Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-80 backdrop-blur-md flex justify-center items-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={toggleVideo} // Clicking outside closes it
-          >
-            <motion.video
-              src={src}
-              autoPlay
-              controls
-              className="w-[60vw] h-[60vh] rounded-[50%] object-cover cursor-pointer"
-              initial={{ scale: 0.5 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.5 }}
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking video
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <div className="flex justify-center items-center h-screen">
+      <motion.video
+        src="your-video.mp4" // Path to the video (replace with actual path)
+        className={`cursor-pointer transition-all duration-300 ${
+          isExpanded
+            ? "w-[600px] h-[400px] rounded-[50%]" // Expanded: Larger, rounded (oval)
+            : "w-[300px] h-[200px] rounded-lg" // Collapsed: Smaller, rectangular
+        }`}
+        onClick={handleVideoClick}
+        initial={{ width: 300, height: 200, borderRadius: "10px" }} // Initial size and shape
+        animate={{
+          width: isExpanded ? 600 : 300,
+          height: isExpanded ? 400 : 200,
+          borderRadius: isExpanded ? "50%" : "10px", // Switch to oval on expansion
+        }}
+        transition={{ duration: 0.3 }} // Smooth transition duration
+      />
+    </div>
   );
 }
