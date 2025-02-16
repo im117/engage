@@ -15,8 +15,8 @@ const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState<String | null>(null);
-  const [desc, setDesc] = useState<String | null>(null);
+  // const [title, setTitle] = useState<string | null>(null);
+  // const [desc, setDesc] = useState<string | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
 
