@@ -16,9 +16,10 @@ app.use(cors());
 // MySQL connection
 const db = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "pass123",
-  database: "signup",
+  user: "engageuser",
+  password: "engagepassword",
+  database: "engage",
+  port: "3307"
 });
 
 // Connect to MySQL
