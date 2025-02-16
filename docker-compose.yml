@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: engage.dockerfile
-    env_file: ".env"
+    # env_file: ".env"
     ports:
       - "8080:5173"
       # - "7070:7070"
@@ -21,16 +21,15 @@ services:
      - ./media:/usr/src/app/media
     ports:
       - "3000:3000" # for upload server
-  mysql:
-    image: mysql
-    privileged: true
+  db:
+    image: mysql:latest
     environment:
-      MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
-      MYSQL_ROOT_PASSWORD: pass123
-      MYSQL_DATABASE: signup
-      MYSQL_USER: engageuser
-      MYSQL_PASSWORD: engagepassword
+      - MYSQL_ROOT_PASSWORD="warmer"
+      - MYSQL_DATABASE="engage"
+      - MYSQL_USER="engageuser"
+      - MYSQL_PASSWORD="engagepassword"
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./data:/var/lib/mysql
+      # - ./initdb:/docker-entrypoint-initdb.d/

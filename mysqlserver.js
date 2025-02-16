@@ -58,6 +58,8 @@ app.post("/signup", (req, res) => {
         return res.status(500).json({ message: "Server error" });
       }
 
+      // console.log("HELLO");
+
       // Insert new user into the database
       const insertQuery =
         "INSERT INTO login (name, email, password) VALUES (?, ?, ?)";

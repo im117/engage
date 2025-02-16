@@ -54,6 +54,7 @@ const Signup: React.FC = () => {
             setErrorMessage("Email already exists");
           } else {
             setErrorMessage("An unexpected error occurred. Please try again.");
+            console.log(error, error.stack);
           }
         });
     }
