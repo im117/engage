@@ -33,15 +33,15 @@ db.connect((err) => {
 
 // Signup Route
 app.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   // Basic input validation
-  if (!name || !email || !password) {
+  if (!username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   // Check if the email already exists
-  const checkEmailQuery = "SELECT * FROM login WHERE email = ?";
+  const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
   db.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
       console.error("Error checking email existence: ", err);
@@ -63,8 +63,8 @@ app.post("/signup", (req, res) => {
 
       // Insert new user into the database
       const insertQuery =
-        "INSERT INTO login (name, email, password) VALUES (?, ?, ?)";
-      const values = [name, email, hashedPassword];
+        "INSERT INTO users (username, email, password, role, dateCreated) VALUES (?, ?, ?, ?, CURDATE())";
+      const values = [username, email, hashedPassword, "user"];
 
       db.query(insertQuery, values, (err, result) => {
         if (err) {
