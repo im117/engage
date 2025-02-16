@@ -5,6 +5,6 @@ CREATE TABLE users (
 	username VARCHAR(20)  UNIQUE,
     email VARCHAR(50) UNIQUE,
     password VARBINARY(500),
-    role VARCHAR(15),
-    date VARCHAR(8)
+    role VARCHAR(10),
+    dateCreated Date
 )
