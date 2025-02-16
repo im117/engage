@@ -68,6 +68,8 @@ export default function FileUploader() {
 
   return (
     <div>
+      <input name="title" />
+      <input name="desc" />
       <input type="file" accept="video/mp4" onChange={handleFileChange} />
       {file && status !== "uploading" && (
         <button onClick={handleFileUpload}>Upload</button>
