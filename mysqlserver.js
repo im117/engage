@@ -19,7 +19,7 @@ const db = mysql.createConnection({
   user: "engageuser",
   password: "engagepassword",
   database: "engage",
-  port: "3307"
+  port: 3306
 });
 
 // Connect to MySQL
