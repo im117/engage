@@ -18,7 +18,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "pass123",
-  database: "users",
+  database: "engage",
 });
 
 // Connect to MySQL
@@ -40,7 +40,7 @@ app.post("/signup", (req, res) => {
   }
 
   // Check if the email already exists
-  const checkEmailQuery = "SELECT * FROM login WHERE email = ?";
+  const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
   db.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
       console.error("Error checking email existence: ", err);
@@ -60,7 +60,7 @@ app.post("/signup", (req, res) => {
 
       // Insert new user into the database
       const insertQuery =
-        "INSERT INTO login (name, email, password) VALUES (?, ?, ?)";
+        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
       const values = [name, email, hashedPassword];
 
       db.query(insertQuery, values, (err, result) => {
@@ -89,7 +89,7 @@ app.post("/login", (req, res) => {
   }
 
   // Find user by email
-  const sql = "SELECT * FROM login WHERE email = ?";
+  const sql = "SELECT * FROM users WHERE email = ?";
   db.query(sql, [email], (err, results) => {
     if (err) {
       console.error("Error querying database: ", err);
@@ -138,7 +138,7 @@ app.post("/reset-password", (req, res) => {
       .json({ message: "Email and new password are required" });
   }
 
-  const findUserQuery = "SELECT * FROM login WHERE email = ?";
+  const findUserQuery = "SELECT * FROM users WHERE email = ?";
   db.query(findUserQuery, [email], (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -157,7 +157,7 @@ app.post("/reset-password", (req, res) => {
       }
 
       // Update the password in the database
-      const updateQuery = "UPDATE login SET password = ? WHERE email = ?";
+      const updateQuery = "UPDATE users SET password = ? WHERE email = ?";
       db.query(updateQuery, [hashedPassword, email], (updateErr) => {
         if (updateErr) {
           console.error("Error updating password:", updateErr);

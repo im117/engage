@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import "dotenv";
-
+import "mysql2";
 
 let uploadServer = "http://localhost:3000/upload"
 if(import.meta.env.VITE_UPLOAD_SERVER !== undefined){
@@ -15,8 +15,18 @@ const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
+  const [title, setTitle] = useState<String | null>(null);
+  const [desc, setDesc] = useState<String | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  function handleTitleChange(e: ChangeEvent<HTMLInputElement>) {
+    setTitle(e.target.value);
+  }
+
+  function handleDescChange(e: ChangeEvent<HTMLInputElement>) {
+    setDesc(e.target.value);
+  }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
@@ -68,8 +78,13 @@ export default function FileUploader() {
 
   return (
     <div>
-      <input name="title" />
-      <input name="desc" />
+      <br></br>
+      <label htmlFor="title">Title: </label>
+      <input name="title" onChange={handleTitleChange}/>
+      <br></br>
+      <label htmlFor="desc">Description: </label>
+      <input name="desc" onChange={handleDescChange} />
+      <br></br>
       <input type="file" accept="video/mp4" onChange={handleFileChange} />
       {file && status !== "uploading" && (
         <button onClick={handleFileUpload}>Upload</button>

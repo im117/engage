@@ -1,10 +1,28 @@
 import express from 'express';
+import mysql from "mysql2";
 import multer from 'multer';
 import path from 'path';
 import cors from 'cors';
 
 const app = express();
 const port = 3000;
+
+// MySQL connection
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "pass123",
+  database: "engage",
+});
+
+// Connect to MySQL
+db.connect((err) => {
+  if (err) {
+    console.error("Database connection failed: ", err);
+    return;
+  }
+  console.log("Upload Server Connected to MySQL database");
+});
 
 // Enable CORS for your React app (localhost:5173)
 app.use(cors({
@@ -16,10 +34,10 @@ app.use(cors({
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (cb) => {
     cb(null, './media'); // Set the folder where the files will be uploaded
   },
-  filename: (req, file, cb) => {
+  filename: (file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname)); // Name the file with a timestamp
   },
 });
@@ -34,5 +52,5 @@ app.post("/upload", upload.single('file'), (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Upload Server is running at http://localhost:${port}`);
 });

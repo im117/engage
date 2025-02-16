@@ -1,4 +1,4 @@
-@import 'global.scss';
+@import './global.scss';
 
 
 body{
@@ -46,7 +46,7 @@ body{
   background-color:#065527;
   border-radius:19px;
   border:2px solid #4e6096;
-  display:inline-block;
+  // display:inline-block;
   cursor:pointer;
   color:#ffffff;
   font-family:Courier New;
