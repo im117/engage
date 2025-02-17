@@ -60,7 +60,7 @@ describe("Login Component", () => {
 
     // Enter a valid password
     const passwordInput = screen.getByPlaceholderText(/enter password/i);
-    fireEvent.change(passwordInput, { target: { value: "StrongPassword1" } });
+    fireEvent.change(passwordInput, { target: { value: "StrongPassword1@" } });
 
     // Simulate form submission
     const loginButton = screen.getByRole("button", { name: /login/i });
