@@ -1,4 +1,4 @@
-@import './global.scss';
+@use 'global.scss' as *;
 
 $uploadColor: #4CAF50;
 $backgroundImageUrl: url('src/assets/blob.png');  

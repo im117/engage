@@ -10,11 +10,11 @@ CREATE TABLE users(
 );
 CREATE TABLE videos(
     id int AUTO_INCREMENT,
-    creator_id int, -- NOT NULL REMOVED FOR TESTING
+    -- creator_id int, -- NOT NULL REMOVED FOR TESTING
     title text NOT NULL,
     description text NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fileName text NOT NULL,
-    PRIMARY KEY(id),
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+    PRIMARY KEY(id)
+    -- FOREIGN KEY (creator_id) REFERENCES users(id)
 );
