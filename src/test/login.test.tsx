@@ -26,7 +26,7 @@ describe("Login Component", () => {
     const passwordError = screen.getByText(/password is required/i);
     expect(passwordError).toBeInTheDocument();
   });
-  // Test case 2: Invalid email format
+  // Test case 2: Invalid password format
   it("should display validation error for invalid password format", () => {
     render(
       <BrowserRouter>
