@@ -31,8 +31,9 @@ db.connect((err) => {
   console.log("Connected to MySQL database");
 });
 
+
 // Signup Route
-app.post("/signup", (req, res) => {
+export const signup = async (req, res) => {
   const { username, email, password } = req.body;
 
   // Basic input validation
@@ -98,11 +99,11 @@ app.post("/signup", (req, res) => {
     console.error("Error: ", error);
     return res.status(500).json({ message: "Database error", error });
   });
-});
+};
 
 
 // Login Route
-app.post("/login", (req, res) => {
+export const login = async (req, res) => {
   const { usernameOrEmail, password } = req.body;
 
   // Basic input validation
@@ -149,9 +150,8 @@ app.post("/login", (req, res) => {
         token: token,
       });
     });
-
   });
-});
+}
 
 app.post("/reset-password", (req, res) => {
   const { email, newPassword } = req.body;
@@ -195,6 +195,10 @@ app.post("/reset-password", (req, res) => {
     });
   });
 });
+
+// Register routes
+app.post("/signup", signup);
+app.post("/login", login);
 
 // Start the Server
 app.listen(port, () => {
