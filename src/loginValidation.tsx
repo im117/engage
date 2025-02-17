@@ -23,8 +23,6 @@ const validation = (values: FormValues): FormErrors => {
     errors.password = "Password is invalid";
   }
 
-  // console.log(errors);
-
   return errors;
 };
 

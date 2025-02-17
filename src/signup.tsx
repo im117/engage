@@ -50,15 +50,14 @@ const Signup: React.FC = () => {
           setAgreeToTerms(false);
         })
         .catch((error) => {
+          // Check if the status is 408 (Username exists) or 409 (Email exists) or some other error
           if (error.response) {
-            // Check if the status is 408 (Username exists) or 409 (Email exists)
             if (error.response.status === 408) {
               setErrorMessage("Username already exists");
             } else if (error.response.status === 409) {
               setErrorMessage("Email already exists");
             } else {
               setErrorMessage("An unexpected error occurred. Please try again.");
-              console.log(error, error.stack);
             }        
           }   
         });

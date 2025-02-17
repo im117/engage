@@ -41,7 +41,6 @@ const Login: React.FC = () => {
 
     // Check if there are no validation errors
     if (Object.keys(validationErrors).length === 0) {
-      console.log(values); //
       // Make API call if no validation errors
       axios
         .post("http://localhost:8081/login", values)
@@ -70,7 +69,6 @@ const Login: React.FC = () => {
           } else {
             // General error
             setErrors({ password: "An error occurred during login" });
-            // console.log(error);
           }
         });
     }
@@ -91,7 +89,7 @@ const Login: React.FC = () => {
             <input
               type="usernameOrEmail"
               id="usernameOrEmail"
-              value={usernameOrEmail}
+              value={usernameOrEmail} // Can be username OR email
               onChange={handleUsernameOrEmailChange}
               placeholder="Enter Username OR Email"
               className="login__form-control"

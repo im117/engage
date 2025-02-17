@@ -133,7 +133,7 @@ export const login = async (req, res) => {
         console.error("Error comparing passwords: ", err);
         return res.status(500).json({ message: "Server error" });
       }
-
+      // Passwords don't match
       if (!isMatch) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
