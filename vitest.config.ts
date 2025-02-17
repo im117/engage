@@ -6,7 +6,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom", // Simulates a browser environment for React components
-    setupFiles: "./setupTests.ts", // Optional: Setup file for global configs
     css: true, // Allows CSS imports in tests
   },
 });
