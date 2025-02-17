@@ -1,16 +1,25 @@
-// This is a simple implementation to protect routes that require authentication.
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
-// This is a simple implementation to check for auth token in localStorage
 const PrivateRoute: React.FC = () => {
-  const isAuthenticated = !!localStorage.getItem("authToken");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  return isAuthenticated ? (
-    <Outlet /> // Renders the child routes if authenticated
-  ) : (
-    <Navigate to="/login" /> // Redirect to login if not authenticated
-  );
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        const isExpired = decoded.exp * 1000 < Date.now();
+        setIsAuthenticated(!isExpired);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    }
+  }, []);
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;
