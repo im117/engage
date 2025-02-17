@@ -5,26 +5,26 @@ import validation from "./loginValidation";
 import axios from "axios";
 
 interface FormValues {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 }
 
 interface FormErrors {
-  username?: string;
+  usernameOrEmail?: string;
   password?: string;
 }
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [values, setValues] = useState<FormValues>({ username: "", password: "" });
+  const [values, setValues] = useState<FormValues>({ usernameOrEmail: "", password: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [successMessage, setSuccessMessage] = useState<string>(""); // New state for success message
   const navigate = useNavigate();
 
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-    setValues({ ...values, username: e.target.value });
+  const handleUsernameOrEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsernameOrEmail(e.target.value);
+    setValues({ ...values, usernameOrEmail: e.target.value });
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,14 +56,14 @@ const Login: React.FC = () => {
               navigate("/videoplayer"); // Redirect to VideoPlayer after success message
             }, 1500); // Redirect after 1.5 seconds
           } else {
-            setErrors({ ...errors, password: "Invalid username or password" });
+            setErrors({ ...errors, password: "Invalid username/email or password" });
           }
         })
         .catch((error) => {
           console.error("There was an error during login", error);
           if (error.response && error.response.status === 404) {
-            // Username not found error
-            setErrors({ username: "Username does not exist! Please sign up!" });
+            // Username or email not found error
+            setErrors({ usernameOrEmail: "User Id does not exist! Please sign up!" });
           } else if (error.response && error.response.status === 401) {
             // Invalid password
             setErrors({ password: "Incorrect password! Please try again!" });
@@ -85,19 +85,19 @@ const Login: React.FC = () => {
         )}
         <form onSubmit={handleSubmit}>
           <div className="login__container">
-            <label htmlFor="username" className="login__label">
-              <strong>Username</strong>
+            <label htmlFor="usernameOrEmail" className="login__label">
+              <strong>User Id</strong>
             </label>
             <input
-              type="username"
-              id="username"
-              value={username}
-              onChange={handleUsernameChange}
-              placeholder="Enter Username"
+              type="usernameOrEmail"
+              id="usernameOrEmail"
+              value={usernameOrEmail}
+              onChange={handleUsernameOrEmailChange}
+              placeholder="Enter Username OR Email"
               className="login__form-control"
             />
-            {errors.username && (
-              <span className="login__text-danger">{errors.username}</span>
+            {errors.usernameOrEmail && (
+              <span className="login__text-danger">{errors.usernameOrEmail}</span>
             )}
           </div>
           <div className="login__container">

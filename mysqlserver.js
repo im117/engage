@@ -101,26 +101,27 @@ app.post("/signup", (req, res) => {
 });
 
 
-// Login Route (Unchanged)
+// Login Route
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const { usernameOrEmail, password } = req.body;
 
   // Basic input validation
-  if (!username || !password) {
+  if (!usernameOrEmail || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   // Find user by username
-  const sql = "SELECT * FROM users WHERE username = ?";
-  db.query(sql, [username], (err, results) => {
+  const query = "SELECT * FROM users WHERE username = ? OR email = ? ";
+
+  db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => {
     if (err) {
       console.error("Error querying database: ", err);
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
-      // Username not found - return 404
-      return res.status(404).json({ message: "Username does not exist!" });
+      // User not found - return 404
+      return res.status(404).json({ message: "User does not exist!" });
     }
 
     const user = results[0];

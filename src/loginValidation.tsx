@@ -1,10 +1,10 @@
 interface FormValues {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 }
 
 interface FormErrors {
-  username?: string;
+  usernameOrEmail?: string;
   password?: string;
 }
 
@@ -13,8 +13,8 @@ const validation = (values: FormValues): FormErrors => {
 
   const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d]{8,}$/;
 
-  if (!values.username) {
-    errors.username = "Username is required";
+  if (!values.usernameOrEmail) {
+    errors.usernameOrEmail = "Username or email is required";
   }
 
   if (!values.password) {
