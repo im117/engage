@@ -14,7 +14,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
     "axios": "^1.7.9",
     "axios-mock-adapter": "^2.1.0",
@@ -45,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^22.10.10",
     "@types/path-browserify": "^1.0.3",
     "@types/react": "^18.3.18",
