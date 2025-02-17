@@ -7,6 +7,10 @@ import cors from 'cors';
 const app = express();
 const port = 3000;
 
+app.use(express.json()); // Add this line to parse JSON bodies
+
+app.use(cors());
+
 // MySQL connection
 const db = mysql.createConnection({
   host: "localhost",
@@ -34,10 +38,10 @@ app.use(cors({
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
-  destination: (cb) => {
+  destination: (req, file, cb) => {
     cb(null, './media'); // Set the folder where the files will be uploaded
   },
-  filename: (file, cb) => {
+  filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname)); // Name the file with a timestamp
   },
 });
@@ -50,6 +54,27 @@ app.post("/upload", upload.single('file'), (req, res) => {
   }
   res.status(200).send({ message: 'File uploaded successfully!' });
 });
+
+app.post("/record", (req, res) => {
+  // console.log(req.body);
+  const { title, desc, fileName } = req.body;
+
+  const insertQuery =
+  "INSERT INTO videos (title, description, fileName) VALUES (?, ?, ?)"
+  const values = [title, desc, fileName]
+  db.query(insertQuery, values, (err, result) => {
+    if (err) {
+      console.error("Error inserting data: ", err);
+      return res
+        .status(500)
+        .json({ message: "Database error", error: err });
+    }
+    return res.status(201).json({
+      message: "Video stored successfully",
+      videoId: result.insertId,
+    });
+  })
+})
 
 app.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);

@@ -27,7 +27,7 @@ db.connect((err) => {
     console.error("Database connection failed: ", err);
     return;
   }
-  console.log("Connected to MySQL database");
+  console.log("Login Server Connected to MySQL database");
 });
 
 // Signup Route
@@ -174,5 +174,5 @@ app.post("/reset-password", (req, res) => {
 
 // Start the Server
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Login Server is running at http://localhost:${port}`);
 });

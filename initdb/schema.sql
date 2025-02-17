@@ -10,7 +10,7 @@ CREATE TABLE users(
 );
 CREATE TABLE videos(
     id int AUTO_INCREMENT,
-    creator_id int NOT NULL, 
+    creator_id int, -- NOT NULL REMOVED FOR TESTING
     title text NOT NULL,
     description text NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

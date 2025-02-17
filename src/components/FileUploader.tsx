@@ -1,12 +1,17 @@
 import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import "dotenv";
-import "mysql2";
 
-let uploadServer = "http://localhost:3000/upload"
+let uploadServer = "http://localhost:3000"
 if(import.meta.env.VITE_UPLOAD_SERVER !== undefined){
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+}
+
+interface FormValues {
+  title: string;
+  desc: string;
+  fileName: string;
 }
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
@@ -15,24 +20,33 @@ const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null);
-  // const [title, setTitle] = useState<string | null>(null);
-  // const [desc, setDesc] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [desc, setDesc] = useState<string>("");
+  const [values, setValues] = useState<FormValues>({ title: "", desc: "", fileName: "" });
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
 
   function handleTitleChange(e: ChangeEvent<HTMLInputElement>) {
     setTitle(e.target.value);
+    setValues({ ...values, title: e.target.value });
   }
 
   function handleDescChange(e: ChangeEvent<HTMLInputElement>) {
     setDesc(e.target.value);
+    setValues({ ...values, desc: e.target.value });
   }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
       setFile(e.target.files[0]);
+      setValues({...values, fileName: e.target.files[0].name})
     }
   }
+  /**
+   * Checks to see if a file is an MP4
+   * @param file 
+   * @returns 
+   */
   function isMP4(file: File) {
     const fileName: string = file.name;
     const fileExtension = fileName?.split('.').pop()?.toLowerCase();
@@ -52,20 +66,27 @@ export default function FileUploader() {
       return;
     }
 
+    
+
     setStatus("uploading");
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      await axios.post(uploadServer, formData, {
+      await axios.post("http://localhost:3000/record", values)
+      .then((response) =>{
+        console.log(response.data);
+      }
+      );
+      await axios.post("http://localhost:3000/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (progressEvent) => {
           const progress = progressEvent.total
-            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            : 0;
+        ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        : 0;
           setUploadProgress(progress);
         },
       });
@@ -80,10 +101,10 @@ export default function FileUploader() {
     <div>
       <br></br>
       <label htmlFor="title">Title: </label>
-      <input name="title" onChange={handleTitleChange}/>
+      <input name="title" value={title} onChange={handleTitleChange}/>
       <br></br>
       <label htmlFor="desc">Description: </label>
-      <input name="desc" onChange={handleDescChange} />
+      <input name="desc" value={desc} onChange={handleDescChange} />
       <br></br>
       <input type="file" accept="video/mp4" onChange={handleFileChange} />
       {file && status !== "uploading" && (
