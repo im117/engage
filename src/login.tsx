@@ -52,7 +52,7 @@ const Login: React.FC = () => {
             localStorage.setItem("authToken", token); // Store JWT token in localStorage
             setSuccessMessage("Login successful! Redirecting..."); // Display success message
             setTimeout(() => {
-              navigate("/videoplayer"); // Redirect to VideoPlayer after success message
+              navigate("/"); // Redirect to VideoPlayer after success message
             }, 1500); // Redirect after 1.5 seconds
           } else {
             setErrors({ ...errors, password: "Invalid email or password" });
