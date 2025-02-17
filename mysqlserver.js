@@ -75,11 +75,11 @@ export const signup = async (req, res) => {
       }
 
       // Insert new user into the database
-      const insertQuery =
+      const query =
         "INSERT INTO users (username, email, password, role, dateCreated) VALUES (?, ?, ?, ?, CURDATE())";
       const values = [username, email, hashedPassword, "user"];
 
-      db.query(insertQuery, values, (err, result) => {
+      db.query(query, values, (err, result) => {
         if (err) {
           console.error("Error inserting data: ", err);
           return res.status(500).json({ message: "Database error", error: err });
