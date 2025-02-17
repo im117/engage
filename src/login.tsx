@@ -5,26 +5,26 @@ import validation from "./loginValidation";
 import axios from "axios";
 
 interface FormValues {
-  email: string;
+  username: string;
   password: string;
 }
 
 interface FormErrors {
-  email?: string;
+  username?: string;
   password?: string;
 }
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [values, setValues] = useState<FormValues>({ email: "", password: "" });
+  const [values, setValues] = useState<FormValues>({ username: "", password: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [successMessage, setSuccessMessage] = useState<string>(""); // New state for success message
   const navigate = useNavigate();
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    setValues({ ...values, email: e.target.value });
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    setValues({ ...values, username: e.target.value });
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +41,7 @@ const Login: React.FC = () => {
 
     // Check if there are no validation errors
     if (Object.keys(validationErrors).length === 0) {
+      console.log(values); //
       // Make API call if no validation errors
       axios
         .post("http://localhost:8081/login", values)
@@ -55,20 +56,21 @@ const Login: React.FC = () => {
               navigate("/videoplayer"); // Redirect to VideoPlayer after success message
             }, 1500); // Redirect after 1.5 seconds
           } else {
-            setErrors({ ...errors, password: "Invalid email or password" });
+            setErrors({ ...errors, password: "Invalid username or password" });
           }
         })
         .catch((error) => {
           console.error("There was an error during login", error);
           if (error.response && error.response.status === 404) {
-            // Email not found error
-            setErrors({ email: "Email does not exist! Please sign up!" });
+            // Username not found error
+            setErrors({ username: "Username does not exist! Please sign up!" });
           } else if (error.response && error.response.status === 401) {
             // Invalid password
             setErrors({ password: "Incorrect password! Please try again!" });
           } else {
             // General error
             setErrors({ password: "An error occurred during login" });
+            // console.log(error);
           }
         });
     }
@@ -83,19 +85,19 @@ const Login: React.FC = () => {
         )}
         <form onSubmit={handleSubmit}>
           <div className="login__container">
-            <label htmlFor="email" className="login__label">
-              <strong>Email</strong>
+            <label htmlFor="username" className="login__label">
+              <strong>Username</strong>
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={handleEmailChange}
-              placeholder="Enter Email"
+              type="username"
+              id="username"
+              value={username}
+              onChange={handleUsernameChange}
+              placeholder="Enter Username"
               className="login__form-control"
             />
-            {errors.email && (
-              <span className="login__text-danger">{errors.email}</span>
+            {errors.username && (
+              <span className="login__text-danger">{errors.username}</span>
             )}
           </div>
           <div className="login__container">

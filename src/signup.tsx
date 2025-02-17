@@ -38,7 +38,7 @@ const Signup: React.FC = () => {
     ) {
       axios
         .post("http://localhost:8081/signup", formValues)
-        .then((response) => {
+        .then(() => {
           setSuccessMessage("You have successfully signed up! Redirecting...");
           setTimeout(() => {
             navigate("/"); // Redirect after 1.5 seconds

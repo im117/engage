@@ -100,26 +100,27 @@ app.post("/signup", (req, res) => {
   });
 });
 
+
 // Login Route (Unchanged)
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   // Basic input validation
-  if (!email || !password) {
+  if (!username || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Find user by email
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], (err, results) => {
+  // Find user by username
+  const sql = "SELECT * FROM users WHERE username = ?";
+  db.query(sql, [username], (err, results) => {
     if (err) {
       console.error("Error querying database: ", err);
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
-      // Email not found - return 404
-      return res.status(404).json({ message: "Email does not exist!" });
+      // Username not found - return 404
+      return res.status(404).json({ message: "Username does not exist!" });
     }
 
     const user = results[0];
@@ -137,7 +138,7 @@ app.post("/login", (req, res) => {
 
       // After successfully login, will generate JWT token for authentication in PrivateRoute
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, username: user.username },
         "secretkey", // Secret key for JWT
         { expiresIn: "1h" } // Token expiration time
       );
@@ -147,6 +148,7 @@ app.post("/login", (req, res) => {
         token: token,
       });
     });
+
   });
 });
 

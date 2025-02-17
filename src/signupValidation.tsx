@@ -20,7 +20,7 @@ const validation = (values: FormValues): FormErrors => {
 
   // Name validation
   if (!values.username) {
-    errors.username = "Name is required";
+    errors.username = "Username is required";
   }
 
   // Email validation
