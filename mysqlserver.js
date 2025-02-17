@@ -51,7 +51,7 @@ export const signup = async (req, res) => {
       db.query(checkUsernameQuery, [username], (err, results) => {  // Checks for unique username
         if (err) return reject(err);
         if (results.length > 0) {
-          return reject({ status: 408, message: "Username already exists" });
+          return reject({ status: 409, message: "Username already exists" });
         }
         resolve();  // Continue to the next step if username is unique
       });

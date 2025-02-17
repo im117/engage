@@ -1,45 +1,70 @@
 import supertest from "supertest";
-import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
+import { beforeEach,beforeAll, afterEach, describe, it, expect, vi } from "vitest";
 import { signup , login } from "../mysqlserver.js"
 import mysql from "mysql2";
+import bcrypt from "bcryptjs"; // For hashing passwords
 
-// Create a request instance using supertest to test signup
-const signupReq = supertest(signup);
+// MySQL connection
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "engageuser",
+  password: "engagepassword",
+  database: "engagetest",
+  port: 3306
+});
 
-// Create a request instance using supertest to test login
-const loginReq = supertest(login);
 
+const date = new Date();  // Current date and time
+// Convert JavaScript Date object to MySQL format (YYYY-MM-DD)
+const formattedDate = date.toISOString().split('T')[0]; 
 
-// Mocking mysql2.createConnection
-vi.mock("mysql2", () => ({
-  createConnection: vi.fn(() => ({
-    query: vi.fn(),
-    end: vi.fn(),
-  })),
-}));
+beforeAll(() => {
+
+  // Clear table values
+  const query1 =
+        "TRUNCATE TABLE users";
+  db.query(query1, (err, res) => {
+    if (err) {
+      console.error('Error clearing user:', err.stack);
+    } else {
+      console.log('Table cleared successfully');
+    }
+  });
+});
 
 beforeEach(() => {
-    // Reset mocks before each test
-    vi.fn().mockReset();
+  // Reset table before each test (deletes all users except the one with id = 1)
+  const query = "DELETE FROM users WHERE id != 1";
+  db.query(query, (err,res) => {
+    if (err) {
+      console.error('Error reseting user:', err.stack);
+    } else {
+      console.log('Table reset successfully');
+    }
   });
+});
 
-  describe("Signup function - Existing username", () => {
-    it("Should return error if the same username already exists", async () => {
-        const req = { body: { username: 'user', email: 'user@email.com', password: 'Pass1234' }};
-        const res = { status: vi.fn().mockReturnThis(), json: vi.fn()
+describe("Signup function - Existing username", () => {
+  it("Should return error if the same username already exists", async () => {
+    // Simulate the request and response objects
+    const req = {
+      body: {
+        username: "user", // The username that already exists
+        email: "newuser@email.com",
+        password: "Password1",
+      }
     };
-    // Mock the query to simulate an existing email
-    vi.fn().mockImplementationOnce((query, values, callback) => {
-        if (query.includes("SELECT * FROM users WHERE email = ?")) {
-          callback(null, [{ id: 1, username: "user", email: "user1@email.com" }]); // Simulate existing user, different email
-        } else {
-          callback(null, []); // Return empty for other queries
-        }
-    })
+
+    const res = {
+      status: vi.fn().mockReturnThis(), // Mock status method
+      json: vi.fn().mockReturnThis(),   // Mock json method
+    };
+
+    // Call the signup function
     await signup(req, res);
 
-    // Check that a 408 error is returned with the "Username already exists" message
-    expect(res.status).toHaveBeenCalledWith(408);
-    expect(res.json).toHaveBeenCalledWith({ message: "Username already exists"});
-    });
+    // Assert the error response
+    expect(res.status).toHaveBeenCalledWith(409); // Expect 409 for conflict
+    expect(res.json).toHaveBeenCalledWith({ message: "Username already exists" });
   });
+});

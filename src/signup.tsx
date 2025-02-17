@@ -50,12 +50,10 @@ const Signup: React.FC = () => {
           setAgreeToTerms(false);
         })
         .catch((error) => {
-          // Check if the status is 408 (Username exists) or 409 (Email exists) or some other error
+          // Check if the status is 409 (Conflict) or some other error
           if (error.response) {
-            if (error.response.status === 408) {
-              setErrorMessage("Username already exists");
-            } else if (error.response.status === 409) {
-              setErrorMessage("Email already exists");
+            if (error.response.status === 409) {
+              setErrorMessage(error.response.data.message); // Sets error message to error message as written in route
             } else {
               setErrorMessage("An unexpected error occurred. Please try again.");
             }        
