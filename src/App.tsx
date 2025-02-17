@@ -88,6 +88,9 @@ function VideoPlayer() {
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
+  const handleBackToLogin = () => {
+    navigate("/login");
+  };
 
   // const handlePrevious = () => {
   //   setVideoIndex((prevIndex) => (prevIndex - 1 + filteredArray.length) % filteredArray.length);
@@ -139,6 +142,11 @@ function VideoPlayer() {
           Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
         </button>
       </div>
+      <div className="login-button-section">
+        <button className="control-button" onClick={handleBackToLogin}>
+          Log In <i className="fa solid fa-right-to-bracket"></i>
+        </button>
+      </div>
     </div>
   );
 }
@@ -146,14 +154,14 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<VideoPlayer />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
           <Route path="/upload" element={<Upload />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/videoplayer" element={<VideoPlayer />} />
         </Route>
       </Routes>
     </BrowserRouter>

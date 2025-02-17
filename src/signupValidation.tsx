@@ -16,7 +16,7 @@ const validation = (values: FormValues): FormErrors => {
   const errors: FormErrors = {};
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d]{8,}$/;
+  const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
 
   // Name validation
   if (!values.name) {
@@ -35,7 +35,7 @@ const validation = (values: FormValues): FormErrors => {
     errors.password = "Password is required";
   } else if (!passwordPattern.test(values.password)) {
     errors.password =
-      "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, and one number.";
+      "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number and one special character.";
   }
 
   // Confirm password validation
