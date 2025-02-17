@@ -144,7 +144,7 @@ function VideoPlayer() {
       </div>
       <div className="login-button-section">
         <button className="control-button" onClick={handleBackToLogin}>
-          Log In <i className="fa-solid fa-arrow-right"></i>
+          Log In <i className="fa solid fa-right-to-bracket"></i>
         </button>
       </div>
     </div>
