@@ -40,26 +40,38 @@ app.post("/signup", (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Check if the email already exists
+  // Selects queries to be checked for uniqueness
+  const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkEmailQuery, [email], (err, results) => {
-    if (err) {
-      console.error("Error checking email existence: ", err);
-      return res.status(500).json({ message: "Database error", error: err });
-    }
 
-    if (results.length > 0) {
-      return res.status(409).json({ message: "Email already exists" });
-    }
-
-    // If email is unique, hash the password before storing
+  // Promise allows multiple checks in succession before an action
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.query(checkUsernameQuery, [username], (err, results) => {  // Checks for unique username
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 408, message: "Username already exists" });
+        }
+        resolve();  // Continue to the next step if username is unique
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(checkEmailQuery, [email], (err, results) => {  // Checks for unique email
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 409, message: "Email already exists" });
+        }
+        resolve();  // Continue to the next step if email is unique
+      });
+    }),
+  ])
+  .then(() => {
+    // If username and email are unique, hash the password before storing
     bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
         console.error("Error hashing password: ", err);
         return res.status(500).json({ message: "Server error" });
       }
-
-      // console.log("HELLO");
 
       // Insert new user into the database
       const insertQuery =
@@ -69,16 +81,22 @@ app.post("/signup", (req, res) => {
       db.query(insertQuery, values, (err, result) => {
         if (err) {
           console.error("Error inserting data: ", err);
-          return res
-            .status(500)
-            .json({ message: "Database error", error: err });
+          return res.status(500).json({ message: "Database error", error: err });
         }
         return res.status(201).json({
-          message: "User signed up successfully",
-          userId: result.insertId,
+          message: "User signed up successfully"
         });
       });
     });
+  })
+  .catch((error) => {
+    // Handle errors from either username or email check
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message });
+    }
+    // For any other errors (e.g., database error)
+    console.error("Error: ", error);
+    return res.status(500).json({ message: "Database error", error });
   });
 });
 
