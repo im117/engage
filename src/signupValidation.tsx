@@ -35,7 +35,7 @@ const validation = (values: FormValues): FormErrors => {
     errors.password = "Password is required";
   } else if (!passwordPattern.test(values.password)) {
     errors.password =
-      "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, and one number and one special character.";
+      "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number and one special character.";
   }
 
   // Confirm password validation
