@@ -10,10 +10,14 @@
     "docker": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "axios": "^1.7.9",
+    "axios-mock-adapter": "^2.1.0",
     "bcryptjs": "^2.4.3",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
@@ -23,6 +27,7 @@
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
     "mkdirp": "^3.0.1",
+    "msw": "^2.7.0",
     "multer": "^1.4.4",
     "mysql": "^2.18.1",
     "mysql2": "^3.12.0",
@@ -35,11 +40,11 @@
     "react-router-dom": "^7.1.5",
     "routes": "^2.1.0",
     "save-dev": "^0.0.1-security",
-    "vite-plugin-fs": "^1.1.0",
-    "vitest": "^3.0.3"
+    "vite-plugin-fs": "^1.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/node": "^22.10.10",
     "@types/path-browserify": "^1.0.3",
     "@types/react": "^18.3.18",
@@ -49,10 +54,12 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "jsdom": "^26.0.0",
     "sass": "^1.83.4",
     "sass-embedded": "^1.83.4",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^3.0.5"
   }
 }
