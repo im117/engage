@@ -26,4 +26,31 @@ describe("Signup Component", () => {
     const nameError = screen.getByText(/name is required/i);
     expect(nameError).toBeInTheDocument();
   });
+  it("should display validation error for password not meeting the requirements", () => {
+    render(
+      <BrowserRouter>
+        <Signup />
+      </BrowserRouter>
+    );
+
+    // Simulate checking the checkbox to enable the submit button
+    const checkbox = screen.getByLabelText(
+      /i agree to the terms and conditions/i
+    );
+    fireEvent.click(checkbox);
+
+    // Enter a password that doesn't meet the requirements
+    const passwordInput = screen.getByPlaceholderText(/enter password/i);
+    fireEvent.change(passwordInput, { target: { value: "password" } });
+
+    // Simulate form submission
+    const submitButton = screen.getByRole("button", { name: /sign up/i });
+    fireEvent.click(submitButton);
+
+    // Check for password validation error
+    const passwordError = screen.getByText(
+      /password must be at least 8 characters long/i
+    );
+    expect(passwordError).toBeInTheDocument();
+  });
 });
