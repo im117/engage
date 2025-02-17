@@ -16,7 +16,7 @@ const validation = (values: FormValues): FormErrors => {
   const errors: FormErrors = {};
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d]{8,}$/;
+  const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
 
   // Name validation
   if (!values.name) {
