@@ -1,126 +1,229 @@
-@import 'global.scss'; // Import global styles (e.g., colors, fonts, resets, etc.)
+@use 'global' as *; // Import global styles (e.g., colors, fonts, resets, etc.)
 
+//  Outer wrapper for the entire user page (full viewport)
 .user-page-wrapper {
-  // Outer wrapper for the entire user page (covers the full viewport)
   position: relative;
   width: 100vw;
+  min-width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center; // Centers content horizontally
   align-items: center; // Centers content vertically
 }
 
+//  Main container with smooth transition effects
 .user-container {
-  // Main container for the video grid, username, and home button
-  position: relative;
-  width: 90vw;
-  height: 80vh;
-  background: white;
-  border: 1px solid #ddd; // Subtle border
-  border-radius: 10px; // Rounded corners
-  padding: 20px; // Inner spacing
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Light shadow for elevation
   display: flex;
-  flex-direction: column; // Stack content vertically
-  justify-content: flex-start;
-  align-items: center;
-  transition: filter 0.3s ease; // Smooth transition when applying blur effect
+  flex-direction: column;
+  align-items: center; // Centers children horizontally
+  transition: filter 0.3s ease, transform 0.2s ease-in-out;
 
+  //  Blur effect when a video is opened in fullscreen
   &.blur {
-    // When the fullscreen video overlay is open, blur the background content
     filter: blur(8px);
+  }
+
+  //  Jitter effect when trying to swipe past available pages
+  &.jitter {
+    animation: jitter-animation 0.4s ease-in-out;
   }
 }
 
+//  Jitter animation (slight shaking effect)
+@keyframes jitter-animation {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-4px); }
+}
+
+//  Content box with elevation and rounded corners
+.content-container {
+  display: flex;
+  min-width: 1000px;
+  flex-direction: column;
+  align-items: center;
+  background-color: white; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+//  "My Videos" section title
+.my-videos-container {
+  background-color: darkgreen;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+//  Video grid container with smooth page transition effect
 .video-grid {
-  // Grid layout to display video thumbnails (3 columns)
   display: grid;
-  grid-template-columns: repeat(3, 1fr); // 3 equal-width columns
-  gap: 15px; // Space between grid items
-  background-color: #e0ffe0; // Light green background
+  grid-template-columns: repeat(3, 1fr); // 3-column layout
+  gap: 2%;
+  background-color: #c9d6c9;
   width: 100%;
-  height: 73vh; // Increased height to give more space for videos
+  min-width: 100%;
+  height: 73vh;
+  min-height: 73vh;
   border-radius: 10px;
   padding: 10px;
   box-sizing: border-box;
-  align-content: center; // Center grid items vertically if fewer videos
+  align-content: center;
+  position: relative;
+  overflow: hidden;
+
+  // 📝 When empty, keep the container height and display the text properly
+  &:empty {
+    display: flex; // Flexbox to center text
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 📝 Empty state message when no videos exist
+.no-videos-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  color: rgba(0, 0, 0, 0.5); // Semi-transparent effect
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  text-align: center;
 }
 
-.video-thumbnail {
-  // Individual video thumbnail (small oval shape)
-  background-color: #f9f9f9;
-  border-radius: 50px; // Oval shape
-  width: 100%;
-  height: 120px; // Fixed height for consistency across all ovals
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; // Crop any overflowing video content
-  cursor: pointer; // Indicate clickable area
-  position: relative;
+  // Adding animation for smooth page transitions
+  &.slide-enter {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 
-  .thumbnail-video {
-    // Video inside the oval thumbnail
-    width: 100%;
-    height: 100%;
-    object-fit: cover; // Video will cover the oval shape (may crop)
+
+  &.slide-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.5s ease-out, opacity 0.3s ease-out;
+  }
+
+  &.slide-exit {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  &.slide-exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.5s ease-in, opacity 0.3s ease-in;
   }
 }
 
+// Individual video thumbnail container
+.video-thumbnail {
+  background-color: transparent;
+  border-radius: 15px;
+  width: 100%;
+  height: 85%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease;
+  margin-top: 18px;
+
+  // Hover effect for a slight zoom-in
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  //  Styling for the actual video thumbnail inside the container
+  .thumbnail-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+}
+
+//  Username display (below the videos)
 .username-display {
-  // Text display for the logged-in user's username
-  margin-top: 4px; // Reduced margin to minimize space below the videos
-  font-size: 1rem; // Slightly smaller text for a subtle look
+  margin-top: 4px;
+  font-size: 1rem;
   color: #333;
   font-family: Arial, sans-serif;
   font-weight: bold;
 }
 
+//  Username text styling
 .username {
-  // Styling specifically for the username text itself (green)
   color: #065527;
 }
 
+//  Home button styling with hover effects
 .home-button {
-  // Button to return to the home page
-  margin-top: 2px; // Reduced margin to reduce space below username
+  margin-top: 2px;
   background-color: #065527;
   color: white;
-  padding: 6px 18px; // Smaller button padding
+  padding: 6px 18px;
   border: none;
-  border-radius: 19px; // Rounded button shape
+  border-radius: 19px;
   cursor: pointer;
-  font-size: 0.9rem; // Slightly smaller text size
-  font-family: Courier New;
+  font-size: 0.9rem;
+  font-family: 'Courier New', Courier, monospace;
   text-shadow: 0px 0px 13px #283966;
   border: 2px solid #4e6096;
-  transition: transform 0.2s ease; // Smooth zoom effect on hover
+  transition: transform 0.2s ease, background 0.3s ease-in-out;
 
   &:hover {
-    background-color: #004488; // Darker blue on hover
-    transform: scale(1.05); // Slight zoom effect on hover
+    background-color: #004488;
+    transform: scale(1.05);
   }
 }
 
+// Fullscreen video overlay when a video is clicked
 .fullscreen-overlay {
-  // Fullscreen overlay that appears when a video is enlarged
-  position: fixed;
+  position: fixed; // Keeps it on top of everything
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8); // Semi-transparent dark background
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8); // Dark semi-transparent background
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000; // Ensure it appears above other content
+  justify-content: center;
+  z-index: 1000; // Ensures it's above everything else
 }
 
+//  Fullscreen video styling
 .fullscreen-video {
-  // Enlarged video player (rounded rectangle shape) when a video is clicked
-  width: 80vw; // 80% of viewport width
-  height: 45vh; // 45% of viewport height
-  object-fit: contain; // Video will fit inside the shape without cropping
-  background-color: black;
-  border-radius: 20px; // Rounded corners for the video player
+  max-width: 90%; // Prevents excessive stretching
+  max-height: 90%; // Ensures it fits the screen
+  border-radius: 8px; // Soft edges
+}
+
+//  Mobile Responsiveness Adjustments
+@media (max-width: 768px) {
+  .video-grid {
+    grid-template-columns: repeat(2, 1fr); // Adjust to 2 columns for tablets
+  }
+
+  .home-button {
+    width: 100%; // Full-width button for easier tap access
+  }
+}
+
+@media (max-width: 480px) {
+  .video-grid {
+    grid-template-columns: repeat(1, 1fr); // Show only 1 video per row for mobile
+  }
+
+  .user-container {
+    padding: 10px; // Reduce padding to better fit small screens
+  }
 }
