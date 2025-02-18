@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles/login.scss";
 import validation from "./loginValidation";
@@ -21,7 +21,20 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [successMessage, setSuccessMessage] = useState<string>(""); // New state for success message
   const navigate = useNavigate();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // New state to track authentication check
 
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      navigate("/"); // If token exists, navigate to the videoplayer
+    } else {
+      setIsCheckingAuth(false); // Allow the login page to render if no token
+    }
+  }, [navigate]);
+
+  if (isCheckingAuth) {
+    return <div>Loading...</div>; // Prevent flickering by showing a temporary loading message
+  }
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     setValues({ ...values, email: e.target.value });
