@@ -127,10 +127,7 @@ function VideoPlayer() {
         </button>
       </div>
       <div className="upload-section">
-        <button
-          className="upload-button"
-          onClick={() => (window.location.href = "/upload.html")}
-        >
+        <button className="upload-button" onClick={() => navigate("/upload")}>
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>

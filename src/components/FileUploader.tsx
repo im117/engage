@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import "dotenv";
 
-let uploadServer = "http://localhost:3000";
+let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
@@ -77,14 +77,9 @@ export default function FileUploader() {
     formData.append("title", title);
     formData.append("description", desc);
 
-    const token = localStorage.getItem("token"); // Retrieve JWT token
+    const token = localStorage.getItem("authToken"); // Retrieve JWT token
     try {
-      await axios
-        .post("http://localhost:3000/record", values)
-        .then((response) => {
-          console.log(response.data);
-        });
-      await axios.post("http://localhost:3000/upload", formData, {
+      await axios.post("http://localhost:3001/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: token ? token : "", // Send token in header
