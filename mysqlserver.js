@@ -111,10 +111,10 @@ export const login = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Find user by username
+  // Find user by username or email
   const query = "SELECT * FROM users WHERE username = ? OR email = ? ";
-
-  db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => {
+  // UsernameOrEmail fills in for both ?
+  db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => { 
     if (err) {
       console.error("Error querying database: ", err);
       return res.status(500).json({ message: "Database error", error: err });
