@@ -1,8 +1,7 @@
 @use 'global.scss' as *;
 
-
-body{
-    display: flex;
+body {
+  display: flex;
 }
 .app-container {
   position: relative; // Ensure container acts as a positioning context
@@ -40,22 +39,27 @@ body{
   width: 100%; // Ensure controls take up full width
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .control-button {
-  background-color:#065527;
-  border-radius:19px;
-  border:2px solid #4e6096;
-  // display:inline-block;
-  cursor:pointer;
-  color:#ffffff;
-  font-family:Courier New;
-  font-size:16px;
-  font-weight:bold;
-  padding:16px 31px;
-  text-decoration:none;
-  text-shadow:0px 0px 13px #283966;
-
+  background-color: #065527;
+  border-radius: 19px;
+  border: 2px solid #4e6096;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Courier New;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  flex: 0; // Prevent automatic flex growth
+  width: auto; // Let buttons size to their content
+  min-width: 120px; // Optional: Ensure a minimum width
+  display: inline-block;
   &:hover {
     background-color: $button-hover-color;
   }
@@ -65,6 +69,19 @@ body{
   position: absolute; // Allows precise positioning within app-container
   top: 20px; // Align to the top of app-container
   right: 20px; // Align to the right of app-container
+}
+
+.login-button-section {
+  position: absolute; // Allows precise positioning within app-container
+  top: 20px; // Align to the top of app-container
+  left: 20px; // Align to the right of app-container
+}
+
+.back-button-section {
+  position: absolute; // Allows precise positioning within app-container
+  bottom: 20px; // Align to the bottom of app-container
+  left: 50%; // Align to the center of app-container
+  transform: translateX(-50%); // Adjust position to truly center
 }
 
 @keyframes engage {
@@ -79,7 +96,7 @@ body{
   }
 }
 
-@keyframes engage-fade{
+@keyframes engage-fade {
   0% {
     background-color: #e0ffe0; // Dark Green
   }
@@ -89,28 +106,27 @@ body{
 }
 
 .upload-button {
-      background-color:#065527;
-      border-radius:19px;
-      border:2px solid #4e6096;
-      display:inline-block;
-      cursor:pointer;
-      color:#ffffff;
-      font-family:Courier New;
-      font-size:16px;
-      font-weight:bold;
-      padding:16px 31px;
-      text-decoration:none;
-      text-shadow:0px 0px 13px #283966;
-      transition: all ease-out 0.3s;
-  
+  background-color: #065527;
+  border-radius: 19px;
+  border: 2px solid #4e6096;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Courier New;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  transition: all ease-out 0.3s;
+
   &:hover {
-    font-size:24px;
+    font-size: 24px;
     transition: all ease-out 0.3s;
     animation: engage 1s infinite;
-
   }
   &:active {
-      position:relative;
-      top:1px;
+    position: relative;
+    top: 1px;
   }
 }

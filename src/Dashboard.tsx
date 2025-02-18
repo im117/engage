@@ -9,11 +9,11 @@ const Dashboard: React.FC = () => {
     // Clear the authentication token from localStorage
     localStorage.removeItem("authToken");
     // Navigate to login page
-    navigate("/");
+    navigate("/login");
   };
 
   const handleGoToVideoPlayer = () => {
-    navigate("/videoplayer");
+    navigate("/");
   };
 
   return (
