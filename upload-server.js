@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 
 const app = express();
 const port = 3001;
@@ -73,6 +74,9 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // console.log("File data:", req.file);
   // console.log("Request body:", req.body);
   // console.log("Decoded JWT:", req.user);
+  // Delete the video file from the server
+  const filePath = path.join('./media', req.file.filename);
+  
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -81,10 +85,24 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   const { title, description } = req.body;
   const creatorId = req.user.userId; // Extract user ID from JWT
   if (!creatorId) {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+      } else {
+        console.log("File deleted successfully");
+      }
+    });
     return res.status(400).json({ message: "Invalid creator ID" });
   }
 
-  if (!title || !description) {
+  if (!title) {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+      } else {
+        console.log("File deleted successfully");
+      }
+    });
     return res
       .status(400)
       .json({ message: "Title and description are required" });
@@ -97,6 +115,13 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
     [creatorId, title, description, req.file.filename],
     (err, result) => {
       if (err) {
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Error deleting file: ", err);
+          } else {
+            console.log("File deleted successfully");
+          }
+        });
         console.error("Error inserting video into database: ", err);
         return res.status(500).json({ message: "Database error", error: err });
       }

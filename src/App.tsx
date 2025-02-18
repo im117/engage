@@ -130,8 +130,10 @@ function VideoPlayer() {
     });
 
     creatorName = await getUserInfo(userid);
-
-    alert(`Title: ${title}\nDescription: ${desc}\nCreator: ${creatorName}`);
+    if(desc == "" || desc == undefined){
+      desc = "No description provided";
+    }
+    alert(`Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`);
   }
 
   

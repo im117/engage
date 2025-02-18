@@ -12,7 +12,7 @@ CREATE TABLE videos(
     id int AUTO_INCREMENT,
     creator_id int NOT NULL, -- NOT NULL REMOVED FOR TESTING
     title text NOT NULL,
-    description text NOT NULL,
+    description text,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fileName text NOT NULL,
     PRIMARY KEY(id),

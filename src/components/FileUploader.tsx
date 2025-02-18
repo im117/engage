@@ -121,7 +121,7 @@ export default function FileUploader() {
         </div>
       )}
       {status === "success" && <p>Success!</p>}
-      {status === "error" && <p>Upload error, please try again</p>}
+      {status === "error" && <p>Upload error, please try again. (Title is required)</p>}
     </div>
   );
 }
