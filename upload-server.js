@@ -48,33 +48,54 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.post("/upload", upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded');
+// Middleware to authenticate JWT
+const authenticateToken = (req, res, next) => {
+  const token = req.header("Authorization");
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
-  res.status(200).send({ message: 'File uploaded successfully!' });
-});
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+    req.user = decoded; // Attach decoded user info to request
+    next();
+  });
+};
+
+// Upload video with authentication
+app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  const { title, description } = req.body;
+  const creatorId = req.user.userId; // Extract user ID from JWT
+
+  if (!title || !description) {
+    return res.status(400).json({ message: "Title and description are required" });
+  }
 
 app.post("/record", (req, res) => {
   // console.log(req.body);
   const { title, desc, fileName } = req.body;
 
   const insertQuery =
-  "INSERT INTO videos (title, description, fileName) VALUES (?, ?, ?)"
-  const values = [title, desc, fileName]
-  db.query(insertQuery, values, (err, result) => {
-    if (err) {
-      console.error("Error inserting data: ", err);
-      return res
-        .status(500)
-        .json({ message: "Database error", error: err });
+    "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
+  db.query(
+    insertQuery,
+    [creatorId, title, description, req.file.filename],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting video into database: ", err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      return res.status(200).json({ message: "File uploaded successfully!" });
     }
-    return res.status(201).json({
-      message: "Video stored successfully",
-      videoId: result.insertId,
-    });
-  })
-})
+  );
+});
 
 app.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);
