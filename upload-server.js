@@ -70,9 +70,9 @@ const authenticateToken = (req, res, next) => {
 
 // Upload video with authentication
 app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
-  console.log("File data:", req.file);
-  console.log("Request body:", req.body);
-  console.log("Decoded JWT:", req.user);
+  // console.log("File data:", req.file);
+  // console.log("Request body:", req.body);
+  // console.log("Decoded JWT:", req.user);
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -104,6 +104,51 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
       return res.status(200).json({ message: "File uploaded successfully!" });
     }
   );
+});
+
+// Get user info
+app.get("/user", (req, res) => {
+  const { userID: userid } = req.query;
+
+  if (!userid) {
+    return res.status(400).json({ message: "UserID is required" });
+  }
+  const selectQuery = "SELECT * FROM users WHERE id = ?";
+  db.query(selectQuery, [userid], (err, results) => {
+    if (err) {
+      console.error("Error fetching user from database: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(results[0]);
+  });
+}
+);
+// Get Video info
+app.get("/video", (req, res) => {
+  const { fileName: filename } = req.query;
+
+  if (!filename) {
+    return res.status(400).json({ message: "Filename is required" });
+  }
+
+  const selectQuery = "SELECT * FROM videos WHERE fileName = ?";
+  db.query(selectQuery, [filename], (err, results) => {
+    if (err) {
+      console.error("Error fetching video from database: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    return res.status(200).json(results[0]);
+  });
 });
 
 app.listen(port, () => {

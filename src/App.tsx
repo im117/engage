@@ -11,27 +11,16 @@ import ResetPassword from "./resetPassword.tsx";
 import { useNavigate } from "react-router-dom";
 import path from "path-browserify";
 import Upload from "./upload.tsx";
+import axios from "axios";
 
-// import fs from "vite-plugin-fs/browser";
+
 const videos = import.meta.glob("../media/*.mp4");
 
-// const mediaPath: string = './media';
-
-// const currentVideoIndex = 0;
 
 async function createVideoArray() {
-  // const files = await fs.readdir(dirPath);
+
   const vidPaths: Array<string | null> = []; //video paths
 
-  // for (const file of files){
-  //   const filePath = path.join(dirPath, file); //specific file path of file
-  //   // const stat = ;
-  //   // const stat = await fs.stat(filePath);
-  //   const ext = path.extname(file).toLowerCase();
-  //     if (ext === '.mp4' || ext === '.mov' || ext === '.avi' || ext === '.mkv' || ext === '.webm') {
-  //       vidPaths.push(filePath);
-  //   }
-  // }]
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase();
     if (ext === ".mp4") vidPaths.push(videoKey);
@@ -59,7 +48,7 @@ const array: Array<string | null> = await createVideoArray();
 randomizeArray(array);
 
 const filteredArray = array.filter((item) => item !== undefined);
-console.log(filteredArray);
+// console.log(filteredArray);
 
 function VideoPlayer() {
   let initState = 1;
@@ -99,6 +88,54 @@ function VideoPlayer() {
   // };
   // setVideoIndex(0);
   // initializeVideoRef();
+// Function to get user info from API
+  async function getUserInfo(userid: number){
+    let creatorName = "";
+    await axios.get("http://localhost:3001/user", {
+      params:{
+        userID: userid
+      }
+    })
+    .then(response => {
+      creatorName = response.data.name;
+    })
+    return creatorName as string;
+  }
+  // Function to grab video information from API
+  async function getVideoInfo(){
+    let title = "";
+    let desc = "";
+    let userid = 0;
+    let creatorName = "";
+    // Get the previousIndex and previousVideo, since index seeks ahead at the moment
+    const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
+    const previousVideo = filteredArray[previousIndex] || "";
+
+    // Get video info
+    await axios.get("http://localhost:3001/video", {
+      params: {
+      fileName: previousVideo.substring(previousVideo.lastIndexOf('/') + 1)
+      }
+    })
+    .then(response => {
+      
+      // get user info
+      title = response.data.title;
+      desc = response.data.description;
+      userid = response.data.creator_id;
+      
+    })
+    .catch(error => {
+      alert(`There was an error fetching the video info!\n\n${error}`);
+    });
+
+    creatorName = await getUserInfo(userid);
+
+    alert(`Title: ${title}\nDescription: ${desc}\nCreator: ${creatorName}`);
+  }
+
+  
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
@@ -135,6 +172,9 @@ function VideoPlayer() {
         <button className="control-button" onClick={handleBackToDashboard}>
           Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
         </button>
+        <div className="control-button" onClick={getVideoInfo}>
+          INFO
+        </div>
       </div>
     </div>
   );
