@@ -15,6 +15,6 @@ CREATE TABLE videos(
     description text NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fileName text NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
     FOREIGN KEY (creator_id) REFERENCES users(id)
 );
