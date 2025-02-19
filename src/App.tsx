@@ -87,9 +87,9 @@ function Home(){
   };
 
   const navigate = useNavigate(); // Hook to navigate to other pages
-  const handleBackToDashboard = () => {
-    navigate("/dashboard");
-  };
+  // const handleBackToDashboard = () => {
+  //   navigate("/dashboard");
+  // };
   const handleBackToLogin = () => {
     navigate("/login");
   };
@@ -342,7 +342,7 @@ function App() {
         <Route element={<PrivateRoute />}>
         <Route path="/user" element={<User />} />
           <Route path="/upload" element={<Upload />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
