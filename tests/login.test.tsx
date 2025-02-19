@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
-import Login from "../login.tsx";
+import Login from "../src/login.tsx";
 
 describe("Login Component", () => {
   // Test case 1: Empty email and password
@@ -55,8 +55,8 @@ describe("Login Component", () => {
     );
 
     // Enter a valid email
-    const emailInput = screen.getByPlaceholderText(/enter email/i);
-    fireEvent.change(emailInput, { target: { value: "valid@example.com" } });
+    const uesrnameOrEmail = screen.getByPlaceholderText(/Enter Username OR Email/i);
+    fireEvent.change(uesrnameOrEmail, { target: { value: "valid@example.com" } });
 
     // Enter a valid password
     const passwordInput = screen.getByPlaceholderText(/enter password/i);

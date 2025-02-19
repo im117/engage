@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
-import Signup from "../signup"; // Adjust path if necessary
+import Signup from "../src/signup"; // Adjust path if necessary
 
 describe("Signup Component", () => {
   // Test case 1: Empty name
