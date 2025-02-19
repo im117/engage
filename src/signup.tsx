@@ -5,14 +5,14 @@ import validation from "./signupValidation";
 import axios from "axios";
 
 const Signup: React.FC = () => {
-  const [name, setName] = useState<string>("");
+  const [username, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [agreeToTerms, setAgreeToTerms] = useState<boolean>(false); // New state for the checkbox
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errors, setErrors] = useState<{
-    name?: string;
+    username?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -23,14 +23,14 @@ const Signup: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formValues = { name, email, password, confirmPassword };
+    const formValues = { username, email, password, confirmPassword };
     const validationErrors = validation(formValues);
     setErrors(validationErrors);
     setErrorMessage("");
     setSuccessMessage("");
 
     if (
-      !validationErrors.name &&
+      !validationErrors.username &&
       !validationErrors.email &&
       !validationErrors.password &&
       !validationErrors.confirmPassword &&
@@ -38,7 +38,7 @@ const Signup: React.FC = () => {
     ) {
       axios
         .post("http://localhost:8081/signup", formValues)
-        .then((response) => {
+        .then(() => {
           setSuccessMessage("You have successfully signed up! Redirecting...");
           setTimeout(() => {
             navigate("/"); // Redirect after 1.5 seconds
@@ -50,11 +50,14 @@ const Signup: React.FC = () => {
           setAgreeToTerms(false);
         })
         .catch((error) => {
-          if (error.response && error.response.status === 409) {
-            setErrorMessage("Email already exists");
-          } else {
-            setErrorMessage("An unexpected error occurred. Please try again.");
-          }
+          // Check if the status is 409 (Conflict) or some other error
+          if (error.response) {
+            if (error.response.status === 409) {
+              setErrorMessage(error.response.data.message); // Sets error message to error message as written in route
+            } else {
+              setErrorMessage("An unexpected error occurred. Please try again.");
+            }        
+          }   
         });
     }
   };
@@ -73,18 +76,18 @@ const Signup: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <div className="signup__form-group">
               <label htmlFor="name" className="signup__label">
-                <strong>Name</strong>
+                <strong>Username</strong>
               </label>
               <input
                 type="text"
                 id="name"
-                value={name}
+                value={username}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter Name"
+                placeholder="Enter Username"
                 className="signup__form-control"
               />
-              {errors.name && (
-                <span className="signup__text-danger">{errors.name}</span>
+              {errors.username && (
+                <span className="signup__text-danger">{errors.username}</span>
               )}
             </div>
 

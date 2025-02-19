@@ -2,14 +2,14 @@ interface FormValues {
   email: string;
   password: string;
   confirmPassword: string;
-  name: string;
+  username: string;
 }
 
 interface FormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
-  name?: string;
+  username?: string;
 }
 
 const validation = (values: FormValues): FormErrors => {
@@ -19,8 +19,8 @@ const validation = (values: FormValues): FormErrors => {
   const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
 
   // Name validation
-  if (!values.name) {
-    errors.name = "Name is required";
+  if (!values.username) {
+    errors.username = "Username is required";
   }
 
   // Email validation

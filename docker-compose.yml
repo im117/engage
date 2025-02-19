@@ -22,8 +22,7 @@ services:
     ports:
       - "3000:3000" # for upload server
   db:
-    image: mysql
-    privileged: true
+    image: mysql:latest
     environment:
       MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
       MYSQL_ROOT_PASSWORD: pass123

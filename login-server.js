@@ -16,9 +16,10 @@ app.use(cors());
 // MySQL connection
 const db = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "pass123",
+  user: "engageuser",
+  password: "engagepassword",
   database: "engage",
+  port: 3306
 });
 
 // Connect to MySQL
@@ -30,28 +31,43 @@ db.connect((err) => {
   console.log("Login Server Connected to MySQL database");
 });
 
+
 // Signup Route
-app.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+export const signup = async (req, res) => {
+  const { username, email, password } = req.body;
 
   // Basic input validation
-  if (!name || !email || !password) {
+  if (!username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Check if the email already exists
+  // Selects queries to be checked for uniqueness
+  const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
-  db.query(checkEmailQuery, [email], (err, results) => {
-    if (err) {
-      console.error("Error checking email existence: ", err);
-      return res.status(500).json({ message: "Database error", error: err });
-    }
 
-    if (results.length > 0) {
-      return res.status(409).json({ message: "Email already exists" });
-    }
-
-    // If email is unique, hash the password before storing
+  // Promise allows multiple checks in succession before an action
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.query(checkUsernameQuery, [username], (err, results) => {  // Checks for unique username
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 409, message: "Username already exists" });
+        }
+        resolve();  // Continue to the next step if username is unique
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(checkEmailQuery, [email], (err, results) => {  // Checks for unique email
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 409, message: "Email already exists" });
+        }
+        resolve();  // Continue to the next step if email is unique
+      });
+    }),
+  ])
+  .then(() => {
+    // If username and email are unique, hash the password before storing
     bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
         console.error("Error hashing password: ", err);
@@ -59,25 +75,31 @@ app.post("/signup", (req, res) => {
       }
 
       // Insert new user into the database
-      const insertQuery =
-        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-      const values = [name, email, hashedPassword];
+      const query =
+        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+      const values = [username, email, hashedPassword, "user"];
 
-      db.query(insertQuery, values, (err, result) => {
+      db.query(query, values, (err, result) => {
         if (err) {
           console.error("Error inserting data: ", err);
-          return res
-            .status(500)
-            .json({ message: "Database error", error: err });
+          return res.status(500).json({ message: "Database error", error: err });
         }
         return res.status(201).json({
-          message: "User signed up successfully",
-          userId: result.insertId,
+          message: "User signed up successfully"
         });
       });
     });
-  });
+  })
+.catch((error) => {
+  // Handle errors from either username or email check
+  if (error.status) {
+    return res.status(error.status).json({ message: error.message });
+  }
+  // For any other errors (e.g., database error)
+  console.error("Error: ", error);
+  return res.status(500).json({ message: "Database error", error });
 });
+};
 
 
 const authenticateTokenGet = (req, res, next) => {
@@ -98,24 +120,25 @@ const authenticateTokenGet = (req, res, next) => {
 
 // Login Route (Unchanged)
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
+  const { usernameOrEmail, password } = req.body;
 
   // Basic input validation
-  if (!email || !password) {
+  if (!usernameOrEmail || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Find user by email
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], (err, results) => {
+  // Find user by username or email
+  const query = "SELECT * FROM users WHERE username = ? OR email = ? ";
+  // UsernameOrEmail fills in for both ?
+  db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => { 
     if (err) {
       console.error("Error querying database: ", err);
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
-      // Email not found - return 404
-      return res.status(404).json({ message: "Email does not exist!" });
+      // User not found - return 404
+      return res.status(404).json({ message: "User does not exist!" });
     }
 
     const user = results[0];
@@ -126,14 +149,14 @@ app.post("/login", (req, res) => {
         console.error("Error comparing passwords: ", err);
         return res.status(500).json({ message: "Server error" });
       }
-
+      // Passwords don't match
       if (!isMatch) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       // After successfully login, will generate JWT token for authentication in PrivateRoute
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, username: user.username },
         "secretkey", // Secret key for JWT
         { expiresIn: "1h" } // Token expiration time
       );
@@ -146,7 +169,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-app.get("/current-user", authenticateTokenGet, (req, res) => {
+app.get("/current-user-id", authenticateTokenGet, (req, res) => {
   // req user for requests
   return res.status(200).json({ userId: req.user.userId });
 })
@@ -216,6 +239,10 @@ app.post("/verifyToken", (req, res) => {
     res.json({ valid: true });
   });
 });
+
+// Register routes
+app.post("/signup", signup);
+// app.post("/login", login);
 
 // Start the Server
 app.listen(port, () => {

@@ -1,12 +1,13 @@
 use engage;
 
-CREATE TABLE users(
-    id INT AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(id)
+
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+	username VARCHAR(20)  UNIQUE,
+    email VARCHAR(50) UNIQUE,
+    password VARCHAR(250),
+    role VARCHAR(10),
+    dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE videos(
     id int AUTO_INCREMENT,

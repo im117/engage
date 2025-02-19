@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 // React hooks: useState (state), useEffect (side effects), useRef (persistent value)
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
-import Dashboard from "./Dashboard";
+// import Dashboard from "./Dashboard";
 import PrivateRoute from "./PrivateRoute"; //
 import ResetPassword from "./resetPassword.tsx";
 import ReactPlayer from 'react-player'; // Library for embedding and playing videos
@@ -103,7 +103,7 @@ async function getUsername(userid: number){
     }
   })
   .then(response => {
-    creatorName = response.data.name;
+    creatorName = response.data.username;
   })
   return creatorName as string;
 }
@@ -152,7 +152,7 @@ async function getLoggedInUserId(){
   const token = localStorage.getItem("authToken");
   if (token) {
     try {
-      const response = await axios.get("http://localhost:8081/current-user", {
+      const response = await axios.get("http://localhost:8081/current-user-id", {
         params: {
           auth: token ? token : "",
         }

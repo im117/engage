@@ -55,7 +55,7 @@ function User() {
       const token = localStorage.getItem("authToken");
       if (token) {
         try {
-          await axios.get("http://localhost:8081/current-user", {
+          await axios.get("http://localhost:8081/current-user-id", {
             params: {
               auth: token ? token : "",
             }
@@ -82,7 +82,7 @@ function User() {
         }
       })
       .then(response => {
-        username = response.data.name;
+        username = response.data.username;
       })
       setUsername(username as string);
     }
