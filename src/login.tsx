@@ -72,7 +72,7 @@ const Login: React.FC = () => {
         .post(`${loginServer}/login`, values)
         .then((response) => {
           // Check if the response has a token or success message
-          console.log(response.data);
+          // console.log(response.data);
           const token = response.data.token; // Get JWT from response
           if (token) {
             localStorage.setItem("authToken", token); // Store JWT token in localStorage
