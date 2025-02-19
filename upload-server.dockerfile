@@ -7,6 +7,11 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Install ffmpeg
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install ffmpeg -y
+
 # Install dependencies
 RUN npm install
 
