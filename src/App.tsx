@@ -94,6 +94,24 @@ const filteredArray = array.filter((item) => item !== undefined);
 
 // let userChanged:boolean = false;
 
+// Function to check if the auth token is expired
+function isTokenExpired(token: string) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expiry = payload.exp;
+    const now = Math.floor(Date.now() / 1000);
+    return now >= expiry;
+  } catch (error) {
+    console.error("Error checking token expiration:", error);
+    return true;
+  }
+}
+
+// Remove authToken if it's expired
+const token = localStorage.getItem("authToken");
+if (token && isTokenExpired(token)) {
+  localStorage.removeItem("authToken");
+}
 
 function Home(){
 // Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
