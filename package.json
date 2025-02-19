@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest",
     "init-media": "npx mkdirp media",
     "server": "node upload-server.js",
     "dev": "npm run init-media && concurrently 'nodemon login-server.js' 'nodemon upload-server.js' 'vite'",

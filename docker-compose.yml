@@ -6,12 +6,15 @@ services:
       dockerfile: engage.dockerfile
     # env_file: ".env"
     ports:
-      - "8080:5173"
+      - "8083:5173"
       # - "7070:7070"
     # environment:
       # - VITE_UPLOAD_SERVER="https://localhost:3000/upload"
     volumes:
       - ./media:/app/media
+    depends_on:
+      - upload-server
+      - login-server
   upload-server:
     image: upload-server:latest
     build:
@@ -20,7 +23,22 @@ services:
     volumes:
      - ./media:/usr/src/app/media
     ports:
-      - "3000:3000" # for upload server
+      - "3001:3001" # for upload server
+    depends_on:
+      db:
+        condition: service_healthy
+  login-server:
+    image: login-server:latest
+    build:
+      context: .
+      dockerfile: login-server.dockerfile
+    volumes:
+     - ./media:/usr/src/app/media
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: mysql:latest
     environment:
@@ -34,3 +52,8 @@ services:
     volumes:
       - ./data:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p"]
+      interval: 10s
+      timeout: 10s
+      retries: 3

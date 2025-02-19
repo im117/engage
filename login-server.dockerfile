@@ -11,10 +11,10 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code
-COPY ./upload-server.js .
+COPY ./login-server.js .
 
 # Expose the port the app runs on
-EXPOSE 3001
+EXPOSE 8081
 
 # Command to run the application
-CMD ["node", "upload-server.js"]
+CMD ["node", "login-server.js"]

@@ -230,7 +230,7 @@ function User() {
 
         {/* Display username at the bottom */}
         <div className="username-display">
-          Logged in as: <span className="username">{username}</span>
+          Engaged as: <span className="username">{username}</span>
         </div>
       </div>
 

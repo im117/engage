@@ -9,7 +9,7 @@ import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 // import Dashboard from "./Dashboard";
 import PrivateRoute from "./PrivateRoute"; //
-import ResetPassword from "./resetPassword.tsx";
+// import ResetPassword from "./resetPassword.tsx";
 import ReactPlayer from 'react-player'; // Library for embedding and playing videos
 import User from './User'; 
 import path from 'path-browserify'; // Path library to work with file paths in the browser
@@ -335,7 +335,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
         {/* User Page Route */}
         
         {/* Protected Route for Dashboard and Video Player */}
