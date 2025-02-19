@@ -8,14 +8,16 @@ services:
     ports:
       - "8085:5173"
       # - "7070:7070"
-    environment:
-      - VITE_UPLOAD_SERVER=https://upload.ngage.lol
-      - VITE_LOGIN_SERVER=https://login.ngage.lol
+    # environment:
+    #   - VITE_UPLOAD_SERVER=https://upload.ngage.lol
+    #   - VITE_LOGIN_SERVER=https://login.ngage.lol
     volumes:
       - ./media:/app/media
     depends_on:
-      - upload-server
-      - login-server
+      upload-server:
+        condition: service_healthy
+      login-server:
+        condition: service_started
   upload-server:
     image: upload-server:latest
     environment:
@@ -30,6 +32,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:3001/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
   login-server:
     image: login-server:latest
     environment:
