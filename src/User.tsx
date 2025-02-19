@@ -195,7 +195,7 @@ function User() {
         <p style={{ color: 'white', padding: '0px', top: '0' }}>Swipe left and right to navigate</p>
         <div className="content-container">
           {/* Section title */}
-          <div className="my-videos-container">My Videos</div>
+          <div className="my-videos-container">My Engagements</div>
           
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
