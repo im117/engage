@@ -151,6 +151,19 @@ app.get("/current-user", authenticateTokenGet, (req, res) => {
   return res.status(200).json({ userId: req.user.userId });
 })
 
+app.get("/get-user-videos", authenticateTokenGet, (req, res) => {
+  const userid = req.user.userId;
+  const getVideosQuery = "SELECT * FROM videos WHERE creator_id = ?";
+  db.query(getVideosQuery, [userid], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    return res.status(200).json({ videos: results });
+  });
+})
+
 app.post("/reset-password", (req, res) => {
   const { email, newPassword } = req.body;
 

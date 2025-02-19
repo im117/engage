@@ -1,19 +1,98 @@
 // Import necessary dependencies
 import './styles/User.scss'; // Import styles for component layout
-import { useState } from 'react'; // React hook for managing state
+import { useState, useEffect } from 'react'; // React hook for managing state
 import { useNavigate } from 'react-router-dom'; // Hook for programmatic navigation
 import { motion, AnimatePresence } from 'framer-motion'; // Animation library for smooth UI transitions
 import { useSwipeable } from 'react-swipeable'; // Library for handling touch and mouse swipe gestures
+import axios from "axios";
+
 
 // Define the props interface for the `User` component
-interface UserProps {
-  userVideos: string[]; // Array of video URLs for the user
-}
+// interface UserProps {
+//   userVideos: string[]; // Array of video URLs for the user
+// }
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 9;
 
-function User({ userVideos }: UserProps) {
+
+
+function User() {
+  // Grab, and set videos
+  const [userVideos, setUserVideos] = useState<string[]>([]);
+  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState(0);
+  
+    async function loadUserVideos(){
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        const userVideoArray: string[] = [];
+        try {
+          const response = await axios.get("http://localhost:8081/get-user-videos", {
+            params: {
+              auth: token ? token : "",
+            }
+          });
+          response.data.videos.forEach((element: { fileName: string }) => {
+            userVideoArray.push("./media/" + element.fileName);
+          });
+          // console.log(userVideoArray);
+          setUserVideos(userVideoArray as string[]);
+        }
+        catch (error) {
+          console.error("Error fetching user videos:", error);
+        }
+      }
+    
+    };
+  
+    useEffect(() => {
+      loadUserVideos();
+    }, []);
+
+    // Get logged in user ID
+    async function getLoggedInUserId(){
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          await axios.get("http://localhost:8081/current-user", {
+            params: {
+              auth: token ? token : "",
+            }
+          }).then(response => {
+            // id = response.data.userId;
+            setUserID(response.data.userId as number);
+          })
+          // userChanged = true;
+          
+        } catch (error) {
+          console.error("Error fetching user ID:", error);
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+
+    async function getUsername(userid: number){
+      let username = ""
+      await axios.get("http://localhost:3001/user", {
+        params:{
+          userID: userid
+        }
+      })
+      .then(response => {
+        username = response.data.name;
+      })
+      setUsername(username as string);
+    }
+
+    useEffect(() => {
+      getLoggedInUserId();
+      getUsername(userID);
+    },)
+
+
   const navigate = useNavigate(); // Hook for navigating between routes
 
   // State variables to manage video selection, page navigation, and animations
@@ -51,6 +130,13 @@ function User({ userVideos }: UserProps) {
     } else {
       triggerJitter(); // Call jitter effect if no more pages
     }
+  };
+
+  const handleLogout = () => {
+    // Clear the authentication token from localStorage
+    localStorage.removeItem("authToken");
+    // Navigate to login page
+    navigate("/");
   };
 
   /**
@@ -96,10 +182,11 @@ function User({ userVideos }: UserProps) {
         className={`user-container ${selectedVideo ? 'blur' : ''} ${isJittering ? 'jitter' : ''}`}
         {...handlers}
       >
+        <p style={{ color: 'white', padding: '0px', top: '0' }}>Swipe left and right to navigate</p>
         <div className="content-container">
           {/* Section title */}
           <div className="my-videos-container">My Videos</div>
-
+          
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
             <motion.div
@@ -134,12 +221,16 @@ function User({ userVideos }: UserProps) {
           </AnimatePresence>
 
           {/* Home button for navigation */}
-          <button className="home-button" onClick={() => navigate('/')}>Home</button>
+          <div className="user-buttons">
+            <button className="home-button" onClick={() => navigate('/')}>Home</button>
+            <button className="home-button btn-danger" onClick={handleLogout}>Logout</button>
+          </div>
+          
         </div>
 
         {/* Display username at the bottom */}
         <div className="username-display">
-          Logged in as: <span className="username">EngageUser123</span>
+          Logged in as: <span className="username">{username}</span>
         </div>
       </div>
 

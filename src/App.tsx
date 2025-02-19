@@ -3,7 +3,7 @@ import './styles/App.scss'; // Import global and App-specific styles
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 // React Router for navigation between different pages (Home and User page)
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 // React hooks: useState (state), useEffect (side effects), useRef (persistent value)
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
@@ -15,11 +15,12 @@ import User from './User';
 import path from 'path-browserify'; // Path library to work with file paths in the browser
 import Upload from "./upload.tsx";
 import axios from "axios";
-import DOMPurify from 'dompurify';
+// import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob('../media/*.mp4');
+
 
 // Asynchronously create an array of video paths from imported media folder
 async function createVideoArray() {
@@ -57,10 +58,13 @@ randomizeArray(array);
 const filteredArray = array.filter((item) => item !== undefined);
 
 
+// let userChanged:boolean = false;
 
+
+function Home(){
 // Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
-function Home() {
-  const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video index depending on available videos
+
+  const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video 
 
   const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
   const [currentVideo, setCurrentVideo] = useState("");
@@ -110,8 +114,8 @@ async function getVideoInfo(){
   let userid = 0;
   let creatorName = "";
   // Get the previousIndex and previousVideo, since index seeks ahead at the moment
-  const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
-  const previousVideo = filteredArray[previousIndex] || "";
+  // const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
+  // const previousVideo = filteredArray[previousIndex] || "";
 
   // Get video info
   await axios.get("http://localhost:3001/video", {
@@ -155,6 +159,7 @@ async function getLoggedInUserId(){
       });
       setUserID(response.data.userId);
       setLoggedIn(true);
+      // userChanged = true;
       return response.data.userId;
     } catch (error) {
       console.error("Error fetching user ID:", error);
@@ -195,6 +200,8 @@ async function assignUsername() {
   }
 }
 assignUsername();
+
+
 
 
   return (
@@ -242,7 +249,7 @@ assignUsername();
           Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
         </button> */}
         <div className="control-button" onClick={getVideoInfo}>
-          INFO
+        <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>
       </div>
       <div className="login-button-section">
@@ -294,24 +301,21 @@ assignUsername();
   );
 }
 
+
+
+
 // Main App Component - Sets up routing between Home and User page
+
 function App() {
-  const [userVideos, setUserVideos] = useState<string[]>([]);
+  
+  // const [userVideos, setUserVideos] = useState<string[]>([]);
+  
+  // useEffect(() => {
+    
+  // }, []);
+  
 
-  useEffect(() => {
-    const loadVideos = async () => {
-      const videoPaths = await Promise.all(
-        Object.keys(videos).map(async (key) => {
-          const module = await videos[key]();
-          return (module as { default: string }).default;
-        })
-      );
-      setUserVideos(videoPaths);
-    };
-
-    loadVideos();
-  }, []);
-
+  
 //   return (
 //     <Router>
 //       <Routes>
@@ -327,6 +331,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route element={<App />} />
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -335,7 +340,7 @@ function App() {
         
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
-        <Route path="/user" element={<User userVideos={userVideos} />} />
+        <Route path="/user" element={<User />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
