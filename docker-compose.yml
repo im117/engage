@@ -18,6 +18,7 @@ services:
         condition: service_healthy
       login-server:
         condition: service_started
+    restart: unless-stopped
   upload-server:
     image: upload-server:latest
     environment:
@@ -37,6 +38,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
   login-server:
     image: login-server:latest
     environment:
@@ -51,6 +53,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
   db:
     image: mysql:latest
     environment:
@@ -69,3 +72,4 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
