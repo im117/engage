@@ -86,7 +86,11 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // Delete the video file from the server
   const filePath = path.join('./media', req.file.filename);
   const outputPath = filePath.replace('.mp4', 'trans.mp4');
+  
   const outputFile = req.file.filename.replace('.mp4', 'trans.mp4');
+
+  const tempPath = filePath.replace('.mp4', 'trans.tmp.mp4');
+  const tempFile = req.file.filename.replace('.mp4', 'trans.tmp.mp4');
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -125,7 +129,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
     '-preset', 'slow',
     '-crf', '22',
     '-c:a', 'copy',
-    outputPath
+    tempPath
   ]);
   ffmpeg.stderr.on('data', (data) => {
     console.error(`stderr: ${data}`);
@@ -145,7 +149,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
           console.log("File deleted successfully");
         }
       });
-      fs.unlink(outputPath, (err) => {
+      fs.unlink(tempPath, (err) => {
         if (err) {
           console.error("Error deleting file: ", err);
         } else {
@@ -163,6 +167,14 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
         console.log("File deleted successfully");
       }
     });
+    fs.rename(tempPath, outputPath, (err) => {
+      if (err) {
+        console.error("Error renaming file: ", err);
+      } else {
+        console.log("File renamed successfully");
+      }
+    });
+    
   });
 
 
