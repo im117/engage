@@ -83,8 +83,8 @@ useEffect(() => {
 
 export default Upload;
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Upload />
-  </StrictMode>
-);
+// createRoot(document.getElementById("root")!).render(
+//   <StrictMode>
+//     <Upload />
+//   </StrictMode>
+// );
