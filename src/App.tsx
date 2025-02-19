@@ -89,13 +89,13 @@ function Home(){
   // Update current video path when videoIndex changes
   useEffect(() => {
     setCurrentVideo(filteredArray[videoIndex] || "");
-    console.log(currentVideo)
+    // console.log(currentVideo)
   }, [videoIndex]);
 
   // Switch to the next video in the array
   const handleNext = () => {
     setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
-    console.log(videoIndex);
+    // console.log(videoIndex);
   };
 
   const navigate = useNavigate(); // Hook to navigate to other pages
