@@ -220,6 +220,7 @@ function User() {
                       autoPlay
                       muted
                       loop
+                      playsInline
                       whileHover={{ scale: 1.05 }} // Slight scaling effect on hover
                     />
                   </div>
@@ -261,6 +262,7 @@ function User() {
               animate={{ scale: 1 }} // Expand to full size
               exit={{ scale: 0.8 }} // Shrink when closing
               autoPlay
+              playsInline
               controls
               loop
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video

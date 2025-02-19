@@ -227,6 +227,7 @@ assignUsername();
           muted={true}
           controls={true}
           loop={true}
+          playsinline={true}
           width="80vw"
           height="60vh"
         />
