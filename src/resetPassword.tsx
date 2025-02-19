@@ -32,7 +32,7 @@ const ResetPassword: React.FC = () => {
       );
       setMessage(response.data.message);
       setTimeout(() => {
-        navigate("/"); // Redirect to Login after success message
+        navigate("/login"); // Redirect to Login after success message
       }, 1500); // Redirect after 1.5 seconds
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred");
@@ -83,7 +83,7 @@ const ResetPassword: React.FC = () => {
         </form>
 
         <div className="reset__buttons-container">
-          <Link to="/">
+          <Link to="/login">
             <button className="reset__button">Go to Login</button>
           </Link>
         </div>

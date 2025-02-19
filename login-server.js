@@ -207,6 +207,16 @@ app.post("/reset-password", (req, res) => {
   });
 });
 
+app.post("/verifyToken", (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.json({ valid: false });
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) return res.json({ valid: false });
+    res.json({ valid: true });
+  });
+});
+
 // Start the Server
 app.listen(port, () => {
   console.log(`Login Server is running at http://localhost:${port}`);

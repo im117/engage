@@ -1,16 +1,35 @@
-// This is a simple implementation to protect routes that require authentication.
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import axios from "axios";
 
-// This is a simple implementation to check for auth token in localStorage
 const PrivateRoute: React.FC = () => {
-  const isAuthenticated = !!localStorage.getItem("authToken");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const token = localStorage.getItem("authToken");
 
-  return isAuthenticated ? (
-    <Outlet /> // Renders the child routes if authenticated
-  ) : (
-    <Navigate to="/" /> // Redirect to login if not authenticated
-  );
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        const response = await axios.post("http://localhost:8081/verifyToken", {
+          token,
+        });
+        setIsAuthenticated(response.data.valid);
+      } catch (error) {
+        console.error("Token verification failed:", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    verifyToken();
+  }, [token]);
+
+  if (isAuthenticated === null) return <p>Loading...</p>;
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

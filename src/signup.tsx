@@ -162,7 +162,7 @@ const Signup: React.FC = () => {
               >
                 Sign up
               </button>
-              <Link to="/" className="signup__button">
+              <Link to="/login" className="signup__button">
                 Log in
               </Link>
             </div>
