@@ -15,7 +15,17 @@ import axios from "axios";
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 9;
 
+let uploadServer = "http://localhost:3001";
+if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+}
+let loginServer = "http://localhost:8081"
 
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
 
 function User() {
   // Grab, and set videos
@@ -28,7 +38,7 @@ function User() {
       if (token) {
         const userVideoArray: string[] = [];
         try {
-          const response = await axios.get("http://localhost:8081/get-user-videos", {
+          const response = await axios.get(`${loginServer}/get-user-videos`, {
             params: {
               auth: token ? token : "",
             }
@@ -55,7 +65,7 @@ function User() {
       const token = localStorage.getItem("authToken");
       if (token) {
         try {
-          await axios.get("http://localhost:8081/current-user-id", {
+          await axios.get(`${loginServer}/current-user-id`, {
             params: {
               auth: token ? token : "",
             }
@@ -76,7 +86,7 @@ function User() {
 
     async function getUsername(userid: number){
       let username = ""
-      await axios.get("http://localhost:3001/user", {
+      await axios.get(`${uploadServer}/user`, {
         params:{
           userID: userid
         }

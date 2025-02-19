@@ -4,6 +4,18 @@ import "./styles/signup.scss";
 import validation from "./signupValidation";
 import axios from "axios";
 
+// let uploadServer = "http://localhost:3001";
+// if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+// }
+let loginServer = "http://localhost:8081"
+
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
 const Signup: React.FC = () => {
   const [username, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -37,7 +49,7 @@ const Signup: React.FC = () => {
       agreeToTerms // Ensure checkbox is checked
     ) {
       axios
-        .post("http://localhost:8081/signup", formValues)
+        .post(`${loginServer}/signup`, formValues)
         .then(() => {
           setSuccessMessage("You have successfully signed up! Redirecting...");
           setTimeout(() => {

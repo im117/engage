@@ -21,6 +21,18 @@ import axios from "axios";
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob('../media/*.mp4');
 
+let uploadServer = "http://localhost:3001";
+if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+}
+let loginServer = "http://localhost:8081"
+
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
 
 // Asynchronously create an array of video paths from imported media folder
 async function createVideoArray() {
@@ -97,7 +109,7 @@ function Home(){
 // Function to get user info from API
 async function getUsername(userid: number){
   let creatorName = "";
-  await axios.get("http://localhost:3001/user", {
+  await axios.get(`${uploadServer}/user`, {
     params:{
       userID: userid
     }
@@ -118,7 +130,7 @@ async function getVideoInfo(){
   // const previousVideo = filteredArray[previousIndex] || "";
 
   // Get video info
-  await axios.get("http://localhost:3001/video", {
+  await axios.get(`${uploadServer}/video`, {
     params: {
     fileName: currentVideo.substring(currentVideo.lastIndexOf('/') + 1)
     }
@@ -152,7 +164,7 @@ async function getLoggedInUserId(){
   const token = localStorage.getItem("authToken");
   if (token) {
     try {
-      const response = await axios.get("http://localhost:8081/current-user-id", {
+      const response = await axios.get(`${loginServer}/current-user-id`, {
         params: {
           auth: token ? token : "",
         }

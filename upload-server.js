@@ -9,13 +9,18 @@ import fs from "fs";
 const app = express();
 const port = 3001;
 
+let dbHost = "localhost";
+if(process.env.DATABASE_HOST){
+  dbHost = process.env.DATABASE_HOST;
+}
+
 app.use(express.json()); // Add this line to parse JSON bodies
 
 app.use(cors());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: "db",
+  host: dbHost,
   user: "engageuser",
   password: "engagepassword",
   database: "engage",

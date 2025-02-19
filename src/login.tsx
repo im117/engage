@@ -4,6 +4,18 @@ import "./styles/login.scss";
 import validation from "./loginValidation";
 import axios from "axios";
 
+// let uploadServer = "http://localhost:3001";
+// if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+// }
+let loginServer = "http://localhost:8081"
+
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
 interface FormValues {
   usernameOrEmail: string;
   password: string;
@@ -57,7 +69,7 @@ const Login: React.FC = () => {
     if (Object.keys(validationErrors).length === 0) {
       // Make API call if no validation errors
       axios
-        .post("http://localhost:8081/login", values)
+        .post(`${loginServer}/login`, values)
         .then((response) => {
           // Check if the response has a token or success message
           console.log(response.data);

@@ -7,7 +7,12 @@ if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
+// let loginServer = "http://localhost:8081"
 
+// if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   loginServer = import.meta.env.VITE_LOGIN_SERVER;
+// }
 interface FormValues {
   title: string;
   desc: string;
@@ -79,7 +84,7 @@ export default function FileUploader() {
 
     const token = localStorage.getItem("authToken"); // Retrieve JWT token
     try {
-      await axios.post("http://localhost:3001/upload", formData, {
+      await axios.post(`${uploadServer}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: token ? token : "", // Send token in header

@@ -3,6 +3,20 @@ import axios from "axios";
 import "./styles/resetPassword.scss";
 import { Link, useNavigate } from "react-router-dom";
 
+// let uploadServer = "http://localhost:3001";
+// if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+// }
+let loginServer = "http://localhost:8081"
+
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
+
+
 const ResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -24,7 +38,7 @@ const ResetPassword: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8081/reset-password",
+        `${loginServer}/reset-password`,
         {
           email,
           newPassword,

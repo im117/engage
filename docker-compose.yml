@@ -8,8 +8,9 @@ services:
     ports:
       - "8083:5173"
       # - "7070:7070"
-    # environment:
-      # - VITE_UPLOAD_SERVER="https://localhost:3000/upload"
+    environment:
+      - VITE_UPLOAD_SERVER="https://upload.ngage.lol"
+      - VITE_LOGIN_SERVER="https://login.ngage.lol"
     volumes:
       - ./media:/app/media
     depends_on:
@@ -17,6 +18,8 @@ services:
       - login-server
   upload-server:
     image: upload-server:latest
+    environment:
+      - DATABASE_HOST=db
     build:
       context: .
       dockerfile: upload-server.dockerfile
@@ -29,6 +32,8 @@ services:
         condition: service_healthy
   login-server:
     image: login-server:latest
+    environment:
+      - DATABASE_HOST=db
     build:
       context: .
       dockerfile: login-server.dockerfile

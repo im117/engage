@@ -7,6 +7,11 @@ import jwt from "jsonwebtoken"; // For generating tokens
 const app = express();
 const port = 8081;
 
+let dbHost = "localhost";
+if(process.env.DATABASE_HOST){
+  dbHost = process.env.DATABASE_HOST;
+}
+
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
@@ -15,7 +20,7 @@ app.use(cors());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: "db",
+  host: dbHost,
   user: "engageuser",
   password: "engagepassword",
   database: "engage",
