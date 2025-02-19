@@ -61,13 +61,12 @@ async function createVideoArray() {
       if (dbPaths.includes(videoFileName)) {
         vidPaths.push(videoKey);
       }
-      else{
-        continue;
-      }
+
   }
   // console.log(vidPaths);
-  return vidPaths;
+  
 }
+return vidPaths;
 }
 //randomize the elements of an array
 function randomizeArray(array: Array<string | null>) {
