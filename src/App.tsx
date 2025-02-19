@@ -50,7 +50,7 @@ async function createVideoArray() {
     return []; // Continue to the next video if the request fails
   }
 
-  console.log(dbPaths);
+  // console.log(dbPaths);
   // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
