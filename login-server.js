@@ -79,6 +79,23 @@ app.post("/signup", (req, res) => {
   });
 });
 
+
+const authenticateTokenGet = (req, res, next) => {
+  const { auth: token } = req.query;
+  console.log("Token received:", token);
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+    req.user = decoded; // Attach decoded user info to request
+    next();
+  });
+};
+
 // Login Route (Unchanged)
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -128,6 +145,11 @@ app.post("/login", (req, res) => {
     });
   });
 });
+
+app.get("/current-user", authenticateTokenGet, (req, res) => {
+  // req user for requests
+  return res.status(200).json({ userId: req.user.userId });
+})
 
 app.post("/reset-password", (req, res) => {
   const { email, newPassword } = req.body;

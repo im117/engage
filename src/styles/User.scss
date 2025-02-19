@@ -1,0 +1,126 @@
+@import 'global.scss'; // Import global styles (e.g., colors, fonts, resets, etc.)
+
+.user-page-wrapper {
+  // Outer wrapper for the entire user page (covers the full viewport)
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center; // Centers content horizontally
+  align-items: center; // Centers content vertically
+}
+
+.user-container {
+  // Main container for the video grid, username, and home button
+  position: relative;
+  width: 90vw;
+  height: 80vh;
+  background: white;
+  border: 1px solid #ddd; // Subtle border
+  border-radius: 10px; // Rounded corners
+  padding: 20px; // Inner spacing
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Light shadow for elevation
+  display: flex;
+  flex-direction: column; // Stack content vertically
+  justify-content: flex-start;
+  align-items: center;
+  transition: filter 0.3s ease; // Smooth transition when applying blur effect
+
+  &.blur {
+    // When the fullscreen video overlay is open, blur the background content
+    filter: blur(8px);
+  }
+}
+
+.video-grid {
+  // Grid layout to display video thumbnails (3 columns)
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3 equal-width columns
+  gap: 15px; // Space between grid items
+  background-color: #e0ffe0; // Light green background
+  width: 100%;
+  height: 73vh; // Increased height to give more space for videos
+  border-radius: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  align-content: center; // Center grid items vertically if fewer videos
+}
+
+.video-thumbnail {
+  // Individual video thumbnail (small oval shape)
+  background-color: #f9f9f9;
+  border-radius: 50px; // Oval shape
+  width: 100%;
+  height: 120px; // Fixed height for consistency across all ovals
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; // Crop any overflowing video content
+  cursor: pointer; // Indicate clickable area
+  position: relative;
+
+  .thumbnail-video {
+    // Video inside the oval thumbnail
+    width: 100%;
+    height: 100%;
+    object-fit: cover; // Video will cover the oval shape (may crop)
+  }
+}
+
+.username-display {
+  // Text display for the logged-in user's username
+  margin-top: 4px; // Reduced margin to minimize space below the videos
+  font-size: 1rem; // Slightly smaller text for a subtle look
+  color: #333;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+}
+
+.username {
+  // Styling specifically for the username text itself (green)
+  color: #065527;
+}
+
+.home-button {
+  // Button to return to the home page
+  margin-top: 2px; // Reduced margin to reduce space below username
+  background-color: #065527;
+  color: white;
+  padding: 6px 18px; // Smaller button padding
+  border: none;
+  border-radius: 19px; // Rounded button shape
+  cursor: pointer;
+  font-size: 0.9rem; // Slightly smaller text size
+  font-family: Courier New;
+  text-shadow: 0px 0px 13px #283966;
+  border: 2px solid #4e6096;
+  transition: transform 0.2s ease; // Smooth zoom effect on hover
+
+  &:hover {
+    background-color: #004488; // Darker blue on hover
+    transform: scale(1.05); // Slight zoom effect on hover
+  }
+}
+
+.fullscreen-overlay {
+  // Fullscreen overlay that appears when a video is enlarged
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8); // Semi-transparent dark background
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; // Ensure it appears above other content
+}
+
+.fullscreen-video {
+  // Enlarged video player (rounded rectangle shape) when a video is clicked
+  width: 80vw; // 80% of viewport width
+  height: 45vh; // 45% of viewport height
+  object-fit: contain; // Video will fit inside the shape without cropping
+  background-color: black;
+  border-radius: 20px; // Rounded corners for the video player
+}

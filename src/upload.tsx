@@ -9,7 +9,7 @@ function Upload() {
       <h3 style={{ color: "green" }}>Disclaimer: The host is not responsible for any content on this site.</h3>
       <button
         className="back-button"
-        onClick={() => (window.location.href = "/videoplayer")}
+        onClick={() => (window.location.href = "/")}
         >
         Home
       </button>
