@@ -53,7 +53,7 @@ const Signup: React.FC = () => {
         .then(() => {
           setSuccessMessage("You have successfully signed up! Redirecting...");
           setTimeout(() => {
-            navigate("/"); // Redirect after 1.5 seconds
+            navigate("/login"); // Redirect after 1.5 seconds
           }, 1500);
           setName("");
           setEmail("");
