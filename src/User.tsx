@@ -1,85 +1,168 @@
-import './styles/User.scss';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+// Import necessary dependencies
+import './styles/User.scss'; // Import styles for component layout
+import { useState } from 'react'; // React hook for managing state
+import { useNavigate } from 'react-router-dom'; // Hook for programmatic navigation
+import { motion, AnimatePresence } from 'framer-motion'; // Animation library for smooth UI transitions
+import { useSwipeable } from 'react-swipeable'; // Library for handling touch and mouse swipe gestures
 
-// Props interface to accept an array of video URLs as a prop
+// Define the props interface for the `User` component
 interface UserProps {
-  userVideos: string[];
+  userVideos: string[]; // Array of video URLs for the user
 }
 
+// Set the number of videos displayed per page
+const VIDEOS_PER_PAGE = 9;
+
 function User({ userVideos }: UserProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook for navigating between routes
 
-  // Example username (replace later when you have database integration)
-  const username = 'EngageUser123';
+  // State variables to manage video selection, page navigation, and animations
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null); // Stores the currently selected video for fullscreen view
+  const [currentPage, setCurrentPage] = useState(0); // Tracks the current page number in the video list
+  const [isJittering, setIsJittering] = useState(false); // Triggers a "jitter" effect if the user reaches the last/first page
+  const [direction, setDirection] = useState(0); // Tracks swipe direction: -1 (left) or 1 (right) for smooth transitions
 
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  // Calculate the total number of pages based on the number of videos
+  const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
 
-  // Opens fullscreen video overlay with the selected video
+  /**
+   * Opens a fullscreen overlay with the selected video.
+   * @param videoSrc - The URL of the video to be displayed in fullscreen.
+   */
   const handleOpenVideo = (videoSrc: string) => {
     setSelectedVideo(videoSrc);
   };
 
-  // Closes fullscreen video overlay
+  /**
+   * Closes the fullscreen video overlay.
+   */
   const handleCloseVideo = () => {
     setSelectedVideo(null);
   };
 
+  /**
+   * Navigates to the next page of videos.
+   * If already on the last page, it triggers a "jitter" effect to indicate no further content.
+   */
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setDirection(1); // Set direction to right (next page)
+      setCurrentPage((prevPage) => prevPage + 1);
+    } else {
+      triggerJitter(); // Call jitter effect if no more pages
+    }
+  };
+
+  /**
+   * Navigates to the previous page of videos.
+   * If already on the first page, it triggers a "jitter" effect.
+   */
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setDirection(-1); // Set direction to left (previous page)
+      setCurrentPage((prevPage) => prevPage - 1);
+    } else {
+      triggerJitter(); // Call jitter effect if already on the first page
+    }
+  };
+
+  /**
+   * Triggers a short "jitter" animation when the user tries to go beyond available pages.
+   * This gives feedback to indicate there is no more content.
+   */
+  const triggerJitter = () => {
+    setIsJittering(true);
+    setTimeout(() => setIsJittering(false), 500); // Reset jitter state after 500ms
+  };
+
+  /**
+   * Handles swipe gestures (both touch and mouse) for navigation.
+   */
+  const handlers = useSwipeable({
+    onSwipedLeft: () => handleNextPage(), // Swipe left → Go to the next page
+    onSwipedRight: () => handlePrevPage(), // Swipe right → Go to the previous page
+    preventScrollOnSwipe: true, // Prevents the page from scrolling when swiping
+    trackMouse: true, // Enables swipe gestures using the mouse
+  });
+
+  // Calculate the index range of videos for the current page
+  const startIndex = currentPage * VIDEOS_PER_PAGE;
+  const currentVideos = userVideos.slice(startIndex, startIndex + VIDEOS_PER_PAGE);
+
   return (
     <div className="user-page-wrapper">
-      {/* Page Content (Video Grid + Username + Home Button) - This part will get blurred */}
-      <div className={`user-container ${selectedVideo ? 'blur' : ''}`}>
-        {/* Video Thumbnails */}
-        <div className="video-grid">
-          {userVideos.map((video, index) => (
-            <div
-              key={index}
-              className="video-thumbnail"
-              onClick={() => handleOpenVideo(video)}
+      {/* Main content container with swipe handlers */}
+      <div
+        className={`user-container ${selectedVideo ? 'blur' : ''} ${isJittering ? 'jitter' : ''}`}
+        {...handlers}
+      >
+        <div className="content-container">
+          {/* Section title */}
+          <div className="my-videos-container">My Videos</div>
+
+          {/* AnimatePresence ensures smooth transition between pages */}
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={currentPage} // Changes key on each page update to trigger animation
+              className="video-grid"
+              initial={{ x: direction * 100, opacity: 0 }} // Start position
+              animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
+              exit={{ x: -direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
+              transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
             >
-              <motion.video
-                src={video}
-                className="thumbnail-video"
-                autoPlay
-                muted
-                loop
-              />
-            </div>
-          ))}
+              {currentVideos.length > 0 ? (
+                currentVideos.map((video, index) => (
+                  <div
+                    key={index}
+                    className="video-thumbnail"
+                    onClick={() => handleOpenVideo(video)} // Click to open fullscreen view
+                  >
+                    <motion.video
+                      src={video}
+                      className="thumbnail-video"
+                      autoPlay
+                      muted
+                      loop
+                      whileHover={{ scale: 1.05 }} // Slight scaling effect on hover
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="no-videos-text">No Videos Added</div> // Show text when no videos exist
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Home button for navigation */}
+          <button className="home-button" onClick={() => navigate('/')}>Home</button>
         </div>
 
-        {/* Username Display */}
+        {/* Display username at the bottom */}
         <div className="username-display">
-          Logged in as: <span className="username">{username}</span>
+          Logged in as: <span className="username">EngageUser123</span>
         </div>
-
-        {/* Home Button */}
-        <button className="home-button" onClick={() => navigate('/')}>
-          Home
-        </button>
       </div>
 
-      {/* Enlarged Video Overlay - Fullscreen video display with backdrop */}
+      {/* Fullscreen video overlay (shown when a video is clicked) */}
       <AnimatePresence>
         {selectedVideo && (
           <motion.div
             className="fullscreen-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleCloseVideo}
+            initial={{ opacity: 0 }} // Start with opacity 0
+            animate={{ opacity: 1 }} // Fade in smoothly
+            exit={{ opacity: 0 }} // Fade out when closed
+            onClick={handleCloseVideo} // Clicking outside the video closes it
           >
             <motion.video
               src={selectedVideo}
               className="fullscreen-video"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
+              initial={{ scale: 0.8 }} // Start smaller
+              animate={{ scale: 1 }} // Expand to full size
+              exit={{ scale: 0.8 }} // Shrink when closing
               autoPlay
               controls
               loop
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
             />
           </motion.div>
         )}

@@ -291,20 +291,23 @@ assignUsername();
   );
 }
 
-// // Main App Component - Sets up routing between Home and User page
-// function App() {
-//   // Hardcoded paths to user videos (replace later with dynamic paths if needed)
-  const userVideos = [
-    '/media/video1.mp4',
-    '/media/video2.mp4',
-    '/media/video3.mp4',
-    '/media/video4.mp4',
-    '/media/video5.mp4',
-    '/media/video6.mp4',
-    '/media/video7.mp4',
-    '/media/video8.mp4',
-    '/media/video9.mp4',
-  ];
+// Main App Component - Sets up routing between Home and User page
+function App() {
+  const [userVideos, setUserVideos] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadVideos = async () => {
+      const videoPaths = await Promise.all(
+        Object.keys(videos).map(async (key) => {
+          const module = await videos[key]();
+          return (module as { default: string }).default;
+        })
+      );
+      setUserVideos(videoPaths);
+    };
+
+    loadVideos();
+  }, []);
 
 //   return (
 //     <Router>
@@ -317,7 +320,7 @@ assignUsername();
 //     </Router>
 //   );
 // }
-const App: React.FC = () => {
+
   return (
     <BrowserRouter>
       <Routes>
