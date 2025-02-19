@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react(), fs()],
   base: "./",
   root: "./",
+  server: {
+    allowedHosts: ['ngage.lol'],
+  },
   build: {
     rollupOptions: {
       input: {
