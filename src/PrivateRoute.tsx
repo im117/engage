@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import axios from "axios";
 
+// let uploadServer = "http://localhost:3001";
+// if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
+// }
+let loginServer = "http://localhost:8081"
+
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
 const PrivateRoute: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const token = localStorage.getItem("authToken");
@@ -14,7 +26,7 @@ const PrivateRoute: React.FC = () => {
       }
 
       try {
-        const response = await axios.post("http://localhost:8081/verifyToken", {
+        const response = await axios.post(`${loginServer}/verifyToken`, {
           token,
         });
         setIsAuthenticated(response.data.valid);
