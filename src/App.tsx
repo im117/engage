@@ -19,7 +19,7 @@ import axios from "axios";
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
-const videos = import.meta.glob('../media/*.webm');
+const videos = import.meta.glob('../media/*trans.mp4');
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -41,7 +41,7 @@ async function createVideoArray() {
   // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
-    if (ext === '.webm') vidPaths.push(videoKey); // Push video to array if it’s .mp4
+    if (ext === '.mp4') vidPaths.push(videoKey); // Push video to array if it’s .mp4
   }
   return vidPaths;
 }

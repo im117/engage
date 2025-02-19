@@ -85,8 +85,8 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // console.log("Decoded JWT:", req.user);
   // Delete the video file from the server
   const filePath = path.join('./media', req.file.filename);
-  const outputPath = filePath.replace('.mp4', '.webm');
-  const outputFile = req.file.filename.replace('.mp4', '.webm');
+  const outputPath = filePath.replace('.mp4', 'trans.mp4');
+  const outputFile = req.file.filename.replace('.mp4', 'trans.mp4');
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -121,10 +121,10 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // transcode media
   const ffmpeg = spawn('ffmpeg', [
     '-i', filePath,
-    '-c:v', 'libvpx',
-    '-crf', '30',
-    '-b:v', '1M',
-    '-c:a', 'libvorbis',
+    '-c:v', 'libx264',
+    '-preset', 'slow',
+    '-crf', '22',
+    '-c:a', 'copy',
     outputPath
   ]);
   ffmpeg.stderr.on('data', (data) => {
