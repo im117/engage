@@ -63,7 +63,8 @@ function Home() {
   const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video index depending on available videos
 
   const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
-  const currentVideoRef = useRef(filteredArray[0] || ''); // Reference to the current video path
+  const [currentVideo, setCurrentVideo] = useState("");
+  // const currentVideoRef = useRef(filteredArray[0] || ''); // Reference to the current video path
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -71,12 +72,14 @@ function Home() {
 
   // Update current video path when videoIndex changes
   useEffect(() => {
-    currentVideoRef.current = filteredArray[videoIndex] || "";
+    setCurrentVideo(filteredArray[videoIndex] || "");
+    console.log(currentVideo)
   }, [videoIndex]);
 
   // Switch to the next video in the array
   const handleNext = () => {
     setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
+    console.log(videoIndex);
   };
 
   const navigate = useNavigate(); // Hook to navigate to other pages
@@ -113,7 +116,7 @@ async function getVideoInfo(){
   // Get video info
   await axios.get("http://localhost:3001/video", {
     params: {
-    fileName: previousVideo.substring(previousVideo.lastIndexOf('/') + 1)
+    fileName: currentVideo.substring(currentVideo.lastIndexOf('/') + 1)
     }
   })
   .then(response => {
@@ -200,7 +203,7 @@ assignUsername();
       <div className="video-player">
         <ReactPlayer
           id="video"
-          url={currentVideoRef.current || ''}
+          url={currentVideo || ''}
           playing={true}
           muted={true}
           controls={true}
@@ -213,7 +216,7 @@ assignUsername();
       {/* 1. Video control buttons */}
       <div className="controls">
         {/* Download button */}
-        <a className="control-button" href={currentVideoRef.current} download>
+        <a className="control-button" href={currentVideo} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
 
