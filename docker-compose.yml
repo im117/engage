@@ -6,11 +6,11 @@ services:
       dockerfile: engage.dockerfile
     # env_file: ".env"
     ports:
-      - "8083:5173"
+      - "8085:5173"
       # - "7070:7070"
     environment:
-      - VITE_UPLOAD_SERVER="https://upload.ngage.lol"
-      - VITE_LOGIN_SERVER="https://login.ngage.lol"
+      - VITE_UPLOAD_SERVER=https://upload.ngage.lol
+      - VITE_LOGIN_SERVER=https://login.ngage.lol
     volumes:
       - ./media:/app/media
     depends_on:
