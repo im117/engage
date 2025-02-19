@@ -41,7 +41,19 @@ async function createVideoArray() {
   // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
-    if (ext === '.mp4') vidPaths.push(videoKey); // Push video to array if it’s .mp4
+    if (ext === '.mp4') {
+      try {
+        await axios.get(`${uploadServer}/video`, {
+          params: {
+            fileName: videoKey.substring(videoKey.lastIndexOf('/') + 1)
+          }
+        });
+        vidPaths.push(videoKey); // Push video to array if it’s .mp4 and request succeeds
+      } catch (error) {
+        console.error(`Error fetching video info:`, error);
+        continue; // Continue to the next video if the request fails
+      }
+    }
   }
   return vidPaths;
 }
