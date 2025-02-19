@@ -65,6 +65,10 @@ function Home() {
   const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
   const currentVideoRef = useRef(filteredArray[0] || ''); // Reference to the current video path
 
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [userID, setUserID] = useState(0);
+
   // Update current video path when videoIndex changes
   useEffect(() => {
     currentVideoRef.current = filteredArray[videoIndex] || "";
@@ -131,46 +135,66 @@ async function getVideoInfo(){
   alert(`Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`);
 }
 
+// const token = localStorage.getItem("authToken");
+// useEffect(() => {
+//   setLoggedIn(!!token);
+// }, []);
+
 
 async function getLoggedInUserId(){
   const token = localStorage.getItem("authToken");
-  const loggedIn = token ? true : false;
-  if(loggedIn){
+  if (token) {
     try {
       const response = await axios.get("http://localhost:8081/current-user", {
         params: {
-        auth: token ? token : "", // Send token in header
-        },
+          auth: token ? token : "",
+        }
       });
-  
+      setUserID(response.data.userId);
+      setLoggedIn(true);
       return response.data.userId;
-  }
-  catch (error) {
-    console.error("Error fetching logged-in user ID:", error);
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+      return null;
+    }
+  } else {
     return null;
   }
-  }
-}
-
-async function authButtons(){
-  let button = "";
-  const userId = await getLoggedInUserId();
-  if (userId !== null) {
-    const username = await getUsername(userId);
-    button = "<button className='control-button' onClick={() => navigate('/user')}" + username + " <i className='fa-solid fa-user'></i> </button>"
-
-  } else {
-    button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
-  }
-  const sanitizedHTML = DOMPurify.sanitize(button);
-  return (
-    <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-  )
 }
 
 
-  return (
+// const authButtons = async ()=>{
+//   let button = "";
+//   const userId = await getLoggedInUserId()
+  
+//    if (userId !== null) {
 
+//     const username = await getUsername(userId);
+//     button = "<button className='control-button' onClick={() => navigate('/user')}" + username + " <i className='fa-solid fa-user'></i> </button>"
+
+//   } else {
+//     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
+//   }
+//   const sanitizedHTML = DOMPurify.sanitize(button);
+//   return (
+//     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+//   ) 
+    
+// }
+
+getLoggedInUserId()
+
+async function assignUsername() {
+  if(loggedIn){
+    const username = await getUsername(userID);
+    setUsername(username);
+    // console.log(username);
+  }
+}
+assignUsername();
+
+
+  return (
     <div className="app-container">
       <h1>Engage</h1>
       <div className="video-player">
@@ -219,7 +243,31 @@ async function authButtons(){
         </div>
       </div>
       <div className="login-button-section">
+      <button className="control-button" onClick={loggedIn ? () => navigate('/user') : handleBackToLogin}>
 
+
+        {loggedIn ? (
+          <>
+            <i className="fa-solid fa-user"></i> {username} 
+          </>
+        ) : (
+          <>
+            <i className="fa solid fa-right-to-bracket"></i> Log In
+          </>
+        )}
+          
+        </button>
+        {/* <button className="control-button" onClick={async () => {
+          const userId = await getLoggedInUserId();
+          if (userId !== null) {
+            const username = await getUsername(userId);
+            alert(username);
+          } else {
+            alert("User is not logged in.");
+          }
+        }}>
+          Engager <i className="fa-solid fa-user"></i>
+        </button>  */}
         {
           
         }
@@ -237,7 +285,7 @@ async function authButtons(){
           }
         }}>
           Engager <i className="fa-solid fa-user"></i>
-        </button> */}
+        </button>  */}
       </div>
     </div>
   );
