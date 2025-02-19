@@ -234,6 +234,29 @@ app.get("/video", (req, res) => {
   });
 });
 
+// Get Video info
+app.get("/video-list", (req, res) => {
+  // const { fileName: filename } = req.query;
+
+  // if (!filename) {
+  //   return res.status(400).json({ message: "Filename is required" });
+  // }
+
+  const selectQuery = "SELECT fileName FROM videos";
+  db.query(selectQuery, (err, results) => {
+    if (err) {
+      console.error("Error fetching video from database: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    return res.status(200).json(results);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);
 });

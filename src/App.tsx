@@ -36,28 +36,39 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 
 // Asynchronously create an array of video paths from imported media folder
 async function createVideoArray() {
-  const vidPaths: Array<string | null> = []; // Array to hold video paths
 
+  const vidPaths: Array<string | null> = []; // Array to hold video paths
+  const dbPaths: Array<string> = [];
+  try {
+    const response = await axios.get(`${uploadServer}/video-list`);
+    // console.log(response.data);
+    response.data.forEach((video: { fileName: string }) => {
+      dbPaths.push(video.fileName);
+    });
+  } catch (error) {
+    console.error(`Error fetching video info:`, error);
+    return []; // Continue to the next video if the request fails
+  }
+
+  console.log(dbPaths);
   // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
     if (ext === '.mp4') {
-      try {
-        await axios.get(`${uploadServer}/video`, {
-          params: {
-            fileName: videoKey.substring(videoKey.lastIndexOf('/') + 1)
-          }
-        });
-        vidPaths.push(videoKey); // Push video to array if it’s .mp4 and request succeeds
-      } catch (error) {
-        console.error(`Error fetching video info:`, error);
-        continue; // Continue to the next video if the request fails
+      const videoFileName: string = path.posix.basename(videoKey);
+      // console.log(videoFileName)
+      // console.log(dbPaths.includes(videoFileName))
+      if (dbPaths.includes(videoFileName)) {
+        vidPaths.push(videoKey);
       }
-    }
+      else{
+        continue;
+      }
   }
+  // console.log(vidPaths);
   return vidPaths;
 }
-
+}
 //randomize the elements of an array
 function randomizeArray(array: Array<string | null>) {
   let index = array.length;

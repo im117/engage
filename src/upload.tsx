@@ -1,5 +1,5 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+// import { StrictMode } from "react";
+// import { createRoot } from "react-dom/client";
 import "./styles/upload.scss"; // Import the updated styles
 import FileUploader from "./components/FileUploader";
 import { useState, useEffect } from 'react'; // React hook for managing state
