@@ -5,9 +5,12 @@ import path from "path";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import fs from "fs";
+import child_process from "child_process";
 
 const app = express();
 const port = 3001;
+
+const { spawn } = child_process;
 
 let dbHost = "localhost";
 if(process.env.DATABASE_HOST){
@@ -82,7 +85,8 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // console.log("Decoded JWT:", req.user);
   // Delete the video file from the server
   const filePath = path.join('./media', req.file.filename);
-  
+  const outputPath = filePath.replace('.mp4', 'trans.mp4');
+  const outputFile = req.file.filename.replace('.mp4', 'trans.mp4');
 
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
@@ -114,11 +118,59 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
       .json({ message: "Title and description are required" });
   }
 
+  // transcode media
+  const ffmpeg = spawn('ffmpeg', [
+    '-i', filePath,
+    '-c:v', 'libx264',
+    '-preset', 'slow',
+    '-crf', '22',
+    '-c:a', 'copy',
+    outputPath
+  ]);
+  ffmpeg.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+  ffmpeg.on('close', (code) => {
+    console.log(code);
+    if (code === 0) {
+      // const file = fs.readFileSync(outputPath);
+      // writeHead(200, { 'Content-Type': 'video/webm' });
+      // end(file);
+      // fs.unlinkSync(outputPath);
+    } else {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file: ", err);
+        } else {
+          console.log("File deleted successfully");
+        }
+      });
+      fs.unlink(outputPath, (err) => {
+        if (err) {
+          console.error("Error deleting file: ", err);
+        } else {
+          console.log("File deleted successfully");
+        }
+      });
+      return res
+      .status(400)
+      .json({ message: "Transcoding failed" });
+    }
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+      } else {
+        console.log("File deleted successfully");
+      }
+    });
+  });
+
+
   const insertQuery =
     "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
   db.query(
     insertQuery,
-    [creatorId, title, description, req.file.filename],
+    [creatorId, title, description, outputFile],
     (err, result) => {
       if (err) {
         fs.unlink(filePath, (err) => {

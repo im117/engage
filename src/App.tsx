@@ -19,7 +19,7 @@ import axios from "axios";
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
-const videos = import.meta.glob('../media/*.mp4');
+const videos = import.meta.glob('../media/*trans.mp4');
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -212,7 +212,6 @@ async function assignUsername() {
   }
 }
 assignUsername();
-
 
 
 

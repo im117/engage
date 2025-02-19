@@ -15,7 +15,7 @@ function Upload() {
       </button>
       <h1 className="upload-title">Upload Your Video</h1>
       <FileUploader />
-        <p>We only accept .mp4 for now. Max file size is 80MB.</p>
+        <p>Transcoding is now done server side. Max file size is 80MB.</p>
     </div>
   );
 }

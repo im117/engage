@@ -1,5 +1,7 @@
 node_modules
 media
+media.bkp
 dist
 data
+data.bkp
 .env
