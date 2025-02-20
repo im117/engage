@@ -41,8 +41,8 @@ db.connect((err) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "your-email@gmail.com", // Replace with your email
-    pass: "your-email-password", // Replace with your app password
+    user: "tlenguye@emich.edu", // Replace with your email
+    pass: "hyye rlxk whrm gwlg", // Replace with your app password
   },
 });
 
@@ -90,6 +90,9 @@ export const signup = async (req, res) => {
           return res.status(500).json({ message: "Server error" });
         }
 
+        // Generate a verification token
+        const verificationToken = jwt.sign({ email }, "secretkey", { expiresIn: "1d" });
+
         // Insert new user into the database
         const query =
           "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
@@ -102,8 +105,21 @@ export const signup = async (req, res) => {
               .status(500)
               .json({ message: "Database error", error: err });
           }
+          // Send verification email
+          const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`;
+          const mailOptions = {
+            from: "tlenguye@emich.edu",
+            to: email,
+            subject: "Verify Your Email",
+            text: `Click this link to verify your email: ${verificationLink}`,
+          };
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Error sending email: ", error);
+              return res.status(500).json({ message: "Error sending email" });
+            }
           return res.status(201).json({
-            message: "User signed up successfully",
+            message: "User signed up successfully. Please check your email to verify your account.",
           });
         });
       });
