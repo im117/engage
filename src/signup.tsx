@@ -70,12 +70,12 @@ const Signup: React.FC = () => {
               error.response.status === 400 &&
               error.response.data.message.includes("username")
             ) {
-              setErrorMessage("Username must be 30 characters or less.");
+              setErrorMessage(error.response.data.message);
             } else if (
               error.response.status === 400 &&
               error.response.data.message.includes("email")
             ) {
-              setErrorMessage("Email must be 50 characters or less.");
+              setErrorMessage(error.response.data.message);
             } else {
               setErrorMessage(
                 "An unexpected error occurred. Please try again."
