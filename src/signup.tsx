@@ -9,7 +9,7 @@ import axios from "axios";
 //   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
 //   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 // }
-let loginServer = "http://localhost:8081"
+let loginServer = "http://localhost:8081";
 
 if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
@@ -66,10 +66,14 @@ const Signup: React.FC = () => {
           if (error.response) {
             if (error.response.status === 409) {
               setErrorMessage(error.response.data.message); // Sets error message to error message as written in route
-            } else {
-              setErrorMessage("An unexpected error occurred. Please try again.");
-            }        
-          }   
+            } else if (error.response.status === 400)
+              setErrorMessage(error.response.data.message);
+            else {
+              setErrorMessage(
+                "An unexpected error occurred. Please try again."
+              );
+            }
+          }
         });
     }
   };
