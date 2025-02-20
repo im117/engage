@@ -21,8 +21,8 @@ const validation = (values: FormValues): FormErrors => {
   // Name validation
   if (!values.username.trim()) {
     errors.username = "Username is required";
-  } else if (values.username.length > 50) {
-    errors.username = "Username must be 50 characters or less";
+  } else if (values.username.length > 30) {
+    errors.username = "Username must be 30 characters or less";
   }
 
   // Email validation
