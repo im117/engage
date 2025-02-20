@@ -51,7 +51,9 @@ const Signup: React.FC = () => {
       axios
         .post(`${loginServer}/signup`, formValues)
         .then(() => {
-          setSuccessMessage("You have successfully signed up! Redirecting...");
+          setSuccessMessage(
+            "You have successfully signed up! Please verify your email."
+          );
           setTimeout(() => {
             navigate("/login"); // Redirect after 3 seconds
           }, 3000);

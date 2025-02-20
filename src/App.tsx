@@ -1,42 +1,41 @@
-import './styles/App.scss'; // Import global and App-specific styles
+import "./styles/App.scss"; // Import global and App-specific styles
 
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 // React Router for navigation between different pages (Home and User page)
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 // React hooks: useState (state), useEffect (side effects), useRef (persistent value)
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 // import Dashboard from "./Dashboard";
 import PrivateRoute from "./PrivateRoute"; //
 import ResetPassword from "./resetPassword.tsx";
-import ReactPlayer from 'react-player'; // Library for embedding and playing videos
-import User from './User'; 
-import path from 'path-browserify'; // Path library to work with file paths in the browser
+import ReactPlayer from "react-player"; // Library for embedding and playing videos
+import User from "./User";
+import path from "path-browserify"; // Path library to work with file paths in the browser
 import Upload from "./upload.tsx";
+import VerifyEmail from "./VerifyEmail.tsx";
 import axios from "axios";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
-const videos = import.meta.glob('../media/*trans.mp4');
+const videos = import.meta.glob("../media/*trans.mp4");
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
-let loginServer = "http://localhost:8081"
+let loginServer = "http://localhost:8081";
 
 if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   loginServer = import.meta.env.VITE_LOGIN_SERVER;
 }
 
-
 // Asynchronously create an array of video paths from imported media folder
 async function createVideoArray() {
-
   const vidPaths: Array<string | null> = []; // Array to hold video paths
   const dbPaths: Array<string> = [];
   try {
@@ -54,19 +53,17 @@ async function createVideoArray() {
   // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
     const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
-    if (ext === '.mp4') {
+    if (ext === ".mp4") {
       const videoFileName: string = path.posix.basename(videoKey);
       // console.log(videoFileName)
       // console.log(dbPaths.includes(videoFileName))
       if (dbPaths.includes(videoFileName)) {
         vidPaths.push(videoKey);
       }
-
+    }
+    // console.log(vidPaths);
   }
-  // console.log(vidPaths);
-  
-}
-return vidPaths;
+  return vidPaths;
 }
 //randomize the elements of an array
 function randomizeArray(array: Array<string | null>) {
@@ -91,13 +88,12 @@ randomizeArray(array);
 // Remove any undefined items (extra safety)
 const filteredArray = array.filter((item) => item !== undefined);
 
-
 // let userChanged:boolean = false;
 
 // Function to check if the auth token is expired
 function isTokenExpired(token: string) {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const expiry = payload.exp;
     const now = Math.floor(Date.now() / 1000);
     return now >= expiry;
@@ -113,10 +109,10 @@ if (token && isTokenExpired(token)) {
   localStorage.removeItem("authToken");
 }
 
-function Home(){
-// Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
+function Home() {
+  // Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
 
-  const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video 
+  const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video
 
   const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
   const [currentVideo, setCurrentVideo] = useState("");
@@ -134,7 +130,9 @@ function Home(){
 
   // Switch to the next video in the array
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
+    setVideoIndex(
+      (prevIndex) => (prevIndex + initState) % filteredArray.length
+    );
     // console.log(videoIndex);
   };
 
@@ -146,114 +144,112 @@ function Home(){
     navigate("/login");
   };
 
-// Function to get user info from API
-async function getUsername(userid: number){
-  let creatorName = "";
-  await axios.get(`${uploadServer}/user`, {
-    params:{
-      userID: userid
-    }
-  })
-  .then(response => {
-    creatorName = response.data.username;
-  })
-  return creatorName as string;
-}
-// Function to grab video information from API
-async function getVideoInfo(){
-  let title = "";
-  let desc = "";
-  let userid = 0;
-  let creatorName = "";
-  // Get the previousIndex and previousVideo, since index seeks ahead at the moment
-  // const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
-  // const previousVideo = filteredArray[previousIndex] || "";
-
-  // Get video info
-  await axios.get(`${uploadServer}/video`, {
-    params: {
-    fileName: currentVideo.substring(currentVideo.lastIndexOf('/') + 1)
-    }
-  })
-  .then(response => {
-    
-    // get user info
-    title = response.data.title;
-    desc = response.data.description;
-    userid = response.data.creator_id;
-    
-  })
-  .catch(error => {
-    alert(`There was an error fetching the video info!\n\n${error}`);
-  });
-
-  creatorName = await getUsername(userid);
-  if(desc == "" || desc == undefined){
-    desc = "No description provided";
-  }
-  alert(`Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`);
-}
-
-// const token = localStorage.getItem("authToken");
-// useEffect(() => {
-//   setLoggedIn(!!token);
-// }, []);
-
-
-async function getLoggedInUserId(){
-  const token = localStorage.getItem("authToken");
-  if (token) {
-    try {
-      const response = await axios.get(`${loginServer}/current-user-id`, {
+  // Function to get user info from API
+  async function getUsername(userid: number) {
+    let creatorName = "";
+    await axios
+      .get(`${uploadServer}/user`, {
         params: {
-          auth: token ? token : "",
-        }
+          userID: userid,
+        },
+      })
+      .then((response) => {
+        creatorName = response.data.username;
       });
-      setUserID(response.data.userId);
-      setLoggedIn(true);
-      // userChanged = true;
-      return response.data.userId;
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
+    return creatorName as string;
+  }
+  // Function to grab video information from API
+  async function getVideoInfo() {
+    let title = "";
+    let desc = "";
+    let userid = 0;
+    let creatorName = "";
+    // Get the previousIndex and previousVideo, since index seeks ahead at the moment
+    // const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
+    // const previousVideo = filteredArray[previousIndex] || "";
+
+    // Get video info
+    await axios
+      .get(`${uploadServer}/video`, {
+        params: {
+          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
+        },
+      })
+      .then((response) => {
+        // get user info
+        title = response.data.title;
+        desc = response.data.description;
+        userid = response.data.creator_id;
+      })
+      .catch((error) => {
+        alert(`There was an error fetching the video info!\n\n${error}`);
+      });
+
+    creatorName = await getUsername(userid);
+    if (desc == "" || desc == undefined) {
+      desc = "No description provided";
+    }
+    alert(
+      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`
+    );
+  }
+
+  // const token = localStorage.getItem("authToken");
+  // useEffect(() => {
+  //   setLoggedIn(!!token);
+  // }, []);
+
+  async function getLoggedInUserId() {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await axios.get(`${loginServer}/current-user-id`, {
+          params: {
+            auth: token ? token : "",
+          },
+        });
+        setUserID(response.data.userId);
+        setLoggedIn(true);
+        // userChanged = true;
+        return response.data.userId;
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+        return null;
+      }
+    } else {
       return null;
     }
-  } else {
-    return null;
   }
-}
 
+  // const authButtons = async ()=>{
+  //   let button = "";
+  //   const userId = await getLoggedInUserId()
 
-// const authButtons = async ()=>{
-//   let button = "";
-//   const userId = await getLoggedInUserId()
-  
-//    if (userId !== null) {
+  //    if (userId !== null) {
 
-//     const username = await getUsername(userId);
-//     button = "<button className='control-button' onClick={() => navigate('/user')}" + username + " <i className='fa-solid fa-user'></i> </button>"
+  //     const username = await getUsername(userId);
+  //     button = "<button className='control-button' onClick={() => navigate('/user')}" + username + " <i className='fa-solid fa-user'></i> </button>"
 
-//   } else {
-//     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
-//   }
-//   const sanitizedHTML = DOMPurify.sanitize(button);
-//   return (
-//     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-//   ) 
-    
-// }
+  //   } else {
+  //     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
+  //   }
+  //   const sanitizedHTML = DOMPurify.sanitize(button);
+  //   return (
+  //     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+  //   )
 
-getLoggedInUserId()
+  // }
 
-async function assignUsername() {
-  if(loggedIn){
-    const username = await getUsername(userID);
-    setUsername(username);
-    // console.log(username);
+  getLoggedInUserId();
+
+  async function assignUsername() {
+    if (loggedIn) {
+      const username = await getUsername(userID);
+      setUsername(username);
+      // console.log(username);
+    }
   }
-}
-assignUsername();
-
-
+  assignUsername();
 
   return (
     <div className="app-container">
@@ -261,7 +257,7 @@ assignUsername();
       <div className="video-player">
         <ReactPlayer
           id="video"
-          url={currentVideo || ''}
+          url={currentVideo || ""}
           playing={true}
           muted={true}
           controls={true}
@@ -301,23 +297,23 @@ assignUsername();
           Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
         </button> */}
         <div className="control-button" onClick={getVideoInfo}>
-        <i className="fas fa-info-circle"></i> VIDEO INFO
+          <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>
       </div>
       <div className="login-button-section">
-      <button className="control-button" onClick={loggedIn ? () => navigate('/user') : handleBackToLogin}>
-
-
-        {loggedIn ? (
-          <>
-            <i className="fa-solid fa-user"></i> {username} 
-          </>
-        ) : (
-          <>
-            <i className="fa solid fa-right-to-bracket"></i> Log In
-          </>
-        )}
-          
+        <button
+          className="control-button"
+          onClick={loggedIn ? () => navigate("/user") : handleBackToLogin}
+        >
+          {loggedIn ? (
+            <>
+              <i className="fa-solid fa-user"></i> {username}
+            </>
+          ) : (
+            <>
+              <i className="fa solid fa-right-to-bracket"></i> Log In
+            </>
+          )}
         </button>
         {/* <button className="control-button" onClick={async () => {
           const userId = await getLoggedInUserId();
@@ -330,9 +326,7 @@ assignUsername();
         }}>
           Engager <i className="fa-solid fa-user"></i>
         </button>  */}
-        {
-          
-        }
+        {}
         {/* <button className="control-button" onClick={handleBackToLogin}>
           
           Log In <i className="fa solid fa-right-to-bracket"></i>
@@ -353,32 +347,26 @@ assignUsername();
   );
 }
 
-
-
-
 // Main App Component - Sets up routing between Home and User page
 
 function App() {
-  
   // const [userVideos, setUserVideos] = useState<string[]>([]);
-  
-  // useEffect(() => {
-    
-  // }, []);
-  
 
-  
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* Home Page Route */}
-//         <Route path="/" element={<Home />} />
-//         {/* User Page Route */}
-//         <Route path="/user" element={<User userVideos={userVideos} />} />
-//       </Routes>
-//     </Router>
-//   );
-// }
+  // useEffect(() => {
+
+  // }, []);
+
+  //   return (
+  //     <Router>
+  //       <Routes>
+  //         {/* Home Page Route */}
+  //         <Route path="/" element={<Home />} />
+  //         {/* User Page Route */}
+  //         <Route path="/user" element={<User userVideos={userVideos} />} />
+  //       </Routes>
+  //     </Router>
+  //   );
+  // }
 
   return (
     <BrowserRouter>
@@ -388,17 +376,18 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         {/* User Page Route */}
-        
+
         {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
-        <Route path="/user" element={<User />} />
+          <Route path="/user" element={<User />} />
           <Route path="/upload" element={<Upload />} />
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
   );
-};
+}
 
 export default App;
