@@ -41,8 +41,8 @@ db.connect((err) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "tlenguye@emich.edu", // Replace with your email
-    pass: "hyye rlxk whrm gwlg", // Replace with your app password
+    user: "liluzivert1007@gmail.com", // Replace with your email
+    pass: "ssvf mjhf ckxh bugn", // Replace with your app password
   },
 });
 
@@ -91,12 +91,21 @@ export const signup = async (req, res) => {
         }
 
         // Generate a verification token
-        const verificationToken = jwt.sign({ email }, "secretkey", { expiresIn: "1d" });
+        const verificationToken = jwt.sign({ email }, "secretkey", {
+          expiresIn: "1d",
+        });
 
         // Insert new user into the database
         const query =
-          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-        const values = [username, email, hashedPassword, "user"];
+          "INSERT INTO users (username, email, password, role, isVerified, verificationToken) VALUES (?, ?, ?, ?, ?, ?)";
+        const values = [
+          username,
+          email,
+          hashedPassword,
+          "user",
+          false,
+          verificationToken,
+        ];
 
         db.query(query, values, (err, result) => {
           if (err) {
@@ -108,18 +117,21 @@ export const signup = async (req, res) => {
           // Send verification email
           const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`;
           const mailOptions = {
-            from: "tlenguye@emich.edu",
+            from: "liluzivert1007@gmail.com",
             to: email,
             subject: "Verify Your Email",
             text: `Click this link to verify your email: ${verificationLink}`,
           };
+
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
               console.error("Error sending email: ", error);
               return res.status(500).json({ message: "Error sending email" });
             }
-          return res.status(201).json({
-            message: "User signed up successfully. Please check your email to verify your account.",
+            return res.status(201).json({
+              message:
+                "User signed up successfully. Please check your email to verify your account.",
+            });
           });
         });
       });
@@ -134,6 +146,33 @@ export const signup = async (req, res) => {
       return res.status(500).json({ message: "Database error", error });
     });
 };
+// Email Verification Route
+app.get("/verify-email", (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ message: "Missing token" });
+  }
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const email = decoded.email;
+    const updateQuery =
+      "UPDATE users SET isVerified = true, verificationToken = NULL WHERE email = ?";
+
+    db.query(updateQuery, [email], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: "Database error" });
+      }
+      return res
+        .status(200)
+        .json({ message: "Email verified successfully! You can now log in." });
+    });
+  });
+});
 
 const authenticateTokenGet = (req, res, next) => {
   const { auth: token } = req.query;
@@ -175,6 +214,13 @@ app.post("/login", (req, res) => {
     }
 
     const user = results[0];
+
+    // Check if user is verified
+    if (!user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Please verify your email before logging in." });
+    }
 
     // Compare passwords
     bcrypt.compare(password, user.password, (err, isMatch) => {

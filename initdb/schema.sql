@@ -7,6 +7,8 @@ CREATE TABLE users (
     email VARCHAR(50) UNIQUE,
     password VARCHAR(250),
     role VARCHAR(10),
+    isVerified BOOLEAN DEFAULT FALSE,
+    verificationToken VARCHAR(255),  -- This column stores the verification token
     dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE videos(
