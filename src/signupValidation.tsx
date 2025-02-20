@@ -19,8 +19,10 @@ const validation = (values: FormValues): FormErrors => {
   const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
 
   // Name validation
-  if (!values.username) {
+  if (!values.username.trim()) {
     errors.username = "Username is required";
+  } else if (values.username.length > 50) {
+    errors.username = "Username must be 50 characters or less";
   }
 
   // Email validation
@@ -28,6 +30,8 @@ const validation = (values: FormValues): FormErrors => {
     errors.email = "Email is required";
   } else if (!emailPattern.test(values.email)) {
     errors.email = "Email is invalid";
+  } else if (values.email.length > 50) {
+    errors.email = "Email must be 50 characters or less";
   }
 
   // Password validation
