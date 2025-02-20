@@ -115,9 +115,9 @@ export const signup = async (req, res) => {
               .json({ message: "Database error", error: err });
           }
           // Send verification email
-          const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`;
+          const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
           const mailOptions = {
-            from: "liluzivert1007@gmail.com",
+            from: "liluzivert1007@gmail.com", // your email
             to: email,
             subject: "Verify Your Email",
             text: `Click this link to verify your email: ${verificationLink}`,
