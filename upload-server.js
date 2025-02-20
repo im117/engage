@@ -89,9 +89,6 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   
   const outputFile = req.file.filename.replace('.mp4', 'trans.mp4');
 
-  const tempPath = filePath.replace('.mp4', 'trans.tmp.mp4');
-  const tempFile = req.file.filename.replace('.mp4', 'trans.tmp.mp4');
-
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
@@ -129,7 +126,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
     '-preset', 'slow',
     '-crf', '22',
     '-c:a', 'copy',
-    tempPath
+    outputPath
   ]);
   ffmpeg.stderr.on('data', (data) => {
     console.error(`stderr: ${data}`);
@@ -149,7 +146,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
           console.log("File deleted successfully");
         }
       });
-      fs.unlink(tempPath, (err) => {
+      fs.unlink(outputPath, (err) => {
         if (err) {
           console.error("Error deleting file: ", err);
         } else {
@@ -165,13 +162,6 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
         console.error("Error deleting file: ", err);
       } else {
         console.log("File deleted successfully");
-      }
-    });
-    fs.rename(tempPath, outputPath, (err) => {
-      if (err) {
-        console.error("Error renaming file: ", err);
-      } else {
-        console.log("File renamed successfully");
       }
     });
     
