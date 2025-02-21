@@ -1,5 +1,5 @@
 import express from "express";
-import mysql from "mysql2";
+
 import cors from "cors";
 import bcrypt from "bcryptjs"; // For hashing passwords
 import jwt from "jsonwebtoken"; // For generating tokens
@@ -18,23 +18,7 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
-// MySQL connection
-const db = mysql.createConnection({
-  host: dbHost,
-  user: "engageuser",
-  password: "engagepassword",
-  database: "engage",
-  port: 3306
-});
-
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed: ", err);
-    return;
-  }
-  console.log("Login Server Connected to MySQL database");
-});
+import dbRequest from "./db.js";
 
 
 // Signup Route
@@ -50,16 +34,21 @@ export const signup = async (req, res) => {
   const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
 
+  const db = dbRequest(dbHost);
   // Promise allows multiple checks in succession before an action
   Promise.all([
     new Promise((resolve, reject) => {
+      
+
       db.query(checkUsernameQuery, [username], (err, results) => {  // Checks for unique username
         if (err) return reject(err);
         if (results.length > 0) {
           return reject({ status: 409, message: "Username already exists" });
         }
+        db.destroy();
         resolve();  // Continue to the next step if username is unique
       });
+      
     }),
     new Promise((resolve, reject) => {
       db.query(checkEmailQuery, [email], (err, results) => {  // Checks for unique email
@@ -67,6 +56,7 @@ export const signup = async (req, res) => {
         if (results.length > 0) {
           return reject({ status: 409, message: "Email already exists" });
         }
+        db.destroy();
         resolve();  // Continue to the next step if email is unique
       });
     }),
@@ -87,8 +77,10 @@ export const signup = async (req, res) => {
       db.query(query, values, (err, result) => {
         if (err) {
           console.error("Error inserting data: ", err);
+          db.destroy();
           return res.status(500).json({ message: "Database error", error: err });
         }
+        db.destroy();
         return res.status(201).json({
           message: "User signed up successfully"
         });
@@ -98,10 +90,12 @@ export const signup = async (req, res) => {
 .catch((error) => {
   // Handle errors from either username or email check
   if (error.status) {
+    db.destroy();
     return res.status(error.status).json({ message: error.message });
   }
   // For any other errors (e.g., database error)
   console.error("Error: ", error);
+  db.destroy();
   return res.status(500).json({ message: "Database error", error });
 });
 };
@@ -125,10 +119,12 @@ const authenticateTokenGet = (req, res, next) => {
 
 // Login Route (Unchanged)
 app.post("/login", (req, res) => {
+  const db = dbRequest(dbHost);
   const { usernameOrEmail, password } = req.body;
 
   // Basic input validation
   if (!usernameOrEmail || !password) {
+    db.destroy();
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -138,11 +134,13 @@ app.post("/login", (req, res) => {
   db.query(query, [usernameOrEmail, usernameOrEmail], (err, results) => { 
     if (err) {
       console.error("Error querying database: ", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
       // User not found - return 404
+      db.destroy();
       return res.status(404).json({ message: "User does not exist!" });
     }
 
@@ -152,10 +150,12 @@ app.post("/login", (req, res) => {
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) {
         console.error("Error comparing passwords: ", err);
+        db.destroy();
         return res.status(500).json({ message: "Server error" });
       }
       // Passwords don't match
       if (!isMatch) {
+        db.destroy();
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
@@ -180,22 +180,27 @@ app.get("/current-user-id", authenticateTokenGet, (req, res) => {
 })
 
 app.get("/get-user-videos", authenticateTokenGet, (req, res) => {
+  const db = dbRequest(dbHost);
   const userid = req.user.userId;
   const getVideosQuery = "SELECT * FROM videos WHERE creator_id = ?";
   db.query(getVideosQuery, [userid], (err, results) => {
     if (err) {
       console.error("Database error:", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error" });
     }
-
+    db.destroy();
     return res.status(200).json({ videos: results });
   });
+  
 })
 
 app.post("/reset-password", (req, res) => {
+  const db = dbRequest(dbHost);
   const { email, newPassword } = req.body;
 
   if (!email || !newPassword) {
+    db.destroy();
     return res
       .status(400)
       .json({ message: "Email and new password are required" });
@@ -205,10 +210,12 @@ app.post("/reset-password", (req, res) => {
   db.query(findUserQuery, [email], (err, results) => {
     if (err) {
       console.error("Database error:", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error" });
     }
 
     if (results.length === 0) {
+      db.destroy();
       return res.status(404).json({ message: "Email does not exist" });
     }
 
@@ -216,6 +223,7 @@ app.post("/reset-password", (req, res) => {
     bcrypt.hash(newPassword, 10, (hashErr, hashedPassword) => {
       if (hashErr) {
         console.error("Error hashing password:", hashErr);
+        db.destroy();
         return res.status(500).json({ message: "Server error" });
       }
 
@@ -224,9 +232,10 @@ app.post("/reset-password", (req, res) => {
       db.query(updateQuery, [hashedPassword, email], (updateErr) => {
         if (updateErr) {
           console.error("Error updating password:", updateErr);
+          db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-
+        db.destroy();
         return res
           .status(200)
           .json({ message: "Password reset successfully! Redirecting..." });

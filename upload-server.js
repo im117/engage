@@ -21,23 +21,7 @@ app.use(express.json()); // Add this line to parse JSON bodies
 
 app.use(cors());
 
-// MySQL connection
-const db = mysql.createConnection({
-  host: dbHost,
-  user: "engageuser",
-  password: "engagepassword",
-  database: "engage",
-  port: 3306
-});
-
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed: ", err);
-    return;
-  }
-  console.log("Upload Server Connected to MySQL database");
-});
+import dbRequest from "./db.js";
 
 // Enable CORS for your React app (localhost:5173)
 app.use(
@@ -84,6 +68,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   // console.log("Request body:", req.body);
   // console.log("Decoded JWT:", req.user);
   // Delete the video file from the server
+  
   const filePath = path.join('./media', req.file.filename);
   const outputPath = filePath.replace('.mp4', 'trans.mp4');
   
@@ -167,7 +152,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
     
   });
 
-
+  const db = dbRequest(dbHost);
   const insertQuery =
     "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
   db.query(
@@ -183,9 +168,11 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
           }
         });
         console.error("Error inserting video into database: ", err);
+        db.destroy();
         return res.status(500).json({ message: "Database error", error: err });
       }
       console.log("Insert result:", result);
+      db.destroy();
       return res.status(200).json({ message: "File uploaded successfully!" });
     }
   );
@@ -193,6 +180,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
 
 // Get user info
 app.get("/user", (req, res) => {
+  const db = dbRequest(dbHost);
   const { userID: userid } = req.query;
 
   if (!userid) {
@@ -202,22 +190,26 @@ app.get("/user", (req, res) => {
   db.query(selectQuery, [userid], (err, results) => {
     if (err) {
       console.error("Error fetching user from database: ", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
+      db.destroy();
       return res.status(404).json({ message: "User not found" });
     }
-
+    db.destroy();
     return res.status(200).json(results[0]);
   });
 }
 );
 // Get Video info
 app.get("/video", (req, res) => {
+  const db = dbRequest(dbHost);
   const { fileName: filename } = req.query;
 
   if (!filename) {
+    db.destroy();
     return res.status(400).json({ message: "Filename is required" });
   }
 
@@ -225,13 +217,15 @@ app.get("/video", (req, res) => {
   db.query(selectQuery, [filename], (err, results) => {
     if (err) {
       console.error("Error fetching video from database: ", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
+      db.destroy();
       return res.status(404).json({ message: "Video not found" });
     }
-
+    db.destroy();
     return res.status(200).json(results[0]);
   });
 });
@@ -243,18 +237,20 @@ app.get("/video-list", (req, res) => {
   // if (!filename) {
   //   return res.status(400).json({ message: "Filename is required" });
   // }
-
+  const db = dbRequest(dbHost);
   const selectQuery = "SELECT fileName FROM videos";
   db.query(selectQuery, (err, results) => {
     if (err) {
       console.error("Error fetching video from database: ", err);
+      db.destroy();
       return res.status(500).json({ message: "Database error", error: err });
     }
 
     if (results.length === 0) {
+      db.destroy();
       return res.status(404).json({ message: "Video not found" });
     }
-
+    db.destroy();
     return res.status(200).json(results);
   });
 });

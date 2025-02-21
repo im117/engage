@@ -11,6 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code
+COPY ./db.js .
 COPY ./login-server.js .
 
 # Expose the port the app runs on

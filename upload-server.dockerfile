@@ -16,6 +16,7 @@ RUN apt-get install ffmpeg -y
 RUN npm install
 
 # Copy the rest of the application code
+COPY ./db.js .
 COPY ./upload-server.js .
 
 # Expose the port the app runs on
