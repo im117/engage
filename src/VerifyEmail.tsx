@@ -10,8 +10,7 @@ const VerifyEmail: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get("token");
+    const token = localStorage.getItem("authToken");
 
     if (token) {
       axios
