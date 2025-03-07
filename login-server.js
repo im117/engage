@@ -254,50 +254,77 @@ app.post("/verifyToken", (req, res) => {
 
 // Like or Unlike a Video
 app.post("/like-video", authenticateTokenGet, (req, res) => {
-  const { videoId } = req.body;
+  const { videoId } = req.body; // This is now the file name, not the numeric ID
   const userId = req.user.userId;
 
+  // Add this line to create the database connection
+  const db = dbRequest(dbHost);
+
+  console.log("User ID:", userId);
+  console.log("Video ID (fileName):", videoId);
+
   if (!videoId) {
-    return res.status(400).json({ message: "Video ID is required" });
+    db.destroy();
+    return res.status(400).json({ message: "Video file name is required" });
   }
 
-  // Check if user already liked the video
-  const checkLikeQuery =
-    "SELECT * FROM likes WHERE user_id = ? AND video_id = ?";
-  db.query(checkLikeQuery, [userId, videoId], (err, results) => {
+  // Query to get the numeric video_id based on the video file name
+  const getVideoIdQuery = "SELECT id FROM videos WHERE fileName = ?";
+  db.query(getVideoIdQuery, [videoId], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       return res.status(500).json({ message: "Database error" });
     }
 
-    if (results.length > 0) {
-      // User already liked the video -> Unlike it
-      const unlikeQuery =
-        "DELETE FROM likes WHERE user_id = ? AND video_id = ?";
-      db.query(unlikeQuery, [userId, videoId], (err) => {
-        if (err) {
-          console.error("Database error:", err);
-          return res.status(500).json({ message: "Database error" });
-        }
-        return res.status(200).json({ message: "Video unliked successfully" });
-      });
-    } else {
-      // User hasn't liked the video -> Like it
-      const likeQuery = "INSERT INTO likes (user_id, video_id) VALUES (?, ?)";
-      db.query(likeQuery, [userId, videoId], (err) => {
-        if (err) {
-          console.error("Database error:", err);
-          return res.status(500).json({ message: "Database error" });
-        }
-        return res.status(200).json({ message: "Video liked successfully" });
-      });
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Video not found" });
     }
+
+    const videoIdFromDb = results[0].id; // Get the numeric video_id from the query result
+    console.log("Found videoId:", videoIdFromDb);
+
+    // Check if user already liked the video
+    const checkLikeQuery =
+      "SELECT * FROM likes WHERE user_id = ? AND video_id = ?";
+    db.query(checkLikeQuery, [userId, videoIdFromDb], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      if (results.length > 0) {
+        // User already liked the video -> Unlike it
+        const unlikeQuery =
+          "DELETE FROM likes WHERE user_id = ? AND video_id = ?";
+        db.query(unlikeQuery, [userId, videoIdFromDb], (err) => {
+          if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ message: "Database error" });
+          }
+          return res
+            .status(200)
+            .json({ message: "Video unliked successfully" });
+        });
+      } else {
+        // User hasn't liked the video -> Like it
+        const likeQuery = "INSERT INTO likes (user_id, video_id) VALUES (?, ?)";
+        db.query(likeQuery, [userId, videoIdFromDb], (err) => {
+          if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ message: "Database error" });
+          }
+          return res.status(200).json({ message: "Video liked successfully" });
+        });
+      }
+    });
   });
 });
 
 // Get Like Count for a Video
 app.get("/video-likes/:videoId", (req, res) => {
   const { videoId } = req.params;
+
+  const db = dbRequest(dbHost);
 
   const likeCountQuery =
     "SELECT COUNT(*) AS likeCount FROM likes WHERE video_id = ?";

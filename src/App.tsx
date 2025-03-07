@@ -258,7 +258,7 @@ function Home() {
   async function getLikeCount() {
     try {
       const response = await axios.get(
-        `${uploadServer}/likes/${currentVideo.split("/").pop()}`
+        `${uploadServer}/video-likes/${currentVideo.split("/").pop()}`
       );
       setLikeCount(response.data.likeCount);
     } catch (error) {
@@ -267,31 +267,78 @@ function Home() {
   }
 
   async function checkIfLiked() {
-    if (!userID) return;
+    if (!loggedIn) return;
+
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    const videoId = currentVideo.split("/").pop();
+    if (!videoId) return;
+
     try {
-      const response = await axios.get(`${uploadServer}/liked`, {
-        params: { user_id: userID, video_id: currentVideo.split("/").pop() },
+      // You may need to implement an endpoint for this on your login server
+      // or modify your current endpoint to handle check requests
+      const response = await axios.get(`${loginServer}/check-like-status`, {
+        params: {
+          auth: token,
+          videoId: videoId,
+        },
       });
+
       setLiked(response.data.liked);
     } catch (error) {
       console.error("Error checking like status:", error);
     }
   }
   async function handleLike() {
-    if (!userID) {
+    if (!loggedIn) {
       alert("You must be logged in to like videos.");
       return;
     }
 
+    const videoId = currentVideo.split("/").pop();
+    if (!videoId) {
+      console.error("Error: Video ID is missing.");
+      return;
+    }
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Authentication error. Please log in again.");
+      setLoggedIn(false);
+      return;
+    }
+
     try {
-      await axios.post(`${uploadServer}/like`, {
-        user_id: userID,
-        video_id: currentVideo.split("/").pop(),
-      });
-      setLiked(true);
-      setLikeCount((prev) => prev + 1);
+      // Send request to the login server with the auth token
+      const response = await axios.post(
+        `${loginServer}/like-video`,
+        { videoId: videoId }, // Just send videoId in the body
+        {
+          params: { auth: token }, // Send token as a query parameter
+        }
+      );
+
+      // Check response and update UI
+      if (response.status === 200) {
+        // Toggle the like status
+        setLiked(!liked);
+        // Update like count appropriately
+        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+
+        // Update UI based on the action performed
+        if (response.data.message.includes("unlike")) {
+          setLiked(false);
+        } else {
+          setLiked(true);
+        }
+
+        // Refresh the like count
+        getLikeCount();
+      }
     } catch (error) {
-      console.error("Error liking video:", error);
+      console.error("Error liking/unliking video:", error);
+      alert("Failed to like video. Please try again.");
     }
   }
 
