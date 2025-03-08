@@ -19,3 +19,10 @@ CREATE TABLE videos(
     PRIMARY KEY(id),
     FOREIGN KEY (creator_id) REFERENCES users(id)
 );
+CREATE TABLE comments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    creator_id int NOT NULL,
+    content text NOT NULL,
+    likes int
+
+)
