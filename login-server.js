@@ -22,6 +22,7 @@ import dbRequest from "./db.js";
 
 // Signup Route
 export const signup = async (req, res) => {
+  const db = dbRequest(dbHost);
   const { username, email, password } = req.body;
 
   // Basic input validation
@@ -33,7 +34,6 @@ export const signup = async (req, res) => {
   const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
 
-  const db = dbRequest(dbHost);
   // Promise allows multiple checks in succession before an action
   Promise.all([
     new Promise((resolve, reject) => {
@@ -43,7 +43,6 @@ export const signup = async (req, res) => {
         if (results.length > 0) {
           return reject({ status: 409, message: "Username already exists" });
         }
-        db.destroy();
         resolve(); // Continue to the next step if username is unique
       });
     }),
@@ -54,7 +53,6 @@ export const signup = async (req, res) => {
         if (results.length > 0) {
           return reject({ status: 409, message: "Email already exists" });
         }
-        db.destroy();
         resolve(); // Continue to the next step if email is unique
       });
     }),
