@@ -266,27 +266,40 @@ function Home() {
 
   async function getLikeCount() {
     try {
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+
       const response = await axios.get(
-        `${uploadServer}/video-likes/${currentVideo.split("/").pop()}`
+        `${loginServer}/video-likes-by-filename/${fileName}`
       );
       setLikeCount(response.data.likeCount);
     } catch (error) {
       console.error("Error fetching like count:", error);
+      setLikeCount(0); // Default to 0 if there's an error
     }
   }
 
   async function checkIfLiked() {
-    if (!loggedIn) return;
+    if (!loggedIn) {
+      setLiked(false);
+      return;
+    }
 
     const token = localStorage.getItem("authToken");
-    if (!token) return;
+    if (!token) {
+      setLiked(false);
+      return;
+    }
 
     const fileName = currentVideo.split("/").pop();
-    if (!fileName) return;
-
+    if (!fileName) {
+      setLiked(false);
+      return;
+    }
     try {
-      // You may need to implement an endpoint for this on your login server
-      // or modify your current endpoint to handle check requests
       const response = await axios.get(`${loginServer}/check-like-status`, {
         params: {
           auth: token,
@@ -297,10 +310,10 @@ function Home() {
       setLiked(response.data.liked);
     } catch (error) {
       console.error("Error checking like status:", error);
-      // Always default to not liked if there's an error
       setLiked(false);
     }
   }
+
   async function handleLike() {
     if (!userID || !loggedIn) {
       alert("You must be logged in to like videos.");
