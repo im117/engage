@@ -126,11 +126,20 @@ function Home() {
 
   // Update current video path when videoIndex changes
   useEffect(() => {
+    // Reset states when changing videos
+    setLiked(false);
+    setLikeCount(0);
+    // Set the current video
     setCurrentVideo(filteredArray[videoIndex] || "");
-    // console.log(currentVideo)
-    getLikeCount();
-    checkIfLiked();
-  }, [videoIndex]);
+    // Only fetch like data if there's a valid video
+    if (filteredArray[videoIndex]) {
+      getLikeCount();
+      // Only check if user has liked if they're logged in
+      if (loggedIn && userID) {
+        checkIfLiked();
+      }
+    }
+  }, [videoIndex, loggedIn, userID]);
 
   // Switch to the next video in the array
   const handleNext = () => {
@@ -272,8 +281,8 @@ function Home() {
     const token = localStorage.getItem("authToken");
     if (!token) return;
 
-    const videoId = currentVideo.split("/").pop();
-    if (!videoId) return;
+    const fileName = currentVideo.split("/").pop();
+    if (!fileName) return;
 
     try {
       // You may need to implement an endpoint for this on your login server
@@ -281,24 +290,26 @@ function Home() {
       const response = await axios.get(`${loginServer}/check-like-status`, {
         params: {
           auth: token,
-          videoId: videoId,
+          fileName: fileName,
         },
       });
 
       setLiked(response.data.liked);
     } catch (error) {
       console.error("Error checking like status:", error);
+      // Always default to not liked if there's an error
+      setLiked(false);
     }
   }
   async function handleLike() {
-    if (!loggedIn) {
+    if (!userID || !loggedIn) {
       alert("You must be logged in to like videos.");
       return;
     }
 
-    const videoId = currentVideo.split("/").pop();
-    if (!videoId) {
-      console.error("Error: Video ID is missing.");
+    const fileName = currentVideo.split("/").pop();
+    if (!fileName) {
+      console.error("Error: fileName is missing.");
       return;
     }
 
@@ -310,35 +321,25 @@ function Home() {
     }
 
     try {
-      // Send request to the login server with the auth token
       const response = await axios.post(
         `${loginServer}/like-video`,
-        { videoId: videoId }, // Just send videoId in the body
+        { fileName: fileName }, // Send fileName in the request body
         {
           params: { auth: token }, // Send token as a query parameter
         }
       );
 
-      // Check response and update UI
-      if (response.status === 200) {
-        // Toggle the like status
-        setLiked(!liked);
-        // Update like count appropriately
-        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-
-        // Update UI based on the action performed
-        if (response.data.message.includes("unlike")) {
-          setLiked(false);
-        } else {
-          setLiked(true);
-        }
-
-        // Refresh the like count
-        getLikeCount();
+      // Update UI based on the response message
+      if (response.data.message.includes("unliked")) {
+        setLiked(false);
+        setLikeCount((prev) => Math.max(0, prev - 1));
+      } else {
+        setLiked(true);
+        setLikeCount((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Error liking/unliking video:", error);
-      alert("Failed to like video. Please try again.");
+      alert("Failed to process like. Please try again.");
     }
   }
 
