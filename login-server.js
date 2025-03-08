@@ -312,7 +312,7 @@ async function checkIfLiked() {
   }
 }
 
-// Updated video-likes endpoint to accept fileName instead of videoId
+// Video likes endpoint
 app.get("/video-likes-by-filename/:fileName", (req, res) => {
   const { fileName } = req.params;
   const db = dbRequest(dbHost);
