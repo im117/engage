@@ -312,7 +312,7 @@ async function checkIfLiked() {
   }
 }
 
-// Video likes endpoint
+// Video likes by filename endpoint
 app.get("/video-likes-by-filename/:fileName", (req, res) => {
   const { fileName } = req.params;
   const db = dbRequest(dbHost);
