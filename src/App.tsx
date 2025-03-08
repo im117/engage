@@ -124,22 +124,29 @@ function Home() {
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
 
-  // Update current video path when videoIndex changes
   useEffect(() => {
-    // Reset states when changing videos
+    // Immediately reset states when changing videos
     setLiked(false);
     setLikeCount(0);
+
     // Set the current video
     setCurrentVideo(filteredArray[videoIndex] || "");
+
+    // Use a separate effect for fetching like data to ensure it runs AFTER the currentVideo is set
+  }, [videoIndex]);
+
+  // Add a separate useEffect that depends on currentVideo
+  useEffect(() => {
     // Only fetch like data if there's a valid video
-    if (filteredArray[videoIndex]) {
+    if (currentVideo) {
+      console.log("Video changed to:", currentVideo.split("/").pop());
       getLikeCount();
       // Only check if user has liked if they're logged in
       if (loggedIn && userID) {
         checkIfLiked();
       }
     }
-  }, [videoIndex, loggedIn, userID]);
+  }, [currentVideo, loggedIn, userID]);
 
   // Switch to the next video in the array
   const handleNext = () => {
@@ -283,23 +290,30 @@ function Home() {
   }
 
   async function checkIfLiked() {
+    console.log("Checking if liked for:", currentVideo.split("/").pop());
+
     if (!loggedIn) {
+      console.log("Not logged in, setting liked to false");
       setLiked(false);
       return;
     }
 
     const token = localStorage.getItem("authToken");
     if (!token) {
+      console.log("No token, setting liked to false");
       setLiked(false);
       return;
     }
 
     const fileName = currentVideo.split("/").pop();
     if (!fileName) {
+      console.log("No fileName, setting liked to false");
       setLiked(false);
       return;
     }
+
     try {
+      console.log("Making API request to check like status for:", fileName);
       const response = await axios.get(`${loginServer}/check-like-status`, {
         params: {
           auth: token,
@@ -307,6 +321,7 @@ function Home() {
         },
       });
 
+      console.log("Like status response:", response.data);
       setLiked(response.data.liked);
     } catch (error) {
       console.error("Error checking like status:", error);
