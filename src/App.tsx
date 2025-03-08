@@ -290,24 +290,24 @@ function Home() {
   }
 
   async function checkIfLiked() {
-    console.log("Checking if liked for:", currentVideo.split("/").pop());
+    // console.log("Checking if liked for:", currentVideo.split("/").pop());
 
     if (!loggedIn) {
-      console.log("Not logged in, setting liked to false");
+      // console.log("Not logged in, setting liked to false");
       setLiked(false);
       return;
     }
 
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.log("No token, setting liked to false");
+      // console.log("No token, setting liked to false");
       setLiked(false);
       return;
     }
 
     const fileName = currentVideo.split("/").pop();
     if (!fileName) {
-      console.log("No fileName, setting liked to false");
+      // No fileName, setting liked to false
       setLiked(false);
       return;
     }
