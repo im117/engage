@@ -277,24 +277,6 @@ function getVideoIdFromFileName(db, fileName) {
   });
 }
 
-// Get Like Count for a Video
-app.get("/video-likes/:videoId", (req, res) => {
-  const { videoId } = req.params;
-
-  const db = dbRequest(dbHost);
-
-  const likeCountQuery =
-    "SELECT COUNT(*) AS likeCount FROM likes WHERE video_id = ?";
-  db.query(likeCountQuery, [videoId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    return res.status(200).json({ likeCount: results[0].likeCount });
-  });
-});
-
 async function checkIfLiked() {
   // Reset liked status if not logged in
   if (!userID || !loggedIn) {
