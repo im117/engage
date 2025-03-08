@@ -19,3 +19,11 @@ CREATE TABLE videos(
     PRIMARY KEY(id),
     FOREIGN KEY (creator_id) REFERENCES users(id)
 );
+CREATE TABLE likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    UNIQUE(user_id, video_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+);
