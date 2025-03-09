@@ -145,6 +145,7 @@ function Home() {
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
       getLikeCount();
+      getViewCount();
       // Only check if user has liked if they're logged in
       if (loggedIn && userID) {
         checkIfLiked();
@@ -372,6 +373,24 @@ function Home() {
     } catch (error) {
       console.error("Error liking/unliking video:", error);
       alert("Failed to process like. Please try again.");
+    }
+  }
+
+  async function getViewCount() {
+    try {
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+
+      const response = await axios.get(
+        `${loginServer}/video-views/${fileName}`
+      );
+      setViewCount(response.data.viewCount);
+    } catch (error) {
+      console.error("Error fetching view count:", error);
+      setViewCount(0); // Default to 0 if there's an error
     }
   }
 
