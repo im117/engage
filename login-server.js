@@ -422,6 +422,33 @@ app.post("/record-view", authenticateTokenGet, (req, res) => {
     });
 });
 
+// Get total view count for a specific video by fileName
+app.get("/video-views/:fileName", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.params;
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const viewCountQuery =
+        "SELECT COUNT(*) AS viewCount FROM video_views WHERE video_id = ?";
+      db.query(viewCountQuery, [videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ viewCount: results[0].viewCount });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ viewCount: 0, message: error.message });
+    });
+});
+
 // Register routes
 app.post("/signup", signup);
 // app.post("/login", login);
