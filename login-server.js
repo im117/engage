@@ -249,6 +249,7 @@ app.post("/verifyToken", (req, res) => {
     res.json({ valid: true });
   });
 });
+
 // Function to get videoId from fileName
 function getVideoIdFromFileName(db, fileName) {
   return new Promise((resolve, reject) => {
