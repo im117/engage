@@ -277,41 +277,6 @@ function getVideoIdFromFileName(db, fileName) {
   });
 }
 
-async function checkIfLiked() {
-  // Reset liked status if not logged in
-  if (!userID || !loggedIn) {
-    setLiked(false);
-    return;
-  }
-
-  const token = localStorage.getItem("authToken");
-  if (!token) {
-    setLiked(false);
-    return;
-  }
-
-  const videoFileName = currentVideo.split("/").pop();
-  if (!videoFileName) {
-    setLiked(false);
-    return;
-  }
-
-  try {
-    // Use updated endpoint that accepts fileName directly
-    const response = await axios.get(`${uploadServer}/video-like-by-filename`, {
-      params: {
-        auth: token,
-        fileName: videoFileName,
-      },
-    });
-
-    setLiked(response.data.liked);
-  } catch (error) {
-    console.error("Error checking like status:", error);
-    setLiked(false);
-  }
-}
-
 // Video likes by filename endpoint
 app.get("/video-likes-by-filename/:fileName", (req, res) => {
   const { fileName } = req.params;
