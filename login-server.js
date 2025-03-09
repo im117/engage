@@ -449,40 +449,6 @@ app.get("/video-views/:fileName", (req, res) => {
     });
 });
 
-// Anonymous version of record-view that doesn't require authentication
-app.post("/record-anonymous-view", (req, res) => {
-  const db = dbRequest(dbHost);
-  const { fileName } = req.body;
-
-  if (!fileName) {
-    db.destroy();
-    return res.status(400).json({ message: "Video file name is required" });
-  }
-
-  getVideoIdFromFileName(db, fileName)
-    .then((videoId) => {
-      const recordViewQuery =
-        "INSERT INTO video_views (video_id, user_id) VALUES (?, NULL)";
-      db.query(recordViewQuery, [videoId], (err, result) => {
-        if (err) {
-          console.error("Database error:", err);
-          db.destroy();
-          return res.status(500).json({ message: "Database error" });
-        }
-
-        db.destroy();
-        return res
-          .status(200)
-          .json({ message: "Anonymous view recorded successfully" });
-      });
-    })
-    .catch((error) => {
-      console.error("Error:", error.message);
-      db.destroy();
-      return res.status(400).json({ message: error.message });
-    });
-});
-
 // Register routes
 app.post("/signup", signup);
 // app.post("/login", login);

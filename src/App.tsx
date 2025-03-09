@@ -401,23 +401,10 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
+      const token = localStorage.getItem("authToken"); // Check if the user is logged in
+      const headers = token ? { params: { auth: token } } : {}; // Add token only if available
 
-      if (loggedIn) {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        // For logged-in users
-        await axios.post(
-          `${loginServer}/record-view`,
-          { fileName },
-          {
-            params: { auth: token },
-          }
-        );
-      } else {
-        // For anonymous users
-        await axios.post(`${loginServer}/record-anonymous-view`, { fileName });
-      }
+      await axios.post(`${loginServer}/record-view`, { fileName }, headers);
 
       // Update view count locally after recording
       setViewCount((prev) => prev + 1);
