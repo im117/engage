@@ -394,6 +394,34 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
     });
 });
 
+// Record a view when a video is watched
+app.post("/record-view", authenticateTokenGet, (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.body;
+  const userId = req.user ? req.user.userId : null; // Can handle both authenticated and anonymous views
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const recordViewQuery =
+        "INSERT INTO video_views (video_id, user_id) VALUES (?, ?)";
+      db.query(recordViewQuery, [videoId, userId], (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ message: "View recorded successfully" });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ message: error.message });
+    });
+});
+
 // Register routes
 app.post("/signup", signup);
 // app.post("/login", login);
