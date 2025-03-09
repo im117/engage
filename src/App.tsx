@@ -123,11 +123,15 @@ function Home() {
   const [userID, setUserID] = useState(0);
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [viewCount, setViewCount] = useState(0);
+  const [viewRecorded, setViewRecorded] = useState(false);
 
   useEffect(() => {
     // Immediately reset states when changing videos
     setLiked(false);
     setLikeCount(0);
+    setViewCount(0);
+    setViewRecorded(false);
 
     // Set the current video
     setCurrentVideo(filteredArray[videoIndex] || "");
