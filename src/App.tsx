@@ -215,7 +215,7 @@ function Home() {
       desc = "No description provided";
     }
     alert(
-      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`
+      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}\n--------------------------\nViews: ${viewCount}`
     );
   }
 
@@ -429,6 +429,10 @@ function Home() {
     }
   }
 
+  const handleVideoStart = () => {
+    recordView();
+  };
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
@@ -443,11 +447,17 @@ function Home() {
           playsinline={true}
           width="80vw"
           height="60vh"
+          onStart={handleVideoStart}
         />
       </div>
-      <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
-        <i className="fa-solid fa-heart"></i> {likeCount} Likes
-      </button>
+      <div className="video-stats">
+        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
+          <i className="fa-solid fa-heart"></i> {likeCount} Likes
+        </button>
+        <span className="view-count">
+          <i className="fa-solid fa-eye"></i> {viewCount} Views
+        </span>
+      </div>
 
       {/* 1. Video control buttons */}
       <div className="controls">

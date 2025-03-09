@@ -449,60 +449,6 @@ app.get("/video-views/:fileName", (req, res) => {
     });
 });
 
-// Get total view counts for all videos of the authenticated user
-app.get("/user-video-views", authenticateTokenGet, (req, res) => {
-  const db = dbRequest(dbHost);
-  const userId = req.user.userId;
-
-  const query = `
-    SELECT v.id, v.title, v.fileName, COUNT(vv.id) AS viewCount 
-    FROM videos v 
-    LEFT JOIN video_views vv ON v.id = vv.video_id 
-    WHERE v.creator_id = ? 
-    GROUP BY v.id, v.title, v.fileName
-  `;
-
-  db.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      db.destroy();
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    db.destroy();
-    return res.status(200).json({ videos: results });
-  });
-});
-
-// Get most viewed videos (can be used for trending section)
-app.get("/most-viewed-videos", (req, res) => {
-  const db = dbRequest(dbHost);
-  const limit = req.query.limit || 10; // Default to top 10
-
-  const query = `
-    SELECT v.id, v.title, v.fileName, v.description, 
-           u.username AS creator_name,
-           COUNT(vv.id) AS viewCount 
-    FROM videos v 
-    JOIN users u ON v.creator_id = u.id
-    LEFT JOIN video_views vv ON v.id = vv.video_id 
-    GROUP BY v.id, v.title, v.fileName, v.description, u.username
-    ORDER BY viewCount DESC
-    LIMIT ?
-  `;
-
-  db.query(query, [parseInt(limit)], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      db.destroy();
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    db.destroy();
-    return res.status(200).json({ videos: results });
-  });
-});
-
 // Anonymous version of record-view that doesn't require authentication
 app.post("/record-anonymous-view", (req, res) => {
   const db = dbRequest(dbHost);
