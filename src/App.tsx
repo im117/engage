@@ -394,6 +394,41 @@ function Home() {
     }
   }
 
+  async function recordView() {
+    try {
+      if (viewRecorded) return; // Prevent multiple view records for the same video session
+
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+
+      if (loggedIn) {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        // For logged-in users
+        await axios.post(
+          `${loginServer}/record-view`,
+          { fileName },
+          {
+            params: { auth: token },
+          }
+        );
+      } else {
+        // For anonymous users
+        await axios.post(`${loginServer}/record-anonymous-view`, { fileName });
+      }
+
+      // Update view count locally after recording
+      setViewCount((prev) => prev + 1);
+      setViewRecorded(true);
+    } catch (error) {
+      console.error("Error recording view:", error);
+    }
+  }
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
