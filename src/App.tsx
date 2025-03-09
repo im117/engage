@@ -129,8 +129,6 @@ function Home() {
   useEffect(() => {
     // Immediately reset states when changing videos
     setLiked(false);
-    setLikeCount(0);
-    setViewCount(0);
     setViewRecorded(false);
 
     // Set the current video
