@@ -22,19 +22,24 @@ CREATE TABLE videos(
 
 CREATE TABLE comments (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    creator_id int NOT NULL,
-    content text NOT NULL
+    user_id int NOT NULL,
+    content text NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE replies (
+CREATE TABLE reply (
     id INT PRIMARY KEY AUTO_INCREMENT,
     creator_id int NOT NULL,
-    content text NOT NULL
-    comment_id int NOT NULL FOREIGN KEY
+    content text NOT NULL,
+    comment_id int NOT NULL,
+    FOREIGN KEY (comment_id) REFERENCES comments(id),
+    FOREIGN KEY (creator_id) REFERENCES users(id)
 );
 
 CREATE TABLE reply_likes(
     id INT PRIMARY KEY AUTO_INCREMENT,
-    reply_id INT NOT NULL FOREIGN KEY,
-    user_id INT NOT NULL FOREIGN KEY
+    reply_id INT NOT NULL,
+    user_id INT NOT NULL,
+    FOREIGN KEY (reply_id) REFERENCES reply(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
