@@ -32,5 +32,10 @@ CREATE TABLE replies (
     creator_id int NOT NULL,
     content text NOT NULL,
     likes int,
-    comment_id int FOREIGN KEY
+    comment_id int NOT NULL FOREIGN KEY
+);
+
+CREATE TABLE reply_likes(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    reply_id INT NOT NULL FOREIGN KEY
 );
