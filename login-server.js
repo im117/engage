@@ -398,7 +398,7 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
 app.post("/record-view", authenticateTokenGet, (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.body;
-  const userId = req.user ? req.user.userId : null; // Can handle both authenticated and anonymous views
+  const userId = req.user.userId;
 
   getVideoIdFromFileName(db, fileName)
     .then((videoId) => {
