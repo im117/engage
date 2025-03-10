@@ -23,19 +23,18 @@ CREATE TABLE videos(
 CREATE TABLE comments (
     id INT PRIMARY KEY AUTO_INCREMENT,
     creator_id int NOT NULL,
-    content text NOT NULL,
-    likes int
+    content text NOT NULL
 );
 
 CREATE TABLE replies (
     id INT PRIMARY KEY AUTO_INCREMENT,
     creator_id int NOT NULL,
-    content text NOT NULL,
-    likes int,
+    content text NOT NULL
     comment_id int NOT NULL FOREIGN KEY
 );
 
 CREATE TABLE reply_likes(
     id INT PRIMARY KEY AUTO_INCREMENT,
-    reply_id INT NOT NULL FOREIGN KEY
+    reply_id INT NOT NULL FOREIGN KEY,
+    user_id INT NOT NULL FOREIGN KEY
 );
