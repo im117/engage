@@ -484,18 +484,14 @@ app.post("/record-anonymous-view", (req, res) => {
 });
 
 // Signup Route
-export const replyTo = async (req, res) => {
+export const addReply = async (req, res) => {
   const db = dbRequest(dbHost);
-  const { username, email, password } = req.body;
-
-  // Basic input validation
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+  const { filename } = req.body;
+  const userId = req.user.userId;
 
   // Selects queries to be checked for uniqueness
-  const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
-  const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
+  const addReply = "INSERT INTO REPLY () VALUES ()";
+
 
   // Promise allows multiple checks in succession before an action
   Promise.all([
