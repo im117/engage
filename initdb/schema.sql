@@ -25,7 +25,7 @@ CREATE TABLE comments (
     user_id int NOT NULL,
     video_id int NOT NULL,
     content text NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
 );
 
