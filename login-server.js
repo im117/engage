@@ -483,6 +483,84 @@ app.post("/record-anonymous-view", (req, res) => {
     });
 });
 
+// Signup Route
+export const replyTo = async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { username, email, password } = req.body;
+
+  // Basic input validation
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Selects queries to be checked for uniqueness
+  const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
+  const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
+
+  // Promise allows multiple checks in succession before an action
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.query(checkUsernameQuery, [username], (err, results) => {
+        // Checks for unique username
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 409, message: "Username already exists" });
+        }
+        resolve(); // Continue to the next step if username is unique
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.query(checkEmailQuery, [email], (err, results) => {
+        // Checks for unique email
+        if (err) return reject(err);
+        if (results.length > 0) {
+          return reject({ status: 409, message: "Email already exists" });
+        }
+        resolve(); // Continue to the next step if email is unique
+      });
+    }),
+  ])
+    .then(() => {
+      // If username and email are unique, hash the password before storing
+      bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+          console.error("Error hashing password: ", err);
+          return res.status(500).json({ message: "Server error" });
+        }
+
+        // Insert new user into the database
+        const query =
+          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        const values = [username, email, hashedPassword, "user"];
+
+        db.query(query, values, (err, result) => {
+          if (err) {
+            console.error("Error inserting data: ", err);
+            db.destroy();
+            return res
+              .status(500)
+              .json({ message: "Database error", error: err });
+          }
+          db.destroy();
+          return res.status(201).json({
+            message: "User signed up successfully",
+          });
+        });
+      });
+    })
+    .catch((error) => {
+      // Handle errors from either username or email check
+      if (error.status) {
+        db.destroy();
+        return res.status(error.status).json({ message: error.message });
+      }
+      // For any other errors (e.g., database error)
+      console.error("Error: ", error);
+      db.destroy();
+      return res.status(500).json({ message: "Database error", error });
+    });
+};
+
 // Register routes
 app.post("/signup", signup);
 // app.post("/login", login);
