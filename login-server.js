@@ -483,82 +483,30 @@ app.post("/record-anonymous-view", (req, res) => {
     });
 });
 
-// Signup Route
+// addReply const
 export const addReply = async (req, res) => {
   const db = dbRequest(dbHost);
-  const { filename } = req.body;
+  const { filename, content } = req.body;
   const userId = req.user.userId;
+  // const commentId = 
 
-  // Selects queries to be checked for uniqueness
-  const addReply = "INSERT INTO REPLY () VALUES ()";
-
-
-  // Promise allows multiple checks in succession before an action
-  Promise.all([
-    new Promise((resolve, reject) => {
-      db.query(checkUsernameQuery, [username], (err, results) => {
-        // Checks for unique username
-        if (err) return reject(err);
-        if (results.length > 0) {
-          return reject({ status: 409, message: "Username already exists" });
-        }
-        resolve(); // Continue to the next step if username is unique
-      });
-    }),
-    new Promise((resolve, reject) => {
-      db.query(checkEmailQuery, [email], (err, results) => {
-        // Checks for unique email
-        if (err) return reject(err);
-        if (results.length > 0) {
-          return reject({ status: 409, message: "Email already exists" });
-        }
-        resolve(); // Continue to the next step if email is unique
-      });
-    }),
-  ])
-    .then(() => {
-      // If username and email are unique, hash the password before storing
-      bcrypt.hash(password, 10, (err, hashedPassword) => {
-        if (err) {
-          console.error("Error hashing password: ", err);
-          return res.status(500).json({ message: "Server error" });
-        }
-
-        // Insert new user into the database
-        const query =
-          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-        const values = [username, email, hashedPassword, "user"];
-
-        db.query(query, values, (err, result) => {
-          if (err) {
-            console.error("Error inserting data: ", err);
-            db.destroy();
-            return res
-              .status(500)
-              .json({ message: "Database error", error: err });
-          }
-          db.destroy();
-          return res.status(201).json({
-            message: "User signed up successfully",
-          });
-        });
-      });
-    })
-    .catch((error) => {
-      // Handle errors from either username or email check
-      if (error.status) {
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const addReply = "INSERT INTO REPLY (creatorId, content, commentId) VALUES (userId, content, commentId)";
+      db.query(() => {
+        
+      })
+      .catch((error) => {
+        console.error("Error:", error.message);
         db.destroy();
-        return res.status(error.status).json({ message: error.message });
-      }
-      // For any other errors (e.g., database error)
-      console.error("Error: ", error);
-      db.destroy();
-      return res.status(500).json({ message: "Database error", error });
+        return res.status(400).json({ message: error.message });
+      });
     });
-};
+}
 
 // Register routes
 app.post("/signup", signup);
+app.post("/addReply", addReply);
 // app.post("/login", login);
 
 // Start the Server
