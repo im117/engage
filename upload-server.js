@@ -81,28 +81,17 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   const { title, description } = req.body;
   const creatorId = req.user.userId; // Extract user ID from JWT
   if (!creatorId) {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
-      } else {
-        console.log("File deleted successfully");
-      }
-    });
+    deleteFile(req.file.path);
     return res.status(400).json({ message: "Invalid creator ID" });
   }
 
   if (!title) {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
-      } else {
-        console.log("File deleted successfully");
-      }
-    });
+    deleteFile(req.file.path);
     return res
       .status(400)
       .json({ message: "Title and description are required" });
   }
+
 
   // transcode media
   const ffmpeg = spawn("ffmpeg", [
@@ -124,10 +113,13 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   ffmpeg.on("close", (code) => {
     console.log(code);
     if (code === 0) {
-      // const file = fs.readFileSync(outputPath);
-      // writeHead(200, { 'Content-Type': 'video/webm' });
-      // end(file);
-      // fs.unlinkSync(outputPath);
+      // transcoding successful
+      const db = dbRequest(dbHost);
+      const insertQuery =
+        "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
+        db.query(insertQuery, [creatorId, title, description, outputFile], (err, result) => {
+          // Delete original file regardless of DB outcome
+          deleteFile(filePath);
     } else {
       fs.unlink(filePath, (err) => {
         if (err) {
@@ -179,6 +171,16 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
     }
   );
 });
+
+function deleteFile(filePath) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Error deleting file ${filePath}: `, err);
+    } else {
+      console.log(`File ${filePath} deleted successfully`);
+    }
+  });
+}
 
 // Get user info
 app.get("/user", (req, res) => {
