@@ -1,21 +1,25 @@
-import { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import "dotenv";
-import { io, Socket } from "socket.io-client";
-import { v4 as uuidv4 } from "uuid";
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
+  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
+// let loginServer = "http://localhost:8081"
 
+// if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+//   // console.log(import.meta.env.VITE_UPLOAD_SERVER);
+//   loginServer = import.meta.env.VITE_LOGIN_SERVER;
+// }
 interface FormValues {
   title: string;
   desc: string;
   fileName: string;
 }
 
-type UploadStatus = "idle" | "uploading" | "transcoding" | "success" | "error";
+type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
 
@@ -30,38 +34,6 @@ export default function FileUploader() {
   });
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [transcodingProgress, setTranscodingProgress] = useState(0);
-  const [sessionId] = useState<string>(uuidv4()); // Generate unique session ID
-  const [socket, setSocket] = useState<Socket | null>(null);
-
-  // Connect to socket.io server
-  useEffect(() => {
-    const newSocket = io(uploadServer);
-
-    newSocket.on("connect", () => {
-      console.log("Connected to server");
-    });
-
-    newSocket.on("transcode-progress", (data) => {
-      if (data.sessionId === sessionId || data.sessionId === "unknown") {
-        console.log(`Transcoding progress: ${data.progress}%`);
-        setTranscodingProgress(data.progress);
-
-        if (data.complete) {
-          setStatus("success");
-        } else if (status !== "transcoding" && data.progress > 0) {
-          setStatus("transcoding");
-        }
-      }
-    });
-
-    setSocket(newSocket);
-
-    // Clean up on unmount
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [sessionId]);
 
   function handleTitleChange(e: ChangeEvent<HTMLInputElement>) {
     setTitle(e.target.value);
@@ -79,7 +51,11 @@ export default function FileUploader() {
       setValues({ ...values, fileName: e.target.files[0].name });
     }
   }
-
+  /**
+   * Checks to see if a file is an MP4
+   * @param file
+   * @returns
+   */
   function isMP4(file: File) {
     const fileName: string = file.name;
     const fileExtension = fileName?.split(".").pop()?.toLowerCase();
@@ -100,14 +76,11 @@ export default function FileUploader() {
     }
 
     setStatus("uploading");
-    setUploadProgress(0);
-    setTranscodingProgress(0);
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", title);
     formData.append("description", desc);
-    formData.append("sessionId", sessionId);
 
     const token = localStorage.getItem("authToken"); // Retrieve JWT token
     try {
@@ -124,116 +97,36 @@ export default function FileUploader() {
         },
       });
 
-      // After successful upload, the server will start transcoding
-      // We'll now show transcoding progress through socket.io
-      setStatus("transcoding");
       setStatus("success");
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch {
       setStatus("error");
     }
   }
 
-  // Get the overall progress based on current status
-  const getOverallProgress = () => {
-    if (status === "uploading") {
-      return uploadProgress;
-    } else if (status === "transcoding") {
-      return transcodingProgress;
-    } else if (status === "success") {
-      return 100;
-    }
-    return 0;
-  };
-
-  // Get the progress message based on status
-  const getProgressMessage = () => {
-    if (status === "uploading") {
-      return `Uploading: ${uploadProgress}%`;
-    } else if (status === "transcoding") {
-      return `Transcoding: ${transcodingProgress}%`;
-    } else if (status === "success") {
-      return "Success! Video uploaded and processed.";
-    } else if (status === "error") {
-      return "Upload error, please try again. (Title is required)";
-    }
-    return "";
-  };
-
   return (
-    <div className="upload-container">
-      <div className="form-group">
-        <label htmlFor="title">Title: </label>
-        <input name="title" value={title} onChange={handleTitleChange} />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="desc">Description: </label>
-        <input name="desc" value={desc} onChange={handleDescChange} />
-      </div>
-
-      <div className="form-group">
-        <input type="file" accept="video/mp4" onChange={handleFileChange} />
-        {file && status === "idle" && (
-          <button onClick={handleFileUpload}>Upload</button>
-        )}
-      </div>
-
-      {status !== "idle" && (
-        <div className="progress-container">
-          <p className="progress-message">{getProgressMessage()}</p>
-          <div className="progress-bar-container">
-            <div
-              className="progress-bar"
-              style={{ width: `${getOverallProgress()}%` }}
-            />
-          </div>
-
-          {status === "transcoding" && (
-            <p className="info-text">
-              Transcoding may take a while depending on video size...
-            </p>
-          )}
+    <div>
+      <br></br>
+      <label htmlFor="title">Title: </label>
+      <input name="title" value={title} onChange={handleTitleChange} />
+      <br></br>
+      <label htmlFor="desc">Description: </label>
+      <input name="desc" value={desc} onChange={handleDescChange} />
+      <br></br>
+      <input type="file" accept="video/mp4" onChange={handleFileChange} />
+      {file && status !== "uploading" && (
+        <button onClick={handleFileUpload}>Upload</button>
+      )}
+      {status === "uploading" && (
+        <div>
+          <p>Progress: {uploadProgress}%</p>
+          <div
+            className="upload-bar"
+            style={{ width: `${uploadProgress}%` }}
+          ></div>
         </div>
       )}
-
-      <style>{`
-        .upload-container {
-          padding: 20px;
-          max-width: 600px;
-        }
-        .form-group {
-          margin-bottom: 15px;
-        }
-        .form-group label {
-          display: inline-block;
-          width: 100px;
-        }
-        .progress-container {
-          margin-top: 20px;
-        }
-        .progress-bar-container {
-          width: 100%;
-          height: 20px;
-          background-color: #f0f0f0;
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 10px;
-        }
-        .progress-bar {
-          height: 100%;
-          background-color: #4caf50;
-          transition: width 0.3s ease;
-        }
-        .progress-message {
-          margin-bottom: 5px;
-          font-weight: bold;
-        }
-        .info-text {
-          font-size: 0.8rem;
-          color: #666;
-        }
-      `}</style>
+      {status === "success" && <p>Success!</p>}
+      {status === "error" && <p>Upload error, please try again. (Title is required)</p>}
     </div>
   );
 }
