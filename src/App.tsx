@@ -244,23 +244,22 @@ function Home() {
     }
   }
 
-  // const authButtons = async ()=>{
+  // const authButtons = async ()=> {
   //   let button = "";
   //   const userId = await getLoggedInUserId()
 
   //    if (userId !== null) {
 
   //     const username = await getUsername(userId);
-  //     button = "<button className='control-button' onClick={() => navigate('/user')}" + username + " <i className='fa-solid fa-user'></i> </button>"
+  //     button = "<button className='control-button' onClick={() => navigate('/user')>" + username + " <i className='fa-solid fa-user'></i> </button>"
 
   //   } else {
   //     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
   //   }
   //   const sanitizedHTML = DOMPurify.sanitize(button);
   //   return (
-  //     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+  //     <div className='login-button-section' dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
   //   )
-
   // }
 
   getLoggedInUserId();
@@ -431,6 +430,20 @@ function Home() {
     recordView();
   };
 
+  // Extra: Comment button handler
+  async function handleComment() {
+    const comment = prompt("Enter your comment:");
+    if (comment && comment.trim() !== "") {
+      try {
+        // Replace this alert with your API call to post the comment
+        alert("Comment posted: " + comment);
+      } catch (error) {
+        console.error("Error posting comment:", error);
+        alert("Failed to post comment.");
+      }
+    }
+  }
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
@@ -464,31 +477,37 @@ function Home() {
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
 
-        {/* 2. Navigate to User page */}
-        {/* <button className="control-button user-button" onClick={() => navigate('/user')}>
-          ENGAGER <i className="fa-solid fa-user"></i>
-        </button> */}
+        {/* Move VIDEO INFO here */}
+        <div className="control-button" onClick={getVideoInfo}>
+          <i className="fas fa-info-circle"></i> VIDEO INFO
+        </div>
 
-        {/*3. Next video button */}
+        {/* Comment button in between VIDEO INFO and NEXT */}
+        <button className="control-button" onClick={handleComment}>
+          COMMENT <i className="fa-solid fa-comment"></i>
+        </button>
+
+        {/* Next video button */}
         <button className="control-button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
       </div>
 
-      {/*4. Upload button */}
+      {/* 4. Upload button */}
       <div className="upload-section">
         <button className="upload-button" onClick={() => navigate("/upload")}>
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
+
+      {/* back-button-section no longer contains VIDEO INFO */}
       <div className="back-button-section">
         {/* <button className="control-button" onClick={handleBackToDashboard}>
           Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
         </button> */}
-        <div className="control-button" onClick={getVideoInfo}>
-          <i className="fas fa-info-circle"></i> VIDEO INFO
-        </div>
+        {/* Removed VIDEO INFO button from here */}
       </div>
+
       <div className="login-button-section">
         <button
           className="control-button"
