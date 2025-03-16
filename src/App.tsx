@@ -452,20 +452,24 @@ function Home() {
         />
         {/* 1. Video control buttons */}
       <div className="controls">
-        {/* Download button */}
+        <div className="video-stats">
+        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
+          <i className="fa-solid fa-heart"></i> {likeCount} Likes
+        </button>
+        <span className="view-count">
+          <i className="fa-solid fa-eye"></i> {viewCount} Views
+        </span>
+        
+        </div>
+        <div className="download-next">
+          
         <a className="control-button" href={currentVideo} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
-
-        {/* 2. Navigate to User page */}
-        {/* <button className="control-button user-button" onClick={() => navigate('/user')}>
-          ENGAGER <i className="fa-solid fa-user"></i>
-        </button> */}
-
-        {/*3. Next video button */}
         <button className="control-button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
+        </div>
       </div>
       </div>
       <div className="video-details">
