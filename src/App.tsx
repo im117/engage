@@ -2,7 +2,7 @@ import "./styles/App.scss"; // Import global and App-specific styles
 
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 // React Router for navigation between different pages (Home and User page)
-
+import CommentSection from './components/CommentsSections';
 import { useState, useEffect } from "react";
 // React hooks: useState (state), useEffect (side effects), useRef (persistent value)
 import Login from "./login.tsx";
@@ -244,23 +244,24 @@ function Home() {
     }
   }
 
-  // const authButtons = async ()=> {
-  //   let button = "";
-  //   const userId = await getLoggedInUserId()
+  // const authButtons = async ()=>{ 
+  //   let button = ""; 
+  //   const userId = await getLoggedInUserId() 
 
-  //    if (userId !== null) {
+  //    if (userId !== null) { 
 
-  //     const username = await getUsername(userId);
-  //     button = "<button className='control-button' onClick={() => navigate('/user')>" + username + " <i className='fa-solid fa-user'></i> </button>"
+  //     const username = await getUsername(userId); 
+  //     button = "<button className='control-button' onClick={() => navigate('/user')" + username + " <i className='fa-solid fa-user'></i> </button>" 
 
-  //   } else {
-  //     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
-  //   }
-  //   const sanitizedHTML = DOMPurify.sanitize(button);
-  //   return (
-  //     <div className='login-button-section' dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-  //   )
-  // }
+  //   } else { 
+  //     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>" 
+  //   } 
+  //   const sanitizedHTML = DOMPurify.sanitize(button); 
+  //   return ( 
+  //     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} /> 
+  //   ) 
+
+  // } 
 
   getLoggedInUserId();
 
@@ -447,20 +448,26 @@ function Home() {
   return (
     <div className="app-container">
       <h1>Engage</h1>
-      <div className="video-player">
-        <ReactPlayer
-          id="video"
-          url={currentVideo || ""}
-          playing={true}
-          muted={true}
-          controls={true}
-          loop={true}
-          playsinline={true}
-          width="80vw"
-          height="60vh"
-          onStart={handleVideoStart}
-        />
+      
+      {/* Video player with proper spacing */}
+      <div className="video-container">
+        <div className="video-player">
+          <ReactPlayer
+            id="video"
+            url={currentVideo || ""}
+            playing={true}
+            muted={true}
+            controls={true}
+            loop={true}
+            playsinline={true}
+            width="80vw"
+            height="60vh"
+            onStart={handleVideoStart}
+          />
+        </div>
       </div>
+      
+      {/* Stats section moved outside video player with clear positioning */}
       <div className="video-stats">
         <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
           <i className="fa-solid fa-heart"></i> {likeCount} Likes
@@ -470,7 +477,7 @@ function Home() {
         </span>
       </div>
 
-      {/* 1. Video control buttons */}
+      {/* Controls and buttons section */}
       <div className="controls">
         {/* Download button */}
         <a className="control-button" href={currentVideo} download>
@@ -493,6 +500,7 @@ function Home() {
         </button>
       </div>
 
+      {/* Upload button */}
       {/* 4. Upload button */}
       <div className="upload-section">
         <button className="upload-button" onClick={() => navigate("/upload")}>
@@ -523,34 +531,26 @@ function Home() {
             </>
           )}
         </button>
-        {/* <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
-        {}
-        {/* <button className="control-button" onClick={handleBackToLogin}>
-          
-          Log In <i className="fa solid fa-right-to-bracket"></i>
-        </button>
-        <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
       </div>
+
+      {/* Back button with video info */}
+      <div className="back-button-section">
+        <div className="control-button info-button" onClick={getVideoInfo}>
+          <i className="fas fa-info-circle"></i> VIDEO INFO
+        </div>
+      </div>
+      
+      {/* Comment Section - Positioned in bottom right */}
+      {currentVideo && (
+        <div className="corner-comment-section">
+          <CommentSection 
+            videoId={currentVideo.split("/").pop() || ""} 
+            userId={userID} 
+            isLoggedIn={loggedIn}
+            key={currentVideo} // Add key prop to force remount when video changes
+          />
+        </div>
+      )}
     </div>
   );
 }
