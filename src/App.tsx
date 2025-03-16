@@ -437,8 +437,7 @@ function Home() {
     <div className="app">
       {TopBar()}
       <div className="app-container">
-
-      <h1>Engage</h1>
+      <div className="video-container">
       <div className="video-player">
         <ReactPlayer
           id="video"
@@ -460,6 +459,8 @@ function Home() {
         <span className="view-count">
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
+      </div>
+
       </div>
 
       {/* 1. Video control buttons */}
@@ -486,14 +487,9 @@ function Home() {
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
-      <div className="back-button-section">
-        {/* <button className="control-button" onClick={handleBackToDashboard}>
-          Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
-        </button> */}
         <div className="control-button" onClick={getVideoInfo}>
           <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>
-      </div>
       <div className="login-button-section">
         <button
           className="control-button"
