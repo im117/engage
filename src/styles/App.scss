@@ -1,45 +1,67 @@
 @use 'global.scss' as *;
 
 body {
-  display: flex;
+  // display: flex;
 }
 
-.app{
+// .app{
   
-}
+// }
 .app-container {
+  margin-top: 50px;
   position: relative; // Ensure container acts as a positioning context
   width: 90vw;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: blue;
   // background: $app-background;
   // border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-
-  flex-direction: column; // Stack items vertically
+  display: grid;
+  flex-direction: row; // Stack items vertically
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-gap: 20px;
+  grid-template-columns: 2fr 2fr;
+  // grid-gap: 20px;
 }
 
 .video-player {
-  background: #e0ffe0;
+  background: green;
   width: 100%; // Adjust width to fit container if necessary
-  height: 80vh;
+  height: 60vh;
   display: flex;
+  flex-direction:column;
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 20px; // Add spacing for other content
+  // margin-bottom: 20px; // Add spacing for other content
+}
+
+.video-details{
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  margin: auto;
+  text-align: right;
+  vertical-align: top;
+  display: flex;
+  flex-direction: column;
+  // flex-direction: column;
+  
+  .details-metadata {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    color: white;
+  }
 }
 
 .controls {
   width: 100%; // Ensure controls take up full width
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
@@ -49,7 +71,7 @@ body {
   background-color: #065527;
   border-radius: 19px;
   border: 2px solid #4e6096;
-  display: inline-block;
+  // display: inline-block;
   cursor: pointer;
   color: #ffffff;
   font-size: 16px;

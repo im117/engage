@@ -437,7 +437,6 @@ function Home() {
     <div className="app">
       {TopBar()}
       <div className="app-container">
-      <div className="video-container">
       <div className="video-player">
         <ReactPlayer
           id="video"
@@ -447,23 +446,11 @@ function Home() {
           controls={true}
           loop={true}
           playsinline={true}
-          width="80vw"
-          height="60vh"
+          width="60vw"
+          height="50vh"
           onStart={handleVideoStart}
         />
-      </div>
-      <div className="video-stats">
-        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
-          <i className="fa-solid fa-heart"></i> {likeCount} Likes
-        </button>
-        <span className="view-count">
-          <i className="fa-solid fa-eye"></i> {viewCount} Views
-        </span>
-      </div>
-
-      </div>
-
-      {/* 1. Video control buttons */}
+        {/* 1. Video control buttons */}
       <div className="controls">
         {/* Download button */}
         <a className="control-button" href={currentVideo} download>
@@ -480,59 +467,15 @@ function Home() {
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
       </div>
-
-      {/*4. Upload button */}
-      <div className="upload-section">
-        <button className="upload-button" onClick={() => navigate("/upload")}>
-          ENGAGE <i className="fa-solid fa-upload"></i>
-        </button>
       </div>
-
-        <div className="control-button" onClick={getVideoInfo}>
-          <i className="fas fa-info-circle"></i> VIDEO INFO
+      <div className="video-details">
+        <div className="details-metadata">
+        <h1>BS title</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
         </div>
-      <div className="login-button-section">
-        <button
-          className="control-button"
-          onClick={loggedIn ? () => navigate("/user") : handleBackToLogin}
-        >
-          {loggedIn ? (
-            <>
-              <i className="fa-solid fa-user"></i> {username}
-            </>
-          ) : (
-            <>
-              <i className="fa solid fa-right-to-bracket"></i> Log In
-            </>
-          )}
-        </button>
-        {/* <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
-        {}
-        {/* <button className="control-button" onClick={handleBackToLogin}>
-          
-          Log In <i className="fa solid fa-right-to-bracket"></i>
-        </button>
-        <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
+        <div className="details-comments">
+
+        </div>
       </div>
       </div>
     </div>
@@ -563,6 +506,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        
         <Route element={<App />} />
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

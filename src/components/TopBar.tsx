@@ -9,7 +9,7 @@ export default function TopBar(){
         <nav className="topbar">
             <div className="topbar__container">
                 <div className="topbar__logo">
-                    <h1>Engage</h1>
+                    <a onClick={() => navigate('/')}><h1>Engage</h1></a>
                 </div>
                 <div className="topbar__menu">
                     <ul className="link__items">
