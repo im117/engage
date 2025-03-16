@@ -6,8 +6,17 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import child_process from "child_process";
+import { Server } from "socket.io";
+import http from "http";
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // In production, restrict this to your front-end domain
+    methods: ["GET", "POST"],
+  },
+});
 const port = 3001;
 
 const { spawn } = child_process;
@@ -17,29 +26,26 @@ if (process.env.DATABASE_HOST) {
   dbHost = process.env.DATABASE_HOST;
 }
 
-app.use(express.json()); // Add this line to parse JSON bodies
-
+app.use(express.json());
 app.use(cors());
 
 import dbRequest from "./db.js";
 
-// Enable CORS for your React app (localhost:5173)
 app.use(
   cors({
-    origin: "*", // This is the origin of your React app
-    // ! ORIGIN IS WILDCARD FOR DEV ONLY
-    methods: ["GET", "POST"], // Allow only GET and POST methods (you can customize this)
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./media"); // Set the folder where the files will be uploaded
+    cb(null, "./media");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Name the file with a timestamp
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
@@ -62,123 +68,195 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Socket connection handler
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
 // Upload video with authentication
 app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
-  // console.log("File data:", req.file);
-  // console.log("Request body:", req.body);
-  // console.log("Decoded JWT:", req.user);
-  // Delete the video file from the server
-
-  const filePath = path.join("./media", req.file.filename);
-  const outputPath = filePath.replace(".mp4", "trans.mp4");
-
-  const outputFile = req.file.filename.replace(".mp4", "trans.mp4");
-
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
   const { title, description } = req.body;
-  const creatorId = req.user.userId; // Extract user ID from JWT
+  const creatorId = req.user.userId;
+  const sessionId = req.body.sessionId || "unknown"; // Client should send a sessionId to identify the connection
+
   if (!creatorId) {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
-      } else {
-        console.log("File deleted successfully");
-      }
-    });
+    deleteFile(req.file.path);
     return res.status(400).json({ message: "Invalid creator ID" });
   }
 
   if (!title) {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
-      } else {
-        console.log("File deleted successfully");
-      }
-    });
+    deleteFile(req.file.path);
     return res
       .status(400)
       .json({ message: "Title and description are required" });
   }
 
-  // transcode media
-  const ffmpeg = spawn("ffmpeg", [
-    "-i",
+  const filePath = path.join("./media", req.file.filename);
+  const outputPath = filePath.replace(".mp4", "trans.mp4");
+  const outputFile = req.file.filename.replace(".mp4", "trans.mp4");
+
+  // Get duration of the video to calculate progress
+  const ffprobe = spawn("ffprobe", [
+    "-v",
+    "error",
+    "-show_entries",
+    "format=duration",
+    "-of",
+    "default=noprint_wrappers=1:nokey=1",
     filePath,
-    "-c:v",
-    "libx264",
-    "-preset",
-    "slow",
-    "-crf",
-    "22",
-    "-c:a",
-    "copy",
-    outputPath,
   ]);
-  ffmpeg.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
+
+  let duration = 0;
+  ffprobe.stdout.on("data", (data) => {
+    duration = parseFloat(data.toString().trim());
+    console.log(`Video duration: ${duration} seconds`);
   });
-  ffmpeg.on("close", (code) => {
-    console.log(code);
-    if (code === 0) {
-      // const file = fs.readFileSync(outputPath);
-      // writeHead(200, { 'Content-Type': 'video/webm' });
-      // end(file);
-      // fs.unlinkSync(outputPath);
-    } else {
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting file: ", err);
-        } else {
-          console.log("File deleted successfully");
-        }
-      });
-      fs.unlink(outputPath, (err) => {
-        if (err) {
-          console.error("Error deleting file: ", err);
-        } else {
-          console.log("File deleted successfully");
-        }
-      });
-      return res.status(400).json({ message: "Transcoding failed" });
+
+  ffprobe.on("close", (code) => {
+    if (code !== 0) {
+      console.log("Could not determine video duration");
+      // Continue with transcoding anyway
     }
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
+
+    // Now start the transcoding process
+    const ffmpeg = spawn("ffmpeg", [
+      "-i",
+      filePath,
+      "-c:v",
+      "libx264",
+      "-preset",
+      "slow",
+      "-crf",
+      "22",
+      "-c:a",
+      "copy",
+      "-progress",
+      "pipe:1", // Output progress information to stdout
+      outputPath,
+    ]);
+
+    let lastProgress = 0;
+
+    // Extract progress information from ffmpeg output
+    ffmpeg.stdout.on("data", (data) => {
+      const output = data.toString();
+      const timeMatch = output.match(/time=(\d+:\d+:\d+\.\d+)/);
+
+      if (timeMatch && duration > 0) {
+        const timeStr = timeMatch[1];
+        const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
+        const currentTime = hours * 3600 + minutes * 60 + seconds;
+        const progressPercent = Math.min(
+          Math.round((currentTime / duration) * 100),
+          99
+        );
+
+        if (progressPercent > lastProgress) {
+          lastProgress = progressPercent;
+          io.emit("transcode-progress", {
+            sessionId: sessionId,
+            progress: progressPercent,
+          });
+          console.log(`Transcoding progress: ${progressPercent}%`);
+        }
+      }
+    });
+
+    ffmpeg.stderr.on("data", (data) => {
+      // ffmpeg outputs detailed information to stderr
+      const output = data.toString();
+      console.log(`ffmpeg stderr: ${output}`);
+
+      // Parse progress from stderr if needed (as alternative to stdout progress)
+      const frameMatch = output.match(/frame=\s*(\d+)/);
+      const fpsMatch = output.match(/fps=\s*(\d+)/);
+      const timeMatch = output.match(/time=\s*(\d+:\d+:\d+\.\d+)/);
+
+      if (timeMatch && duration > 0) {
+        const timeStr = timeMatch[1];
+        const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
+        const currentTime = hours * 3600 + minutes * 60 + seconds;
+        const progressPercent = Math.min(
+          Math.round((currentTime / duration) * 100),
+          99
+        );
+
+        if (progressPercent > lastProgress) {
+          lastProgress = progressPercent;
+          io.emit("transcode-progress", {
+            sessionId: sessionId,
+            progress: progressPercent,
+          });
+        }
+      }
+    });
+
+    ffmpeg.on("close", (code) => {
+      console.log(`Transcoding process exited with code ${code}`);
+      io.emit("transcode-progress", {
+        sessionId: sessionId,
+        progress: 100,
+        complete: true,
+      });
+
+      if (code === 0) {
+        // Transcoding successful - now insert into database
+        const db = dbRequest(dbHost);
+        const insertQuery =
+          "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
+
+        db.query(
+          insertQuery,
+          [creatorId, title, description, outputFile],
+          (err, result) => {
+            // Delete original file regardless of DB outcome
+            deleteFile(filePath);
+
+            if (err) {
+              console.error("Error inserting video into database: ", err);
+              // If DB insertion fails, also delete the transcoded file
+              deleteFile(outputPath);
+              db.destroy();
+              return res
+                .status(500)
+                .json({ message: "Database error", error: err });
+            }
+
+            console.log("Insert result:", result);
+            db.destroy();
+            return res.status(200).json({
+              message: "File uploaded and transcoded successfully!",
+              videoId: result.insertId,
+            });
+          }
+        );
       } else {
-        console.log("File deleted successfully");
+        // Transcoding failed - clean up files and return error
+        deleteFile(filePath);
+        deleteFile(outputPath);
+        return res.status(400).json({ message: "Transcoding failed" });
       }
     });
   });
-
-  const db = dbRequest(dbHost);
-  const insertQuery =
-    "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
-  db.query(
-    insertQuery,
-    [creatorId, title, description, outputFile],
-    (err, result) => {
-      if (err) {
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.error("Error deleting file: ", err);
-          } else {
-            console.log("File deleted successfully");
-          }
-        });
-        console.error("Error inserting video into database: ", err);
-        db.destroy();
-        return res.status(500).json({ message: "Database error", error: err });
-      }
-      console.log("Insert result:", result);
-      db.destroy();
-      return res.status(200).json({ message: "File uploaded successfully!" });
-    }
-  );
 });
+
+function deleteFile(filePath) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Error deleting file ${filePath}: `, err);
+    } else {
+      console.log(`File ${filePath} deleted successfully`);
+    }
+  });
+}
 
 // Get user info
 app.get("/user", (req, res) => {
@@ -204,6 +282,7 @@ app.get("/user", (req, res) => {
     return res.status(200).json(results[0]);
   });
 });
+
 // Get Video info
 app.get("/video", (req, res) => {
   const db = dbRequest(dbHost);
@@ -233,11 +312,6 @@ app.get("/video", (req, res) => {
 
 // Get Video info
 app.get("/video-list", (req, res) => {
-  // const { fileName: filename } = req.query;
-
-  // if (!filename) {
-  //   return res.status(400).json({ message: "Filename is required" });
-  // }
   const db = dbRequest(dbHost);
   const selectQuery = "SELECT fileName FROM videos";
   db.query(selectQuery, (err, results) => {
@@ -256,6 +330,7 @@ app.get("/video-list", (req, res) => {
   });
 });
 
-app.listen(port, () => {
+// Use server.listen instead of app.listen to enable socket.io
+server.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);
 });
