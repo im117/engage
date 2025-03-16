@@ -7,7 +7,8 @@ body {
 .app-container {
   position: relative; // Ensure container acts as a positioning context
   width: 90vw;
-  height: 80vh; // Ensure enough height for content
+  height: auto;
+  min-height: 80vh; // Ensure enough height for content
   background: white;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -17,17 +18,29 @@ body {
   flex-direction: column; // Stack items vertically
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
+  overflow-y: auto;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+  margin-bottom: 20px;
 }
 
 .video-player {
   background: #e0ffe0;
   width: 100%; // Adjust width to fit container if necessary
-  height: 80vh;
+  height: 50vh; // Reduced height to fit comments below
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 20px; // Add spacing for other content
+  margin-top: 60px; // Reduced margin to give room for comments
+  position: relative; // Ensure proper stacking context
+  z-index: 1; // Lower z-index so stats can appear above
 }
 
 .controls {
@@ -95,10 +108,25 @@ body {
   left: 20px; // Align to the right of app-container
 }
 .back-button-section {
-  position: absolute; // Allows precise positioning within app-container
-  bottom: 5px;
-  left: 50%; // Align to the center of app-container
-  transform: translateX(-50%); // Adjust position to truly center
+  position: relative; // Changed from absolute to relative
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+  .info-button {
+    margin-bottom: 20px;
+    align-self: center;
+  }
+  
+  .comment-section {
+    width: 100%;
+    margin: 0; // Remove the right margin
+    margin-top: 10px;
+  }
 }
 
 @keyframes engage {
@@ -145,5 +173,170 @@ body {
   &:active {
     position: relative;
     top: 1px;
+  }
+}
+
+// Comment section styling
+.comment-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  margin-bottom: 1px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.comment-submit-btn {
+  align-self: flex-end;
+  background-color: #065527;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  
+  
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+}
+
+.comments-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.comment {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border-left: 3px solid #065527;
+}
+
+.login-prompt {
+  text-align: center;
+  color: #666;
+  margin: 15px 0;
+}
+
+.video-stats {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 10px;
+  margin: 0 auto 20px auto; // Add margin between video and stats
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  z-index: 2;
+  position: relative; // Ensure proper positioning
+  
+  button, span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  button {
+    &:hover {
+      color: #065527;
+    }
+  }
+}
+
+// Position the comment section in the bottom right corner, more to the left
+.corner-comment-section {
+  position: absolute;
+  bottom: 20px;
+  right: 10%; 
+  width: 300px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10; // Ensure it's above other elements
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  
+  // Make child comment section fit this container
+  .comment-section {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    max-height: 280px; // Leave room for scrolling
+    box-shadow: none; // Remove redundant shadow
+    
+    h3 {
+      font-size: 14px;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    
+    .comment-form {
+      margin-bottom: 10px;
+      
+      .comment-textarea {
+        min-height: 40px;
+        font-size: 12px;
+      }
+      
+      .comment-submit-btn {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+    }
+    
+    .comments-list {
+      max-height: 150px;
+      font-size: 12px;
+      
+      .comment {
+        padding: 6px;
+        margin-bottom: 6px;
+      }
+    }
+    
+    .login-prompt {
+      font-size: 12px;
+    }
+  }
+}
+
+// Ensure back button remains in its position
+.back-button-section {
+  position: relative;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  
+  .info-button {
+    margin: 0;
   }
 }
