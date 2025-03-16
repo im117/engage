@@ -25,6 +25,7 @@ CREATE TABLE comments (
     user_id int NOT NULL,
     video_id int NOT NULL,
     content text NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
 );
@@ -34,6 +35,7 @@ CREATE TABLE reply (
     creator_id int NOT NULL,
     content text NOT NULL,
     comment_id int NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
     FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
 );
