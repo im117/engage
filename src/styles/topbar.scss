@@ -3,18 +3,25 @@
 .topbar{
     // display: flex;
     flex-direction: row;
-    z-index: 0;
+    z-index: 3;
     background-color:red;
     width: 100vw;
+    height: 90px;
+    // margin-top: 100px;
+    position: sticky;
+    top: 0;
 }
 
 .topbar__container{
     display: flex;
     justify-content: space-between;
 
-    padding: 20px;
-    
+    padding: 10px;
+    *{
+        margin: 10px;
+    }
 }
+
 .topbar__logo {
     margin-right: auto;
 }

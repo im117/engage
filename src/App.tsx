@@ -487,6 +487,7 @@ function Home() {
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
+
         <div className="control-button" onClick={getVideoInfo}>
           <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>

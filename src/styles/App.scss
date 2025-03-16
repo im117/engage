@@ -5,21 +5,22 @@ body {
 }
 
 .app{
+  
+}
+.app-container {
   position: relative; // Ensure container acts as a positioning context
   width: 90vw;
-  height: 70vh; // Ensure enough height for content
-  background: $app-background;
-  border: 1px solid #ddd;
+  margin: auto;
+  // background: $app-background;
+  // border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex; // Flexbox to center the video player
+
 
   flex-direction: column; // Stack items vertically
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
-}
-.app-container {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-gap: 20px;
 }
