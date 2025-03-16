@@ -16,6 +16,7 @@ import path from "path-browserify"; // Path library to work with file paths in t
 import Upload from "./upload.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
+import TopBar from "./components/TopBar.tsx";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -432,7 +433,11 @@ function Home() {
   };
 
   return (
-    <div className="app-container">
+    
+    <div className="app">
+      {TopBar()}
+      <div className="app-container">
+
       <h1>Engage</h1>
       <div className="video-player">
         <ReactPlayer
@@ -531,6 +536,7 @@ function Home() {
         }}>
           Engager <i className="fa-solid fa-user"></i>
         </button>  */}
+      </div>
       </div>
     </div>
   );
