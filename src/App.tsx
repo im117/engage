@@ -109,6 +109,7 @@ if (token && isTokenExpired(token)) {
   localStorage.removeItem("authToken");
 }
 
+
 function Home() {
   // Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
 
@@ -136,6 +137,8 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
+  const [isReply, setIsReply] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(0);
 
   
 
@@ -545,15 +548,23 @@ function Home() {
         // Create a new div element for each comment
         const commentDiv = document.createElement("div");
         commentDiv.classList.add("comment"); // class
+
+        // Create the comment text
+        const commentText = document.createElement("p");
+        commentText.innerHTML = `<strong>${username}</strong> (${created_at}): <br> ${content}`;
+
+        const replyIcon = document.createElement("i");
+        replyIcon.classList.add("fa-regular", "fa-comments", "reply-icon");
+
+        const br = document.createElement("br");
+
   
-        // Add the comment content to the div
-        commentDiv.innerHTML = `
-          <p><strong>${username}</strong> (${created_at}): </p>
-          <p>${content}</p>
-        `;
-  
-        // Append the new div to the container
-        commentBox.appendChild(commentDiv);
+      // Append elements to comment div
+      commentDiv.appendChild(commentText);
+      commentDiv.appendChild(replyIcon);
+
+      // Append the new div to the container
+      commentBox.appendChild(commentDiv);
       });
       
     } catch (error) {
@@ -653,7 +664,7 @@ function Home() {
 
               </body>
             </div>
-            <textarea
+            <textarea id="comment-input"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Write a comment..."

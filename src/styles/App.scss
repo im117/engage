@@ -161,4 +161,11 @@ body {
 
 .comment {
   background-color: white;
+  padding-bottom: 20px; /* Padding inside each comment */
+  border-bottom: 2px solid black; /* Optional: Separator */
+}
+
+.reply-icon{
+  margin-left: 20px;
+  cursor: pointer;
 }
