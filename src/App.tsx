@@ -85,7 +85,6 @@ function Home() {
   const initState = filteredArray.length < 2 ? 0 : 1;
   const [videoIndex, setVideoIndex] = useState(initState);
   const [currentVideo, setCurrentVideo] = useState("");
-  const [showComments, setShowComments] = useState(false);
   const [notification, setNotification] = useState("");
   const [comment, setComment] = useState("");
 
@@ -105,10 +104,11 @@ function Home() {
   }
   const [comments, setComments] = useState<CommentType[]>([]);
 
-  // States for reply functionality: replyInputs holds the current reply text for a given comment id,
-  // and replyVisible toggles whether the reply input is shown for a comment.
+  // For reply functionality: replyInputs holds reply text per comment; replyVisible toggles showing reply input.
+  // Additionally, repliesVisible toggles the display of the entire replies list per comment.
   const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
   const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
+  const [repliesVisible, setRepliesVisible] = useState<{ [key: number]: boolean }>({});
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -120,12 +120,14 @@ function Home() {
 
   const navigate = useNavigate();
 
+  // Load current video when index changes.
   useEffect(() => {
     setLiked(false);
     setViewRecorded(false);
     setCurrentVideo(filteredArray[videoIndex] || "");
   }, [videoIndex]);
 
+  // Whenever currentVideo changes, update like and view counts and fetch comments.
   useEffect(() => {
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
@@ -134,6 +136,7 @@ function Home() {
       if (loggedIn && userID) {
         checkIfLiked();
       }
+      displayComments();
     }
   }, [currentVideo, loggedIn, userID]);
 
@@ -334,11 +337,8 @@ function Home() {
     }
   }
 
-  const toggleComments = () => {
-    setShowComments(!showComments);
-  };
-
-  // Post a comment and refresh the comments list
+  // Post a comment and refresh the comments list.
+  // Comments are always visible.
   const postComment = async () => {
     if (comment.trim() === "") return;
     try {
@@ -373,7 +373,7 @@ function Home() {
     recordView();
   };
 
-  // displayComments function: fetch comments along with their replies
+  // displayComments: fetch comments with their replies.
   async function displayComments() {
     try {
       const fileName = currentVideo.split("/").pop();
@@ -381,14 +381,14 @@ function Home() {
       const response = await axios.get(`${uploadServer}/get-comments`, {
         params: { fileName },
       });
-      // Expect each comment to have: id, user_id, content, created_at
+      // Each comment should have: id, user_id, content, created_at.
       const fetchedComments = response.data;
       const commentsWithUsernames = await Promise.all(
         fetchedComments.map(async (comment: any) => {
           const userResponse = await axios.get(`${uploadServer}/user`, {
             params: { userID: comment.user_id },
           });
-          // Fetch replies for this comment
+          // Fetch replies for this comment.
           let replies: any[] = [];
           try {
             const repliesResponse = await axios.get(`${uploadServer}/get-replies`, {
@@ -396,7 +396,7 @@ function Home() {
             });
             replies = await Promise.all(
               repliesResponse.data.map(async (reply: any) => {
-                // NOTE: reply table uses "creator_id"
+                // Use creator_id from reply table.
                 const replyUserResponse = await axios.get(`${uploadServer}/user`, {
                   params: { userID: reply.creator_id },
                 });
@@ -426,7 +426,7 @@ function Home() {
     }
   }
 
-  // Post a reply to a specific comment
+  // Post a reply to a specific comment.
   async function postReply(commentId: number) {
     const replyText = replyInputs[commentId];
     if (!replyText || replyText.trim() === "") return;
@@ -437,13 +437,21 @@ function Home() {
         { comment_id: commentId, reply: replyText },
         { headers: { Authorization: token } }
       );
-      // Clear the reply input for this comment and refresh comments
+      // Clear reply input for this comment and refresh comments.
       setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
       displayComments();
     } catch (error) {
       console.error("Error posting reply:", error);
     }
   }
+
+  // Toggle visibility of the entire replies section for a comment.
+  const toggleRepliesVisible = (commentId: number) => {
+    setRepliesVisible((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  };
 
   return (
     <div className="app-container">
@@ -477,33 +485,20 @@ function Home() {
         <div className="control-button" onClick={getVideoInfo}>
           <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>
-
-        {/* Updated COMMENT button - toggles the comment section and fetches comments */}
-        <button
-          className="control-button"
-          onClick={() => {
-            toggleComments();
-            displayComments();
-          }}
-        >
+        {/* You can repurpose the COMMENT button as a refresh if desired */}
+        <button className="control-button" onClick={displayComments}>
           COMMENT <i className="fa-solid fa-comment"></i>
         </button>
-
         <button className="control-button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
       </div>
-
       <div className="upload-section">
         <button className="upload-button" onClick={() => navigate("/upload")}>
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
-
-      <div className="back-button-section">
-        {/* Removed VIDEO INFO button from here */}
-      </div>
-
+      <div className="back-button-section">{/* Removed VIDEO INFO button */}</div>
       <div className="login-button-section">
         <button
           className="control-button"
@@ -519,8 +514,7 @@ function Home() {
             </>
           )}
         </button>
-
-        {/* Updated Comment Section */}
+        {/* Comment Section: Always visible */}
         <div
           className="comment-section"
           style={{
@@ -530,71 +524,70 @@ function Home() {
             background: "white",
             padding: "10px",
             borderRadius: "5px",
+            maxHeight: "40vh",
+            overflowY: "auto"
           }}
         >
-          <button onClick={() => { toggleComments(); displayComments(); }}>
-            <i className="fa-regular fa-comments"></i>
+          <textarea
+            id="comment-input"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Write a comment..."
+          ></textarea>
+          <button onClick={postComment}>
+            <i className="fa-solid fa-paper-plane"></i>
           </button>
-          {showComments && (
-            <div>
-              <textarea
-                id="comment-input"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write a comment..."
-              ></textarea>
-              <button onClick={postComment}>
-                <i className="fa-solid fa-paper-plane"></i>
-              </button>
-              <button onClick={toggleComments}>
-                <i className="fa-regular fa-comments"></i>
-              </button>
-              <div className="comments-list">
-                {comments.map((c) => (
-                  <div key={c.id} style={{ marginBottom: "10px" }}>
-                    <p>
-                      <strong>{c.username}</strong> ({c.created_at}): {c.comment}
-                    </p>
-                    <button
-                      onClick={() =>
-                        setReplyVisible((prev) => ({
+          <div className="comments-list">
+            {comments.map((c) => (
+              <div key={c.id} style={{ marginBottom: "10px" }}>
+                <p>
+                  <strong>{c.username}</strong> ({c.created_at}): {c.comment}
+                </p>
+                {/* Toggle button for showing/hiding replies */}
+                {c.replies && c.replies.length > 0 && (
+                  <button onClick={() => toggleRepliesVisible(c.id)}>
+                    {repliesVisible[c.id] ? "Hide Replies" : "Show Replies"}
+                  </button>
+                )}
+                {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
+                  <div style={{ marginLeft: "20px" }}>
+                    {c.replies.map((r) => (
+                      <p key={r.id}>
+                        <strong>{r.username}</strong> ({r.created_at}): {r.reply}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {/* Optional reply input for each comment */}
+                <button
+                  onClick={() =>
+                    setReplyVisible((prev) => ({
+                      ...prev,
+                      [c.id]: !prev[c.id],
+                    }))
+                  }
+                >
+                  Reply
+                </button>
+                {replyVisible[c.id] && (
+                  <div style={{ marginLeft: "20px" }}>
+                    <input
+                      type="text"
+                      value={replyInputs[c.id] || ""}
+                      onChange={(e) =>
+                        setReplyInputs((prev) => ({
                           ...prev,
-                          [c.id]: !prev[c.id],
+                          [c.id]: e.target.value,
                         }))
                       }
-                    >
-                      Reply
-                    </button>
-                    {replyVisible[c.id] && (
-                      <div style={{ marginLeft: "20px" }}>
-                        <input
-                          type="text"
-                          value={replyInputs[c.id] || ""}
-                          onChange={(e) =>
-                            setReplyInputs((prev) => ({
-                              ...prev,
-                              [c.id]: e.target.value,
-                            }))
-                          }
-                          placeholder="Write a reply..."
-                        />
-                        <button onClick={() => postReply(c.id)}>Post Reply</button>
-                      </div>
-                    )}
-                    {c.replies && c.replies.length > 0 && (
-                      <div style={{ marginLeft: "20px" }}>
-                        {c.replies.map((r) => (
-                          <p key={r.id}>
-                            <strong>{r.username}</strong> ({r.created_at}): {r.reply}
-                          </p>
-                        ))}
-                      </div>
-                    )}
+                      placeholder="Write a reply..."
+                    />
+                    <button onClick={() => postReply(c.id)}>Post Reply</button>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
         {notification && (
           <div
