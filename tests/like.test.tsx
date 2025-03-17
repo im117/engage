@@ -38,7 +38,7 @@ describe("Like Functionality", () => {
     vi.clearAllMocks();
     process.env = originalEnv;
   });
-  // Test case for like functionality for logged-in user
+  // Test 1: Test case for like functionality for logged-in user
   it("should call like-video API when like button is clicked by logged-in user", async () => {
     // Mock responses for API calls
     vi.mocked(axios.get).mockImplementation((url) => {
@@ -81,6 +81,72 @@ describe("Like Functionality", () => {
         { fileName: "video1.mp4" },
         { params: { auth: "mock-token" } }
       );
+    });
+  });
+  // Test 2: Test case for like functionality for logged-out user
+  it("should show alert if user is not logged in", async () => {
+    // Mock alert
+    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+
+    render(
+      <LikeButton
+        fileName="video1.mp4"
+        loggedIn={false}
+        userId={0}
+        initialLikeCount={5}
+        loginServer={mockLoginServer}
+      />
+    );
+
+    // Find and click the like button
+    const likeButton = screen.getByTestId("like-button");
+    fireEvent.click(likeButton);
+
+    // Verify alert was shown
+    expect(alertMock).toHaveBeenCalledWith(
+      "You must be logged in to like videos."
+    );
+  });
+
+  // Test 3: Test case for updating UI after liking a video
+  it("should update UI after liking a video", async () => {
+    // Mock responses
+    vi.mocked(axios.get).mockImplementation((url) => {
+      if (url.includes("/video-likes-by-filename/")) {
+        return Promise.resolve({ data: { likeCount: 5 } });
+      } else if (url.includes("/check-like-status")) {
+        return Promise.resolve({ data: { liked: false } });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    vi.mocked(axios.post).mockImplementation((url) => {
+      if (url.includes("/like-video")) {
+        return Promise.resolve({
+          data: { message: "Video liked successfully" },
+        });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    render(
+      <LikeButton
+        fileName="video1.mp4"
+        loggedIn={true}
+        userId={123}
+        initialLikeCount={5}
+        loginServer={mockLoginServer}
+      />
+    );
+
+    // Find and click the like button
+    const likeButton = screen.getByTestId("like-button");
+    fireEvent.click(likeButton);
+
+    // Verify that the UI updates
+    await waitFor(() => {
+      expect(likeButton).toHaveStyle("color: rgb(255, 0, 0)");
+      expect(likeButton).toHaveTextContent("6 Likes");
     });
   });
 });
