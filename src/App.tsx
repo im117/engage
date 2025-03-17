@@ -116,6 +116,16 @@ function Home() {
 
   const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
   const [currentVideo, setCurrentVideo] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [notification, setNotification] = useState("");
+  const [comment, setComment] = useState("");
+  interface Comment {
+    username: string;
+    comment: string;
+  }
+
+  const [comments, setComments] = useState<Comment[]>([]);
+
   // const currentVideoRef = useRef(filteredArray[0] || ''); // Reference to the current video path
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -125,6 +135,9 @@ function Home() {
   const [liked, setLiked] = useState(false);
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
+
+
+  
 
   useEffect(() => {
     // Immediately reset states when changing videos
@@ -427,6 +440,49 @@ function Home() {
     }
   }
 
+  const toggleComments = () => {
+    setShowComments(!showComments);
+  };
+
+  const postComment = async () => {
+    if (comment.trim() === "") return;
+    try {
+      const token = localStorage.getItem("authToken");
+  
+      // First, get the video_id
+      const fileName = currentVideo.split("/").pop();
+      const videoRes = await axios.get("http://localhost:3001/video", {
+        params: { fileName },
+      });
+  
+      if (!videoRes.data || !videoRes.data.id) {
+        setNotification("⚠️ Video not found.");
+        setTimeout(() => setNotification(""), 3000);
+        return;
+      }
+  
+      const videoId = videoRes.data.id;
+  
+      // Now, post the comment
+      await axios.post("http://localhost:3001/post-comment", {
+        video_id: videoId,  // Send correct video_id
+        comment,
+      }, {
+        headers: { Authorization: token },
+      });
+  
+      setComment("");
+      setNotification("✅ Successfully commented!");
+      setTimeout(() => setNotification(""), 3000);
+
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      setNotification("⚠️ Failed to post comment.");
+      setTimeout(() => setNotification(""), 3000);
+    }
+  };
+  
+
   const handleVideoStart = () => {
     recordView();
   };
@@ -504,6 +560,31 @@ function Home() {
             </>
           )}
         </button>
+        {/* comment section */}
+        <div className="comment-section" style={{ position: "fixed", bottom: "13%", right: "33%" }}>
+        <button onClick={toggleComments}>
+          <i className="fa-regular fa-comments"></i>
+        </button>
+        {showComments && (
+          <div>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Write a comment..."
+            ></textarea>
+            <button onClick={postComment}>
+              <i className="fa-solid fa-paper-plane"></i>
+            </button>
+            <div className="comments-list">
+              {comments.map((c, index) => (
+                <p key={index}><strong>{c.username}:</strong> {c.comment}</p>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {notification && <div className="notification" style={{ position: "fixed", bottom: "80px", right: "20px", background: "#28a745", color: "white", padding: "10px", borderRadius: "5px" }}>{notification}</div>}
+    </div>
         {/* <button className="control-button" onClick={async () => {
           const userId = await getLoggedInUserId();
           if (userId !== null) {
@@ -515,7 +596,6 @@ function Home() {
         }}>
           Engager <i className="fa-solid fa-user"></i>
         </button>  */}
-        {}
         {/* <button className="control-button" onClick={handleBackToLogin}>
           
           Log In <i className="fa solid fa-right-to-bracket"></i>
@@ -532,7 +612,7 @@ function Home() {
           Engager <i className="fa-solid fa-user"></i>
         </button>  */}
       </div>
-    </div>
+  
   );
 }
 
