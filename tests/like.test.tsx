@@ -37,4 +37,50 @@ describe("Like Functionality", () => {
   afterEach(() => {
     vi.clearAllMocks();
     process.env = originalEnv;
-  })
+  });
+  // Test case for like functionality for logged-in user
+  it("should call like-video API when like button is clicked by logged-in user", async () => {
+    // Mock responses for API calls
+    vi.mocked(axios.get).mockImplementation((url) => {
+      if (url.includes("/video-likes-by-filename/")) {
+        return Promise.resolve({ data: { likeCount: 5 } });
+      } else if (url.includes("/check-like-status")) {
+        return Promise.resolve({ data: { liked: false } });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    vi.mocked(axios.post).mockImplementation((url) => {
+      if (url.includes("/like-video")) {
+        return Promise.resolve({
+          data: { message: "Video liked successfully" },
+        });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    // Render just the LikeButton component (avoiding the whole App with router)
+    render(
+      <LikeButton
+        fileName="video1.mp4"
+        loggedIn={true}
+        userId={123}
+        initialLikeCount={5}
+        loginServer={mockLoginServer}
+      />
+    );
+
+    // Find and click the like button
+    const likeButton = screen.getByTestId("like-button");
+    fireEvent.click(likeButton);
+
+    // Verify that the like API was called
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        `${mockLoginServer}/like-video`,
+        { fileName: "video1.mp4" },
+        { params: { auth: "mock-token" } }
+      );
+    });
+  });
+});
