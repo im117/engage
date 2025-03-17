@@ -452,7 +452,7 @@ function Home() {
         {/* 1. Video control buttons */}
       <div className="controls">
         <div className="video-stats">
-        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
+        <button onClick={handleLike} className={ liked ? "like-button liked" : "like-button not-liked" }>
           <i className="fa-solid fa-heart"></i> {likeCount} Likes
         </button>
         <span className="view-count">

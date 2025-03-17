@@ -13,12 +13,12 @@ body {
   width: 90vw;
   margin-left: auto;
   margin-right: auto;
-  background-color: blue;
+  // background-color: blue;
   // background: $app-background;
-  // border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
   display: grid;
   flex-direction: row; // Stack items vertically
@@ -30,6 +30,7 @@ body {
 
 .video-player {
   background: green;
+  // border: 2px solid #ddd;
   width: 100%; // Adjust width to fit container if necessary
   height: 60vh;
   display: flex;
@@ -41,6 +42,7 @@ body {
 }
 
 .video-details{
+
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
@@ -68,7 +70,7 @@ body {
 
 /* Control Button Styling */
 .control-button {
-  background-color: #065527;
+  // background-color: #065527;
   border-radius: 19px;
   border: 2px solid #4e6096;
   // display: inline-block;
@@ -107,6 +109,49 @@ body {
   &:hover {
     background-color: #004488;
     font-size: 18px;
+  }
+}
+
+.like-button.liked{
+  background-color: #f10372;
+  border-radius: 19px;
+  border: 2px solid #4e6096;
+  // display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  width: auto; // Let buttons size to their content
+  min-width: 120px; // Optional: Ensure a minimum width
+  display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $button-hover-color;
+  }
+}
+.like-button.not-liked{
+  background-color: #065527;
+  border-radius: 19px;
+  border: 2px solid #4e6096;
+  // display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 31px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  width: auto; // Let buttons size to their content
+  min-width: 120px; // Optional: Ensure a minimum width
+  display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $button-hover-color;
   }
 }
 
