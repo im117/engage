@@ -479,6 +479,7 @@ function Home() {
       setNotification("⚠️ Failed to post comment.");
       setTimeout(() => setNotification(""), 3000);
     }
+    displayComments();
   };
   
 
@@ -499,6 +500,67 @@ function Home() {
       }
     }
   }
+
+  async function displayComments() {
+    interface Comment {
+      user_id: string;
+      content: string;
+      created_at: string;
+    }
+  
+    try {
+      // Get the fileName from the current video
+      const fileName = currentVideo.split("/").pop();
+      
+      // Fetch comments using axios
+      const response = await axios.get("http://localhost:3001/get-comments", {
+        params: { fileName },
+      });
+  
+      // Type the response data as Comment array
+      const comments: Comment[] = response.data;
+  
+      // Get the comments display element
+      const commentBox = document.getElementById("comments-display");
+  
+      // Check if the commentBox element exists before manipulating it
+      if (!commentBox) {
+        console.error("Element with ID 'comments-display' not found.");
+        return; // Exit if the element doesn't exist
+      }
+  
+      // Clear any existing comments in the container
+      commentBox.innerHTML = '';
+  
+      // Loop through the comments and create a div for each one
+      comments.forEach(async comment => {
+        const { user_id, content, created_at } = comment; // Destructure comment attributes
+
+        const response = await axios.get("http://localhost:3001/user", {
+          params: { userID:user_id },
+        });
+
+        const username = response.data.username;
+  
+        // Create a new div element for each comment
+        const commentDiv = document.createElement("div");
+        commentDiv.classList.add("comment"); // class
+  
+        // Add the comment content to the div
+        commentDiv.innerHTML = `
+          <p><strong>${username}</strong> (${created_at}): </p>
+          <p>${content}</p>
+        `;
+  
+        // Append the new div to the container
+        commentBox.appendChild(commentDiv);
+      });
+      
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  }
+  
 
   return (
     <div className="app-container">
@@ -580,12 +642,17 @@ function Home() {
           )}
         </button>
         {/* comment section */}
-        <div className="comment-section" style={{ position: "fixed", bottom: "13%", right: "33%" }}>
-        <button onClick={toggleComments}>
+        <div className="comment-section" style={{ position: "fixed", bottom: "13%", right: "28%", background:"white" }}>
+        <button onClick={() => { toggleComments(); displayComments(); }}>
           <i className="fa-regular fa-comments"></i>
         </button>
         {showComments && (
           <div>
+            <div id="comments-display">
+              <body style={{ backgroundColor: "white"}}>
+
+              </body>
+            </div>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -593,6 +660,9 @@ function Home() {
             ></textarea>
             <button onClick={postComment}>
               <i className="fa-solid fa-paper-plane"></i>
+            </button>
+            <button onClick={() => { toggleComments(); }}>
+              <i className="fa-regular fa-comments"></i>
             </button>
             <div className="comments-list">
               {comments.map((c, index) => (

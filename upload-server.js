@@ -309,22 +309,28 @@ app.get("/get-comments", async (req, res) => {
     const videoId = videoResult[0].id;
 
     // Fetch comments
-    const selectQuery = `
-      SELECT users.username, comments.content 
-      FROM comments 
-      JOIN users ON comments.user_id = users.id 
-      WHERE comments.video_id = ?`;
+    // const selectQuery = `
+    //   SELECT users.username, comments.content 
+    //   FROM comments 
+    //   JOIN users ON comments.user_id = users.id 
+    //   WHERE comments.video_id = ?`;
+
+      const selectQuery = "SELECT * FROM comments WHERE video_id = ?"
 
     const [results] = await db.promise().query(selectQuery, [videoId]);
 
-    db.destroy();
     return res.status(200).json(results);
   } catch (error) {
     console.error("Error fetching comments: ", error);
-    db.destroy();
     return res.status(500).json({ message: "Database error", error });
+  } finally {
+    db.destroy();
   }
 });
+
+
+
+
 
 
 app.listen(port, () => {

@@ -147,3 +147,18 @@ body {
     top: 1px;
   }
 }
+
+.comment-section{
+  position:fixed;
+  max-width: 250px;
+  max-height: 400px;
+  bottom:13%;
+  right:28%;
+  background-color: white;
+  padding:10px;
+  overflow-y: scroll;
+}
+
+.comment {
+  background-color: white;
+}
