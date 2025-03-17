@@ -256,6 +256,77 @@ app.get("/video-list", (req, res) => {
   });
 });
 
+app.post("/post-comment", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { video_id, comment } = req.body;
+  const userId = req.user.userId;
+
+  console.log("Received Comment Request:");
+  console.log("User ID:", userId);
+  console.log("Video ID:", video_id);
+  console.log("Comment:", comment);
+
+  if (!video_id || !comment) {
+    db.destroy();
+    return res.status(400).json({ message: "Video ID and comment are required" });
+  }
+
+  try {
+    // Insert comment with video_id
+    const insertQuery = "INSERT INTO comments (user_id, video_id, content) VALUES (?, ?, ?)";
+    await db.promise().query(insertQuery, [userId, video_id, comment]);
+
+    console.log("Comment successfully stored in database!");
+    db.destroy();
+    return res.status(200).json({ message: "Comment posted successfully!" });
+  } catch (error) {
+    console.error("Error inserting comment:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+
+app.get("/get-comments", async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.query;
+
+  if (!fileName) {
+    db.destroy();
+    return res.status(400).json({ message: "File name is required" });
+  }
+
+  try {
+    // Get the video_id from fileName
+    const videoQuery = "SELECT id FROM videos WHERE fileName = ?";
+    const [videoResult] = await db.promise().query(videoQuery, [fileName]);
+
+    if (videoResult.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    const videoId = videoResult[0].id;
+
+    // Fetch comments
+    const selectQuery = `
+      SELECT users.username, comments.content 
+      FROM comments 
+      JOIN users ON comments.user_id = users.id 
+      WHERE comments.video_id = ?`;
+
+    const [results] = await db.promise().query(selectQuery, [videoId]);
+
+    db.destroy();
+    return res.status(200).json(results);
+  } catch (error) {
+    console.error("Error fetching comments: ", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);
 });
