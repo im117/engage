@@ -556,7 +556,23 @@ function Home() {
         const replyIcon = document.createElement("i");
         replyIcon.classList.add("fa-regular", "fa-comments", "reply-icon");
 
-        const br = document.createElement("br");
+        replyIcon.addEventListener("click", () => {
+          let existingReplyBox = commentDiv.querySelector(".reply-box");
+        
+          if (existingReplyBox) {
+            // If reply box exists, remove it (hide it)
+            existingReplyBox.remove();
+          } else {
+            // Create a new input field for replying
+            const replyBox = document.createElement("input");
+            replyBox.type = "text";
+            replyBox.placeholder = "Write a reply...";
+            replyBox.classList.add("reply-box"); // Add class for styling
+        
+            // Append reply box below the comment
+            commentDiv.appendChild(replyBox);
+          }
+        });
 
   
       // Append elements to comment div
