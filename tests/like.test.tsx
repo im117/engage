@@ -26,3 +26,15 @@ describe("Like Functionality", () => {
       },
       writable: true,
     });
+
+    // Mock localStorage for logged-in user
+    vi.spyOn(window.localStorage, "getItem").mockImplementation((key) => {
+      if (key === "authToken") return "mock-token";
+      return null;
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    process.env = originalEnv;
+  })
