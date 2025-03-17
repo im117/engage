@@ -13,3 +13,15 @@ vi.mock("react-router-dom", async () => {
     useNavigate: () => vi.fn(),
   };
 });
+
+// Mock axios
+vi.mock("axios");
+
+// Mock ReactPlayer
+vi.mock("react-player", () => ({
+  default: vi.fn(({ onStart }) => {
+    // Call onStart to simulate video starting
+    setTimeout(() => onStart && onStart(), 0);
+    return <div data-testid="react-player" />;
+  }),
+}));
