@@ -542,16 +542,19 @@ function Home() {
               maxHeight: "40vh",
               overflowY: "auto",
             }}
-          >
-            <textarea
-              id="comment-input"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Write a comment..."
-            ></textarea>
-            <button onClick={postComment}>
-              <i className="fa-solid fa-paper-plane"></i>
-            </button>
+          > {loggedIn && (
+            <div className="comment-input-div">
+              <textarea
+                id="comment-input"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write a comment..."
+              ></textarea>
+              <button onClick={postComment}>
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          )}
             <div className="comments-list">
               {comments.map((c) => (
                 <div key={c.id} style={{ marginBottom: "10px" }}>
@@ -590,24 +593,28 @@ function Home() {
                       ))}
                     </div>
                   )}
-                  {/* Toggle the reply input for each comment */}
-                  <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
-                  {replyVisible[c.id] && (
-                    <div style={{ marginLeft: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
-                      <input
-                        type="text"
-                        value={replyInputs[c.id] || ""}
-                        onChange={(e) =>
-                          setReplyInputs((prev) => ({
-                            ...prev,
-                            [c.id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Write a reply..."
-                      />
-                      <button onClick={() => postReply(c.id)}><i className="fa-regular fa-paper-plane"></i></button>
+                  { loggedIn && (
+                    <div>
+                    <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
+                    {replyVisible[c.id] && (
+                      <div style={{ marginLeft: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <input
+                          type="text"
+                          value={replyInputs[c.id] || ""}
+                          onChange={(e) =>
+                            setReplyInputs((prev) => ({
+                              ...prev,
+                              [c.id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Write a reply..."
+                        />
+                        <button onClick={() => postReply(c.id)}><i className="fa-regular fa-paper-plane"></i></button>
+                      </div>
+                    )}
                     </div>
                   )}
+
                 </div>
               ))}
             </div>
