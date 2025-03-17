@@ -452,22 +452,22 @@ function Home() {
         {/* 1. Video control buttons */}
       <div className="controls">
         <div className="video-stats">
-        <button onClick={handleLike} className={ liked ? "like-button liked" : "like-button not-liked" }>
+        <a onClick={handleLike} className={ liked ? "button liked" : "button " }>
           <i className="fa-solid fa-heart"></i> {likeCount} Likes
-        </button>
-        <span className="view-count">
+        </a>
+        <span className="button">
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
         
         </div>
         <div className="download-next">
           
-        <a className="control-button" href={currentVideo} download>
+        <a className="button" href={currentVideo} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
-        <button className="control-button" onClick={handleNext}>
+        <a className="button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
-        </button>
+        </a>
         </div>
       </div>
       </div>
