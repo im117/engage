@@ -1,94 +1,66 @@
 import "./styles/App.scss"; // Import global and App-specific styles
-
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-// React Router for navigation between different pages (Home and User page)
-
 import { useState, useEffect } from "react";
-// React hooks: useState (state), useEffect (side effects), useRef (persistent value)
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
-// import Dashboard from "./Dashboard";
-import PrivateRoute from "./PrivateRoute"; //
+import PrivateRoute from "./PrivateRoute";
 import ResetPassword from "./resetPassword.tsx";
-import ReactPlayer from "react-player"; // Library for embedding and playing videos
+import ReactPlayer from "react-player";
 import User from "./User";
-import path from "path-browserify"; // Path library to work with file paths in the browser
+import path from "path-browserify";
 import Upload from "./upload.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
-// import { createContext, useContext } from 'react';
-// import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob("../media/*trans.mp4");
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
-  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
 let loginServer = "http://localhost:8081";
-
 if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
-  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   loginServer = import.meta.env.VITE_LOGIN_SERVER;
 }
 
 // Asynchronously create an array of video paths from imported media folder
 async function createVideoArray() {
-  const vidPaths: Array<string | null> = []; // Array to hold video paths
+  const vidPaths: Array<string | null> = [];
   const dbPaths: Array<string> = [];
   try {
     const response = await axios.get(`${uploadServer}/video-list`);
-    // console.log(response.data);
     response.data.forEach((video: { fileName: string }) => {
       dbPaths.push(video.fileName);
     });
   } catch (error) {
     console.error(`Error fetching video info:`, error);
-    return []; // Continue to the next video if the request fails
+    return [];
   }
-
-  // console.log(dbPaths);
-  // Loop through all imported videos
   for (const videoKey of Object.keys(videos)) {
-    const ext = path.extname(videoKey).toLowerCase(); // Get the extension (e.g., .mp4)
+    const ext = path.extname(videoKey).toLowerCase();
     if (ext === ".mp4") {
       const videoFileName: string = path.posix.basename(videoKey);
-      // console.log(videoFileName)
-      // console.log(dbPaths.includes(videoFileName))
       if (dbPaths.includes(videoFileName)) {
         vidPaths.push(videoKey);
       }
     }
-    // console.log(vidPaths);
   }
   return vidPaths;
 }
-//randomize the elements of an array
+
 function randomizeArray(array: Array<string | null>) {
   let index = array.length;
-
-  // While elements remain to shuffle
   while (index !== 0) {
     const randomIndex = Math.floor(Math.random() * index);
-
-    // Shuffle the positions
     [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
-
-    // Bring the index down by 1
     index--;
   }
 }
 
-// Create a randomized array of video paths
 const array: Array<string | null> = await createVideoArray();
 randomizeArray(array);
-
-// Remove any undefined items (extra safety)
 const filteredArray = array.filter((item) => item !== undefined);
-
-// let userChanged:boolean = false;
 
 // Function to check if the auth token is expired
 function isTokenExpired(token: string) {
@@ -109,25 +81,34 @@ if (token && isTokenExpired(token)) {
   localStorage.removeItem("authToken");
 }
 
-
 function Home() {
-  // Home Page Component - Displays random videos, "Next", "Engager", and "Download" buttons
-
-  const initState = filteredArray.length < 2 ? 0 : 1; // Set initial video
-
-  const [videoIndex, setVideoIndex] = useState(initState); // State for current video index
+  const initState = filteredArray.length < 2 ? 0 : 1;
+  const [videoIndex, setVideoIndex] = useState(initState);
   const [currentVideo, setCurrentVideo] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [notification, setNotification] = useState("");
   const [comment, setComment] = useState("");
-  interface Comment {
+
+  // Comment type now includes an id and an optional replies array.
+  interface CommentType {
+    id: number;
     username: string;
     comment: string;
+    created_at: string;
+    replies?: ReplyType[];
   }
+  interface ReplyType {
+    id: number;
+    username: string;
+    reply: string;
+    created_at: string;
+  }
+  const [comments, setComments] = useState<CommentType[]>([]);
 
-  const [comments, setComments] = useState<Comment[]>([]);
-
-  // const currentVideoRef = useRef(filteredArray[0] || ''); // Reference to the current video path
+  // States for reply functionality: replyInputs holds the current reply text for a given comment id,
+  // and replyVisible toggles whether the reply input is shown for a comment.
+  const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
+  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -137,77 +118,50 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
-  const [isReply, setIsReply] = useState(false);
-  const [replyTarget, setReplyTarget] = useState(0);
-
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Immediately reset states when changing videos
     setLiked(false);
     setViewRecorded(false);
-
-    // Set the current video
     setCurrentVideo(filteredArray[videoIndex] || "");
-
-    // Use a separate effect for fetching like data to ensure it runs AFTER the currentVideo is set
   }, [videoIndex]);
 
-  // Add a separate useEffect that depends on currentVideo
   useEffect(() => {
-    // Only fetch like data if there's a valid video
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
       getLikeCount();
       getViewCount();
-      // Only check if user has liked if they're logged in
       if (loggedIn && userID) {
         checkIfLiked();
       }
     }
   }, [currentVideo, loggedIn, userID]);
 
-  // Switch to the next video in the array
   const handleNext = () => {
-    setVideoIndex(
-      (prevIndex) => (prevIndex + initState) % filteredArray.length
-    );
-    // console.log(videoIndex);
+    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
   };
 
-  const navigate = useNavigate(); // Hook to navigate to other pages
-  // const handleBackToDashboard = () => {
-  //   navigate("/dashboard");
-  // };
   const handleBackToLogin = () => {
     navigate("/login");
   };
 
-  // Function to get user info from API
   async function getUsername(userid: number) {
     let creatorName = "";
     await axios
       .get(`${uploadServer}/user`, {
-        params: {
-          userID: userid,
-        },
+        params: { userID: userid },
       })
       .then((response) => {
         creatorName = response.data.username;
       });
     return creatorName as string;
   }
-  // Function to grab video information from API
+
   async function getVideoInfo() {
     let title = "";
     let desc = "";
     let userid = 0;
     let creatorName = "";
-    // Get the previousIndex and previousVideo, since index seeks ahead at the moment
-    // const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
-    // const previousVideo = filteredArray[previousIndex] || "";
-
-    // Get video info
     await axios
       .get(`${uploadServer}/video`, {
         params: {
@@ -215,7 +169,6 @@ function Home() {
         },
       })
       .then((response) => {
-        // get user info
         title = response.data.title;
         desc = response.data.description;
         userid = response.data.creator_id;
@@ -223,9 +176,8 @@ function Home() {
       .catch((error) => {
         alert(`There was an error fetching the video info!\n\n${error}`);
       });
-
     creatorName = await getUsername(userid);
-    if (desc == "" || desc == undefined) {
+    if (!desc) {
       desc = "No description provided";
     }
     alert(
@@ -233,23 +185,15 @@ function Home() {
     );
   }
 
-  // const token = localStorage.getItem("authToken");
-  // useEffect(() => {
-  //   setLoggedIn(!!token);
-  // }, []);
-
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
         const response = await axios.get(`${loginServer}/current-user-id`, {
-          params: {
-            auth: token ? token : "",
-          },
+          params: { auth: token },
         });
         setUserID(response.data.userId);
         setLoggedIn(true);
-        // userChanged = true;
         return response.data.userId;
       } catch (error) {
         console.error("Error fetching user ID:", error);
@@ -259,32 +203,12 @@ function Home() {
       return null;
     }
   }
-
-  // const authButtons = async ()=> {
-  //   let button = "";
-  //   const userId = await getLoggedInUserId()
-
-  //    if (userId !== null) {
-
-  //     const username = await getUsername(userId);
-  //     button = "<button className='control-button' onClick={() => navigate('/user')>" + username + " <i className='fa-solid fa-user'></i> </button>"
-
-  //   } else {
-  //     button = "<button className='control-button' onClick={handleBackToLogin}>Log In <i className='fa solid fa-right-to-bracket'></i></button>"
-  //   }
-  //   const sanitizedHTML = DOMPurify.sanitize(button);
-  //   return (
-  //     <div className='login-button-section' dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-  //   )
-  // }
-
   getLoggedInUserId();
 
   async function assignUsername() {
     if (loggedIn) {
-      const username = await getUsername(userID);
-      setUsername(username);
-      // console.log(username);
+      const name = await getUsername(userID);
+      setUsername(name);
     }
   }
   assignUsername();
@@ -296,49 +220,36 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
-
       const response = await axios.get(
         `${loginServer}/video-likes-by-filename/${fileName}`
       );
       setLikeCount(response.data.likeCount);
     } catch (error) {
       console.error("Error fetching like count:", error);
-      setLikeCount(0); // Default to 0 if there's an error
+      setLikeCount(0);
     }
   }
 
   async function checkIfLiked() {
-    // console.log("Checking if liked for:", currentVideo.split("/").pop());
-
     if (!loggedIn) {
-      // console.log("Not logged in, setting liked to false");
       setLiked(false);
       return;
     }
-
     const token = localStorage.getItem("authToken");
     if (!token) {
-      // console.log("No token, setting liked to false");
       setLiked(false);
       return;
     }
-
     const fileName = currentVideo.split("/").pop();
     if (!fileName) {
-      // No fileName, setting liked to false
       setLiked(false);
       return;
     }
-
     try {
       console.log("Making API request to check like status for:", fileName);
       const response = await axios.get(`${loginServer}/check-like-status`, {
-        params: {
-          auth: token,
-          fileName: fileName,
-        },
+        params: { auth: token, fileName: fileName },
       });
-
       console.log("Like status response:", response.data);
       setLiked(response.data.liked);
     } catch (error) {
@@ -352,30 +263,23 @@ function Home() {
       alert("You must be logged in to like videos.");
       return;
     }
-
     const fileName = currentVideo.split("/").pop();
     if (!fileName) {
       console.error("Error: fileName is missing.");
       return;
     }
-
     const token = localStorage.getItem("authToken");
     if (!token) {
       alert("Authentication error. Please log in again.");
       setLoggedIn(false);
       return;
     }
-
     try {
       const response = await axios.post(
         `${loginServer}/like-video`,
-        { fileName: fileName }, // Send fileName in the request body
-        {
-          params: { auth: token }, // Send token as a query parameter
-        }
+        { fileName: fileName },
+        { params: { auth: token } }
       );
-
-      // Update UI based on the response message
       if (response.data.message.includes("unliked")) {
         setLiked(false);
         setLikeCount((prev) => Math.max(0, prev - 1));
@@ -396,45 +300,33 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
-
-      const response = await axios.get(
-        `${loginServer}/video-views/${fileName}`
-      );
+      const response = await axios.get(`${loginServer}/video-views/${fileName}`);
       setViewCount(response.data.viewCount);
     } catch (error) {
       console.error("Error fetching view count:", error);
-      setViewCount(0); // Default to 0 if there's an error
+      setViewCount(0);
     }
   }
 
   async function recordView() {
     try {
-      if (viewRecorded) return; // Prevent multiple view records for the same video session
-
+      if (viewRecorded) return;
       const fileName = currentVideo.split("/").pop();
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
       }
-
       if (loggedIn) {
         const token = localStorage.getItem("authToken");
         if (!token) return;
-
-        // For logged-in users
         await axios.post(
           `${loginServer}/record-view`,
           { fileName },
-          {
-            params: { auth: token },
-          }
+          { params: { auth: token } }
         );
       } else {
-        // For anonymous users
         await axios.post(`${loginServer}/record-anonymous-view`, { fileName });
       }
-
-      // Update view count locally after recording
       setViewCount((prev) => prev + 1);
       setViewRecorded(true);
     } catch (error) {
@@ -446,37 +338,29 @@ function Home() {
     setShowComments(!showComments);
   };
 
+  // Post a comment and refresh the comments list
   const postComment = async () => {
     if (comment.trim() === "") return;
     try {
       const token = localStorage.getItem("authToken");
-  
-      // First, get the video_id
       const fileName = currentVideo.split("/").pop();
-      const videoRes = await axios.get("http://localhost:3001/video", {
+      const videoRes = await axios.get(`${uploadServer}/video`, {
         params: { fileName },
       });
-  
       if (!videoRes.data || !videoRes.data.id) {
         setNotification("⚠️ Video not found.");
         setTimeout(() => setNotification(""), 3000);
         return;
       }
-  
       const videoId = videoRes.data.id;
-  
-      // Now, post the comment
-      await axios.post("http://localhost:3001/post-comment", {
-        video_id: videoId,  // Send correct video_id
-        comment,
-      }, {
-        headers: { Authorization: token },
-      });
-  
+      await axios.post(
+        `${uploadServer}/post-comment`,
+        { video_id: videoId, comment },
+        { headers: { Authorization: token } }
+      );
       setComment("");
       setNotification("✅ Successfully commented!");
       setTimeout(() => setNotification(""), 3000);
-
     } catch (error) {
       console.error("Error posting comment:", error);
       setNotification("⚠️ Failed to post comment.");
@@ -484,110 +368,82 @@ function Home() {
     }
     displayComments();
   };
-  
 
   const handleVideoStart = () => {
     recordView();
   };
 
-  // Extra: Comment button handler
-  async function handleComment() {
-    const comment = prompt("Enter your comment:");
-    if (comment && comment.trim() !== "") {
-      try {
-        // Replace this alert with your API call to post the comment
-        alert("Comment posted: " + comment);
-      } catch (error) {
-        console.error("Error posting comment:", error);
-        alert("Failed to post comment.");
-      }
-    }
-  }
-
+  // displayComments function: fetch comments along with their replies
   async function displayComments() {
-    interface Comment {
-      user_id: string;
-      content: string;
-      created_at: string;
-    }
-  
     try {
-      // Get the fileName from the current video
       const fileName = currentVideo.split("/").pop();
-      
-      // Fetch comments using axios
-      const response = await axios.get("http://localhost:3001/get-comments", {
+      if (!fileName) return;
+      const response = await axios.get(`${uploadServer}/get-comments`, {
         params: { fileName },
       });
-  
-      // Type the response data as Comment array
-      const comments: Comment[] = response.data;
-  
-      // Get the comments display element
-      const commentBox = document.getElementById("comments-display");
-  
-      // Check if the commentBox element exists before manipulating it
-      if (!commentBox) {
-        console.error("Element with ID 'comments-display' not found.");
-        return; // Exit if the element doesn't exist
-      }
-  
-      // Clear any existing comments in the container
-      commentBox.innerHTML = '';
-  
-      // Loop through the comments and create a div for each one
-      comments.forEach(async comment => {
-        const { user_id, content, created_at } = comment; // Destructure comment attributes
-
-        const response = await axios.get("http://localhost:3001/user", {
-          params: { userID:user_id },
-        });
-
-        const username = response.data.username;
-  
-        // Create a new div element for each comment
-        const commentDiv = document.createElement("div");
-        commentDiv.classList.add("comment"); // class
-
-        // Create the comment text
-        const commentText = document.createElement("p");
-        commentText.innerHTML = `<strong>${username}</strong> (${created_at}): <br> ${content}`;
-
-        const replyIcon = document.createElement("i");
-        replyIcon.classList.add("fa-regular", "fa-comments", "reply-icon");
-
-        replyIcon.addEventListener("click", () => {
-          let existingReplyBox = commentDiv.querySelector(".reply-box");
-        
-          if (existingReplyBox) {
-            // If reply box exists, remove it (hide it)
-            existingReplyBox.remove();
-          } else {
-            // Create a new input field for replying
-            const replyBox = document.createElement("input");
-            replyBox.type = "text";
-            replyBox.placeholder = "Write a reply...";
-            replyBox.classList.add("reply-box"); // Add class for styling
-        
-            // Append reply box below the comment
-            commentDiv.appendChild(replyBox);
+      // Expect each comment to have: id, user_id, content, created_at
+      const fetchedComments = response.data;
+      const commentsWithUsernames = await Promise.all(
+        fetchedComments.map(async (comment: any) => {
+          const userResponse = await axios.get(`${uploadServer}/user`, {
+            params: { userID: comment.user_id },
+          });
+          // Fetch replies for this comment
+          let replies: any[] = [];
+          try {
+            const repliesResponse = await axios.get(`${uploadServer}/get-replies`, {
+              params: { comment_id: comment.id },
+            });
+            replies = await Promise.all(
+              repliesResponse.data.map(async (reply: any) => {
+                // NOTE: reply table uses "creator_id"
+                const replyUserResponse = await axios.get(`${uploadServer}/user`, {
+                  params: { userID: reply.creator_id },
+                });
+                return {
+                  id: reply.id,
+                  username: replyUserResponse.data.username,
+                  reply: reply.content,
+                  created_at: reply.created_at,
+                };
+              })
+            );
+          } catch (e) {
+            console.error("Error fetching replies for comment", comment.id, e);
           }
-        });
-
-  
-      // Append elements to comment div
-      commentDiv.appendChild(commentText);
-      commentDiv.appendChild(replyIcon);
-
-      // Append the new div to the container
-      commentBox.appendChild(commentDiv);
-      });
-      
+          return {
+            id: comment.id,
+            username: userResponse.data.username,
+            comment: comment.content,
+            created_at: comment.created_at,
+            replies: replies,
+          };
+        })
+      );
+      setComments(commentsWithUsernames);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
   }
-  
+
+  // Post a reply to a specific comment
+  async function postReply(commentId: number) {
+    const replyText = replyInputs[commentId];
+    if (!replyText || replyText.trim() === "") return;
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        `${uploadServer}/post-reply`,
+        { comment_id: commentId, reply: replyText },
+        { headers: { Authorization: token } }
+      );
+      // Clear the reply input for this comment and refresh comments
+      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+      displayComments();
+    } catch (error) {
+      console.error("Error posting reply:", error);
+    }
+  }
 
   return (
     <div className="app-container">
@@ -614,42 +470,37 @@ function Home() {
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
       </div>
-
-      {/* 1. Video control buttons */}
       <div className="controls">
-        {/* Download button */}
         <a className="control-button" href={currentVideo} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
-
-        {/* Move VIDEO INFO here */}
         <div className="control-button" onClick={getVideoInfo}>
           <i className="fas fa-info-circle"></i> VIDEO INFO
         </div>
 
-        {/* Comment button in between VIDEO INFO and NEXT */}
-        <button className="control-button" onClick={handleComment}>
+        {/* Updated COMMENT button - toggles the comment section and fetches comments */}
+        <button
+          className="control-button"
+          onClick={() => {
+            toggleComments();
+            displayComments();
+          }}
+        >
           COMMENT <i className="fa-solid fa-comment"></i>
         </button>
 
-        {/* Next video button */}
         <button className="control-button" onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </button>
       </div>
 
-      {/* 4. Upload button */}
       <div className="upload-section">
         <button className="upload-button" onClick={() => navigate("/upload")}>
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
 
-      {/* back-button-section no longer contains VIDEO INFO */}
       <div className="back-button-section">
-        {/* <button className="control-button" onClick={handleBackToDashboard}>
-          Back to Dashboard <i className="fa-solid fa-arrow-left"></i>
-        </button> */}
         {/* Removed VIDEO INFO button from here */}
       </div>
 
@@ -664,95 +515,109 @@ function Home() {
             </>
           ) : (
             <>
-              <i className="fa solid fa-right-to-bracket"></i> Log In
+              <i className="fa-solid fa-right-to-bracket"></i> Log In
             </>
           )}
         </button>
-        {/* comment section */}
-        <div className="comment-section" style={{ position: "fixed", bottom: "13%", right: "28%", background:"white" }}>
-        <button onClick={() => { toggleComments(); displayComments(); }}>
-          <i className="fa-regular fa-comments"></i>
-        </button>
-        {showComments && (
-          <div>
-            <div id="comments-display">
-              <body style={{ backgroundColor: "white"}}>
 
-              </body>
+        {/* Updated Comment Section */}
+        <div
+          className="comment-section"
+          style={{
+            position: "fixed",
+            bottom: "13%",
+            right: "28%",
+            background: "white",
+            padding: "10px",
+            borderRadius: "5px",
+          }}
+        >
+          <button onClick={() => { toggleComments(); displayComments(); }}>
+            <i className="fa-regular fa-comments"></i>
+          </button>
+          {showComments && (
+            <div>
+              <textarea
+                id="comment-input"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write a comment..."
+              ></textarea>
+              <button onClick={postComment}>
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+              <button onClick={toggleComments}>
+                <i className="fa-regular fa-comments"></i>
+              </button>
+              <div className="comments-list">
+                {comments.map((c) => (
+                  <div key={c.id} style={{ marginBottom: "10px" }}>
+                    <p>
+                      <strong>{c.username}</strong> ({c.created_at}): {c.comment}
+                    </p>
+                    <button
+                      onClick={() =>
+                        setReplyVisible((prev) => ({
+                          ...prev,
+                          [c.id]: !prev[c.id],
+                        }))
+                      }
+                    >
+                      Reply
+                    </button>
+                    {replyVisible[c.id] && (
+                      <div style={{ marginLeft: "20px" }}>
+                        <input
+                          type="text"
+                          value={replyInputs[c.id] || ""}
+                          onChange={(e) =>
+                            setReplyInputs((prev) => ({
+                              ...prev,
+                              [c.id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Write a reply..."
+                        />
+                        <button onClick={() => postReply(c.id)}>Post Reply</button>
+                      </div>
+                    )}
+                    {c.replies && c.replies.length > 0 && (
+                      <div style={{ marginLeft: "20px" }}>
+                        {c.replies.map((r) => (
+                          <p key={r.id}>
+                            <strong>{r.username}</strong> ({r.created_at}): {r.reply}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <textarea id="comment-input"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Write a comment..."
-            ></textarea>
-            <button onClick={postComment}>
-              <i className="fa-solid fa-paper-plane"></i>
-            </button>
-            <button onClick={() => { toggleComments(); }}>
-              <i className="fa-regular fa-comments"></i>
-            </button>
-            <div className="comments-list">
-              {comments.map((c, index) => (
-                <p key={index}><strong>{c.username}:</strong> {c.comment}</p>
-              ))}
-            </div>
+          )}
+        </div>
+        {notification && (
+          <div
+            className="notification"
+            style={{
+              position: "fixed",
+              bottom: "80px",
+              right: "20px",
+              background: "#28a745",
+              color: "white",
+              padding: "10px",
+              borderRadius: "5px",
+            }}
+          >
+            {notification}
           </div>
         )}
       </div>
-      {notification && <div className="notification" style={{ position: "fixed", bottom: "80px", right: "20px", background: "#28a745", color: "white", padding: "10px", borderRadius: "5px" }}>{notification}</div>}
     </div>
-        {/* <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
-        {/* <button className="control-button" onClick={handleBackToLogin}>
-          
-          Log In <i className="fa solid fa-right-to-bracket"></i>
-        </button>
-        <button className="control-button" onClick={async () => {
-          const userId = await getLoggedInUserId();
-          if (userId !== null) {
-            const username = await getUsername(userId);
-            alert(username);
-          } else {
-            alert("User is not logged in.");
-          }
-        }}>
-          Engager <i className="fa-solid fa-user"></i>
-        </button>  */}
-      </div>
-  
   );
 }
 
-// Main App Component - Sets up routing between Home and User page
-
 function App() {
-  // const [userVideos, setUserVideos] = useState<string[]>([]);
-
-  // useEffect(() => {
-
-  // }, []);
-
-  //   return (
-  //     <Router>
-  //       <Routes>
-  //         {/* Home Page Route */}
-  //         <Route path="/" element={<Home />} />
-  //         {/* User Page Route */}
-  //         <Route path="/user" element={<User userVideos={userVideos} />} />
-  //       </Routes>
-  //     </Router>
-  //   );
-  // }
-
   return (
     <BrowserRouter>
       <Routes>
@@ -762,13 +627,10 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        {/* User Page Route */}
-
-        {/* Protected Route for Dashboard and Video Player */}
+        {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/user" element={<User />} />
           <Route path="/upload" element={<Upload />} />
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

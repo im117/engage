@@ -336,3 +336,50 @@ app.get("/get-comments", async (req, res) => {
 app.listen(port, () => {
   console.log(`Upload Server is running at http://localhost:${port}`);
 });
+
+// POST /post-reply: Authenticated endpoint to insert a reply for a given comment.
+app.post("/post-reply", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { comment_id, reply } = req.body;
+  const userId = req.user.userId;
+  
+  if (!comment_id || !reply) {
+    db.destroy();
+    return res.status(400).json({ message: "Comment ID and reply content are required" });
+  }
+  
+  try {
+    const insertQuery = "INSERT INTO reply (creator_id, content, comment_id) VALUES (?, ?, ?)";
+    await db.promise().query(insertQuery, [userId, reply, comment_id]);
+    db.destroy();
+    return res.status(200).json({ message: "Reply posted successfully!" });
+  } catch (error) {
+    console.error("Error inserting reply:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+// GET /get-replies: Returns all replies for a specific comment.
+// Expects a query parameter: comment_id.
+app.get("/get-replies", async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { comment_id } = req.query;
+  
+  if (!comment_id) {
+    db.destroy();
+    return res.status(400).json({ message: "Comment ID is required" });
+  }
+  
+  try {
+    const selectQuery = "SELECT * FROM reply WHERE comment_id = ?";
+    const [results] = await db.promise().query(selectQuery, [comment_id]);
+    db.destroy();
+    return res.status(200).json(results);
+  } catch (error) {
+    console.error("Error fetching replies:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
