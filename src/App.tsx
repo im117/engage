@@ -448,6 +448,7 @@ function Home() {
     } catch (error) {
       console.error("Error posting reply:", error);
     }
+    toggleReplyInput(commentId);
   }
 
   // Toggle visibility of replies for a specific comment.
@@ -592,7 +593,7 @@ function Home() {
                   {/* Toggle the reply input for each comment */}
                   <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
                   {replyVisible[c.id] && (
-                    <div style={{ marginLeft: "20px" }}>
+                    <div style={{ marginLeft: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
                       <input
                         type="text"
                         value={replyInputs[c.id] || ""}
