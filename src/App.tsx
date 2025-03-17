@@ -88,7 +88,7 @@ function Home() {
   const [notification, setNotification] = useState("");
   const [comment, setComment] = useState("");
 
-  // Comment type includes an id, username, comment text, created_at, and optional replies.
+  // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
     id: number;
     username: string;
@@ -105,9 +105,9 @@ function Home() {
   const [comments, setComments] = useState<CommentType[]>([]);
 
   // For reply functionality:
-  // - replyInputs holds the reply text per comment.
+  // - replyInputs holds reply text per comment.
   // - replyVisible toggles showing the reply input field.
-  // - repliesVisible toggles showing/hiding the replies list.
+  // - repliesVisible toggles showing/hiding the entire replies list.
   const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
   const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
   const [repliesVisible, setRepliesVisible] = useState<{ [key: number]: boolean }>({});
@@ -139,6 +139,7 @@ function Home() {
       if (loggedIn && userID) {
         checkIfLiked();
       }
+      // Fetch comments for current video.
       displayComments();
     }
   }, [currentVideo, loggedIn, userID]);
@@ -343,7 +344,6 @@ function Home() {
   // Toggle the comment section using the COMMENT button.
   const toggleComments = () => {
     setShowComments((prev) => !prev);
-    // Optionally, fetch comments whenever you open the section.
     if (!showComments) displayComments();
   };
 
@@ -390,14 +390,12 @@ function Home() {
       const response = await axios.get(`${uploadServer}/get-comments`, {
         params: { fileName },
       });
-      // Each comment is expected to have: id, user_id, content, created_at.
       const fetchedComments = response.data;
       const commentsWithUsernames = await Promise.all(
         fetchedComments.map(async (comment: any) => {
           const userResponse = await axios.get(`${uploadServer}/user`, {
             params: { userID: comment.user_id },
           });
-          // Fetch replies for this comment.
           let replies: any[] = [];
           try {
             const repliesResponse = await axios.get(`${uploadServer}/get-replies`, {
@@ -405,7 +403,6 @@ function Home() {
             });
             replies = await Promise.all(
               repliesResponse.data.map(async (reply: any) => {
-                // Note: reply table uses "creator_id".
                 const replyUserResponse = await axios.get(`${uploadServer}/user`, {
                   params: { userID: reply.creator_id },
                 });
@@ -560,10 +557,27 @@ function Home() {
                   <p>
                     <strong>{c.username}</strong> ({c.created_at}): {c.comment}
                   </p>
-                  {/* Toggle button for showing/hiding replies for this comment */}
+                  {/* Toggle button for showing/hiding replies using icons */}
                   {c.replies && c.replies.length > 0 && (
-                    <button onClick={() => toggleRepliesVisible(c.id)}>
-                      {repliesVisible[c.id] ? "Hide Replies" : "Show Replies"}
+                    <button
+                      onClick={() => toggleRepliesVisible(c.id)}
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {repliesVisible[c.id] ? (
+                        <i
+                          className="fa-solid fa-chevron-up"
+                          style={{ fontSize: "1.2em", color: "#333" }}
+                        ></i>
+                      ) : (
+                        <i
+                          className="fa-solid fa-chevron-down"
+                          style={{ fontSize: "1.2em", color: "#333" }}
+                        ></i>
+                      )}
                     </button>
                   )}
                   {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
@@ -575,8 +589,8 @@ function Home() {
                       ))}
                     </div>
                   )}
-                  {/* Toggle the reply input for this comment */}
-                  <button onClick={() => toggleReplyInput(c.id)}>Reply</button>
+                  {/* Toggle the reply input for each comment */}
+                  <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
                   {replyVisible[c.id] && (
                     <div style={{ marginLeft: "20px" }}>
                       <input
@@ -590,7 +604,7 @@ function Home() {
                         }
                         placeholder="Write a reply..."
                       />
-                      <button onClick={() => postReply(c.id)}>Post Reply</button>
+                      <button onClick={() => postReply(c.id)}><i className="fa-regular fa-paper-plane"></i></button>
                     </div>
                   )}
                 </div>
