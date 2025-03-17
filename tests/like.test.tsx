@@ -7,3 +7,12 @@ import LikeButton from "../src/likeButton";
 
 // Mock axios
 vi.mock("axios");
+
+describe("Like Functionality", () => {
+  const originalEnv = process.env;
+  const mockLoginServer = "http://test-login-server";
+
+  beforeEach(() => {
+    // Mock environment variables
+    vi.stubEnv("VITE_UPLOAD_SERVER", "http://test-upload-server");
+    vi.stubEnv("VITE_LOGIN_SERVER", mockLoginServer);
