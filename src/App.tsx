@@ -143,14 +143,10 @@ function Home() {
     // Only fetch like data if there's a valid video
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
-      getLikeCount();
       getViewCount();
       // Only check if user has liked if they're logged in
-      if (loggedIn && userID) {
-        checkIfLiked();
-      }
     }
-  }, [currentVideo, loggedIn, userID]);
+  }, [currentVideo]);
 
   // Switch to the next video in the array
   const handleNext = () => {
@@ -274,64 +270,6 @@ function Home() {
     }
   }
   assignUsername();
-
-  async function getLikeCount() {
-    try {
-      const fileName = currentVideo.split("/").pop();
-      if (!fileName) {
-        console.error("Error: fileName is missing.");
-        return;
-      }
-
-      const response = await axios.get(
-        `${loginServer}/video-likes-by-filename/${fileName}`
-      );
-      setLikeCount(response.data.likeCount);
-    } catch (error) {
-      console.error("Error fetching like count:", error);
-      setLikeCount(0); // Default to 0 if there's an error
-    }
-  }
-
-  async function checkIfLiked() {
-    // console.log("Checking if liked for:", currentVideo.split("/").pop());
-
-    if (!loggedIn) {
-      // console.log("Not logged in, setting liked to false");
-      setLiked(false);
-      return;
-    }
-
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      // console.log("No token, setting liked to false");
-      setLiked(false);
-      return;
-    }
-
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      // No fileName, setting liked to false
-      setLiked(false);
-      return;
-    }
-
-    try {
-      console.log("Making API request to check like status for:", fileName);
-      const response = await axios.get(`${loginServer}/check-like-status`, {
-        params: {
-          auth: token,
-          fileName: fileName,
-        },
-      });
-
-      console.log("Like status response:", response.data);
-      setLiked(response.data.liked);
-    } catch (error) {
-      console.error("Error checking like status:", error);
-      setLiked(false);
-    }
-  }
 
   async function getViewCount() {
     try {
