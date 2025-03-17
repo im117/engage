@@ -16,6 +16,7 @@ import path from "path-browserify"; // Path library to work with file paths in t
 import Upload from "./upload.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
+import LikeButton from "./likeButton";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -332,48 +333,6 @@ function Home() {
     }
   }
 
-  async function handleLike() {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like videos.");
-      return;
-    }
-
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-video`,
-        { fileName: fileName }, // Send fileName in the request body
-        {
-          params: { auth: token }, // Send token as a query parameter
-        }
-      );
-
-      // Update UI based on the response message
-      if (response.data.message.includes("unliked")) {
-        setLiked(false);
-        setLikeCount((prev) => Math.max(0, prev - 1));
-      } else {
-        setLiked(true);
-        setLikeCount((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error liking/unliking video:", error);
-      alert("Failed to process like. Please try again.");
-    }
-  }
-
   async function getViewCount() {
     try {
       const fileName = currentVideo.split("/").pop();
@@ -449,9 +408,14 @@ function Home() {
         />
       </div>
       <div className="video-stats">
-        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
-          <i className="fa-solid fa-heart"></i> {likeCount} Likes
-        </button>
+        <LikeButton
+          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          loggedIn={loggedIn}
+          userId={userID}
+          initialLikeCount={likeCount}
+          initialLiked={liked}
+          loginServer={loginServer}
+        />
         <span className="view-count">
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
