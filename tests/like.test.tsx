@@ -16,3 +16,13 @@ describe("Like Functionality", () => {
     // Mock environment variables
     vi.stubEnv("VITE_UPLOAD_SERVER", "http://test-upload-server");
     vi.stubEnv("VITE_LOGIN_SERVER", mockLoginServer);
+
+    // Mock localStorage
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+      },
+      writable: true,
+    });
