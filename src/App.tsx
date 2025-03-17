@@ -435,7 +435,6 @@ function Home() {
   return (
     
     <div className="app">
-      {TopBar()}
       <div className="app-container">
       <div className="video-player">
         <ReactPlayer
@@ -509,23 +508,22 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        
-        <Route element={<App />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        {/* User Page Route */}
+        <TopBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* User Page Route */}
 
-        {/* Protected Route for Dashboard and Video Player */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/user" element={<User />} />
-          <Route path="/upload" element={<Upload />} />
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-        </Route>
-      </Routes>
+          {/* Protected Route for Dashboard and Video Player */}
+          <Route element={<PrivateRoute />}>
+        <Route path="/user" element={<User />} />
+        <Route path="/upload" element={<Upload />} />
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+          </Route>
+        </Routes>
     </BrowserRouter>
   );
 }
