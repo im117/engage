@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
+
+
 // VideoPlayer Component - Toggles between a small and expanded video
 export default function VideoPlayer() {
   // State to track if the video is expanded or not

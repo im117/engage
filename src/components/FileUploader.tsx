@@ -4,6 +4,10 @@ import "dotenv";
 import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
+
+import "../styles/auth.scss";
+
+
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
@@ -177,21 +181,29 @@ export default function FileUploader() {
   };
 
   return (
-    <div className="upload-container">
+    <div className="">
+      <div className="auth__container">
       <div className="form-group">
         <label htmlFor="title">Title: </label>
-        <input name="title" value={title} onChange={handleTitleChange} />
+        <input name="title" className="auth__form-control" value={title} onChange={handleTitleChange} />
+
+      </div>
       </div>
 
+      <div className="auth__container">
       <div className="form-group">
         <label htmlFor="desc">Description: </label>
-        <input name="desc" value={desc} onChange={handleDescChange} />
+        <input name="desc" className="auth__form-control" value={desc} onChange={handleDescChange} />
+      </div>
+        
       </div>
 
-      <div className="form-group">
+
+      <div className="form-group ">
         <input type="file" accept="video/mp4" onChange={handleFileChange} />
+        <br />
         {file && status === "idle" && (
-          <button className="button" onClick={handleFileUpload}>Upload</button>
+          <button style={{margin: "15px auto"}} className="button primary" onClick={handleFileUpload}>Upload</button>
         )}
       </div>
 

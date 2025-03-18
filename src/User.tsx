@@ -12,7 +12,7 @@ import axios from "axios";
 // }
 
 // Set the number of videos displayed per page
-const VIDEOS_PER_PAGE = 9;
+const VIDEOS_PER_PAGE = 6;
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -197,7 +197,7 @@ function User() {
       >
         {/* Logout button */}
         <div className="logout__section">
-        <a className="button" onClick={handleLogout}>
+        <a className="button warning" onClick={handleLogout}>
             <i className="fas fa-door-open"></i><span className="desktop__text"> Logout</span>
             </a>
         </div>

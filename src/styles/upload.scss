@@ -20,13 +20,10 @@ $backgroundImageUrl: url('src/assets/blob.png');
   align-items: center;
   justify-content: center;
   height: 100vh;
-  // background-image: $backgroundImageUrl;
   background-position: top;
   background-repeat: no-repeat;
-  background-size: 300px;
-  // background-color: #e0f7e0;
   padding: 20px;
-  max-height: 40vh;  
+  max-height: 40vh; 
 }
 
 .upload-banner{
@@ -110,6 +107,14 @@ $backgroundImageUrl: url('src/assets/blob.png');
 @media (max-width: 768px) {
   .upload-title {
     font-size: 2rem;
+  }
+  .upload-banner{
+    width: 80vw;
+  }
+  .upload-container {
+    font-size: 1rem;
+    width: 80vw;
+    // overflow-x: hidden;
   }
   
   .back-button {
