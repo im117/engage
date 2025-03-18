@@ -43,11 +43,14 @@ db.connect((err) => {
 });
 
 // Nodemailer setup
+const emailUser = process.env.EMAIL_USER || "ngagellc@gmail.com";
+const emailPassword = process.env.EMAIL_APP_PASSWORD || "tqas lqmp flxb dqin";
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "ngagellc@gmail.com", // Replace with your email
-    pass: "tqas lqmp flxb dqin", // Replace with your app password( watch the video to know how to get app password)
+    user: emailUser, // Replace with your email
+    pass: emailPassword, // Replace with your app password( watch the video to know how to get app password)
   },
 });
 
