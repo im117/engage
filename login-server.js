@@ -511,7 +511,7 @@ app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
   const db = dbRequest(dbHost);
   
 
-  console.log("User ID:", userId);
+  console.log("User ID:", user_id);
 
   const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
   db.query(query, [user_id, reply_id], (err, results) => {
