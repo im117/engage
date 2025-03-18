@@ -1,5 +1,16 @@
 @use 'global.scss' as *;
 
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .topbar{
     // display: flex;
     flex-direction: row;
@@ -12,6 +23,7 @@
     position: sticky;
     top: 0;
     color: white;
+    animation: dropdownFadeIn 0.5s ease-out forwards;
 }
 
 .topbar__container{
