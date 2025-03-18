@@ -529,6 +529,10 @@ app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
       // If no matching record is found, return a response indicating the reply is not liked
       return res.status(200).json({ liked: false });
     }
+  }).catch((error) => {
+    console.error("Error:", error.message);
+    db.destroy();
+    return res.status(400).json({ message: error.message });
   });
 });
 
@@ -545,6 +549,10 @@ app.get("/reply-like-count", authenticateTokenGet, (req, res) => {
       return res.status(500).json({ message: "Database error" });
     }
     res.json({ like_count: results[0].like_count }); // Send response
+  }).catch((error) => {
+    console.error("Error:", error.message);
+    db.destroy();
+    return res.status(400).json({ message: error.message });
   });
 });
 

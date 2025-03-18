@@ -238,11 +238,21 @@ const incrementLikeCount = (replyId: number) => {
                 params: { auth: token, reply_id: reply.id },
               });
 
-  
-              initialLikedState[reply.id] = response.data.liked || false;
+              initialLikedState[reply.id] = response.data.liked;
             } catch (err) {
               console.error("Error fetching reply like status:", err);
               initialLikedState[reply.id] = false;
+            }
+
+            try {
+              console.log(`Fetching like count for reply_id: ${reply.id}`);
+              console.log("Sending token:", token);
+              const response = await axios.get(`${loginServer}/reply-like-count`, {
+                params: { reply_id: reply.id },
+              });
+              replyLikeCount[reply.id] = response.data.like_count;
+            } catch (err) {
+              console.error("Error fetching reply like count:", err);
             }
           }
         }
