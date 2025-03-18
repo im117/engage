@@ -48,6 +48,49 @@ body {
   }
 }
 
+.button.success{
+  // background: #28a745;
+  color: #fff;
+  border: 3px solid #28a745;
+  &:hover{
+    background: #28a745;
+    color: #fff;
+    border: 3px solid #28a745;
+  }
+}
+.button.danger{
+  // background: #e74c3c;
+  color: #fff;
+  border: 3px solid #e74c3c;
+  &:hover{
+    background: #e74c3c;
+    color: #fff;
+    border: 3px solid #e74c3c;
+  }
+}
+
+.button.primary{
+  // background: #007bff;
+  color: #fff;
+  border: 3px solid #007bff;
+  &:hover{
+    background: #007bff;
+    color: #fff;
+    border: 3px solid #007bff;
+  }
+}
+
+.button.warning{
+  // background: #ffc107;
+  color: #fff;
+  border: 3px solid #ffc107;
+  &:hover{
+    background: #ffc107;
+    color: #fff;
+    border: 3px solid #ffc107;
+  }
+}
+
 .button.greyed{
   cursor:default;
   color: #4b4b4b;

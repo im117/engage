@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./styles/signup.scss";
+import "./styles/auth.scss";
 import validation from "./signupValidation";
 import axios from "axios";
 
@@ -79,19 +79,19 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="signup__body">
-      <div className="signup__form">
+    <div className="auth__body">
+      <div className="auth__form">
         <h2>Sign up</h2>
-        <div className="signup__container">
+        <div className="auth__container">
           {successMessage && (
-            <div className="signup__success-message">{successMessage}</div>
+            <div className="auth__success-message">{successMessage}</div>
           )}
           {errorMessage && (
-            <div className="signup__error-message">{errorMessage}</div>
+            <div className="auth__error-message">{errorMessage}</div>
           )}
           <form onSubmit={handleSubmit}>
-            <div className="signup__form-group">
-              <label htmlFor="name" className="signup__label">
+            <div className="auth__form-group">
+              <label htmlFor="name" className="auth__label">
                 <strong>Username</strong>
               </label>
               <input
@@ -100,15 +100,15 @@ const Signup: React.FC = () => {
                 value={username}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Username"
-                className="signup__form-control"
+                className="auth__form-control"
               />
               {errors.username && (
-                <span className="signup__text-danger">{errors.username}</span>
+                <span className="auth__text-danger">{errors.username}</span>
               )}
             </div>
 
-            <div className="signup__form-group">
-              <label htmlFor="email" className="signup__label">
+            <div className="auth__form-group">
+              <label htmlFor="email" className="auth__label">
                 <strong>Email</strong>
               </label>
               <input
@@ -117,15 +117,15 @@ const Signup: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
-                className="signup__form-control"
+                className="auth__form-control"
               />
               {errors.email && (
-                <span className="signup__text-danger">{errors.email}</span>
+                <span className="auth__text-danger">{errors.email}</span>
               )}
             </div>
 
-            <div className="signup__form-group">
-              <label htmlFor="password" className="signup__label">
+            <div className="auth__form-group">
+              <label htmlFor="password" className="auth__label">
                 <strong>Password</strong>
               </label>
               <input
@@ -134,15 +134,15 @@ const Signup: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
-                className="signup__form-control"
+                className="auth__form-control"
               />
               {errors.password && (
-                <span className="signup__text-danger">{errors.password}</span>
+                <span className="auth__text-danger">{errors.password}</span>
               )}
             </div>
 
-            <div className="signup__form-group">
-              <label htmlFor="confirmPassword" className="signup__label">
+            <div className="auth__form-group">
+              <label htmlFor="confirmPassword" className="auth__label">
                 <strong>Confirm Password</strong>
               </label>
               <input
@@ -151,37 +151,37 @@ const Signup: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm Password"
-                className="signup__form-control"
+                className="auth__form-control"
               />
               {errors.confirmPassword && (
-                <span className="signup__text-danger">
+                <span className="auth__text-danger">
                   {errors.confirmPassword}
                 </span>
               )}
             </div>
 
             {/* Terms and Conditions Checkbox */}
-            <div className="signup__terms">
+            <div className="auth__terms">
               <input
                 type="checkbox"
                 id="agreeToTerms"
                 checked={agreeToTerms}
                 onChange={() => setAgreeToTerms(!agreeToTerms)}
               />
-              <label htmlFor="agreeToTerms" className="signup__terms-label">
-                I agree to the <Link to="/terms">Terms and Conditions</Link>
+              <label htmlFor="agreeToTerms" className="auth__terms-label">
+                I agree to the <Link className="terms-text" to="/terms">Terms and Conditions</Link>
               </label>
             </div>
 
-            <div className="signup__buttons-container">
-              <button
+            <div className="auth__buttons-container">
+                <button
                 type="submit"
-                className="signup__btn signup__btn--success"
+                className={`button ${!agreeToTerms ? "greyed" : "success"}`}
                 disabled={!agreeToTerms} // Disable the button if the checkbox is unchecked
-              >
+                >
                 Sign up
-              </button>
-              <Link to="/login" className="signup__button">
+                </button>
+              <Link to="/login" className="button primary">
                 Log in
               </Link>
             </div>

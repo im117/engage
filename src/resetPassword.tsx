@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./styles/resetPassword.scss";
+import "./styles/auth.scss";
 import { Link, useNavigate } from "react-router-dom";
 
 // let uploadServer = "http://localhost:3001";
@@ -54,12 +54,15 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="reset-password__body">
-      <div className="reset-password__form">
+    <div className="auth__body">
+      <div className="auth__form">
         <h2>Reset Password</h2>
-        {message && <div className="reset-password__success">{message}</div>}
-        {error && <div className="reset-password__error">{error}</div>}
+        {message && <div className="auth__success">{message}</div>}
+        {error && <div className="auth__error">{error}</div>}
         <form onSubmit={handleSubmit}>
+
+          <div className="auth__container">
+
           <label>
             <strong>Email:</strong>
           </label>
@@ -69,7 +72,11 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
+            className="auth__form-control"
           />
+          </div>
+
+<div className="auth__container">
 
           <label>
             <strong>New Password:</strong>
@@ -80,7 +87,11 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Enter new password"
             required
+            className="auth__form-control"
           />
+</div>
+
+<div className="auth__container">
 
           <label>
             <strong>Confirm Password:</strong>
@@ -91,15 +102,21 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm new password"
             required
+            className="auth__form-control"
           />
+</div>
 
-          <button type="submit">Reset Password</button>
+          
+        <button type="submit" className="button danger">Reset Password</button>
+        <br /> <br />
+          <Link to="/login">
+            <button className="button primary">Go to Login</button>
+          </Link>
+          
         </form>
 
-        <div className="reset__buttons-container">
-          <Link to="/login">
-            <button className="reset__button">Go to Login</button>
-          </Link>
+        <div>
+          
         </div>
       </div>
     </div>
