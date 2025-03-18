@@ -542,25 +542,16 @@ function Home() {
               maxHeight: "40vh",
               overflowY: "auto",
             }}
-          > {loggedIn && (
-            <div className="comment-input-div">
-              <textarea
-                id="comment-input"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write a comment..."
-              ></textarea>
-              <button onClick={postComment}>
-                <i className="fa-solid fa-paper-plane"></i>
-              </button>
-            </div>
-          )}
+          > 
             <div className="comments-list">
               {comments.map((c) => (
-                <div key={c.id} style={{ marginBottom: "10px" }}>
+                <div key={c.id} className="comment-box">
                   <p>
                     <strong>{c.username}</strong> ({c.created_at}): {c.comment}
                   </p>
+
+                  <div style={{display:"flex", gap:"5x"}}>
+
                   {/* Toggle button for showing/hiding replies using icons */}
                   {c.replies && c.replies.length > 0 && (
                     <button
@@ -584,17 +575,9 @@ function Home() {
                       )}
                     </button>
                   )}
-                  {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
-                    <div style={{ marginLeft: "20px" }}>
-                      {c.replies.map((r) => (
-                        <p key={r.id}>
-                          <strong>{r.username}</strong> ({r.created_at}): {r.reply}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+
                   { loggedIn && (
-                    <div>
+                    <div >
                     <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
                     {replyVisible[c.id] && (
                       <div style={{ marginLeft: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -615,9 +598,35 @@ function Home() {
                     </div>
                   )}
 
+                  </div>
+
+                  {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
+                    <div style={{ marginLeft: "20px" }}>
+                      {c.replies.map((r) => (
+                        <p key={r.id}>
+                          <strong>{r.username}</strong> ({r.created_at}): {r.reply}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  
+
                 </div>
               ))}
             </div>
+            {loggedIn && (
+            <div className="comment-input-div">
+              <textarea
+                id="comment-input"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write a comment..."
+              ></textarea>
+              <button onClick={postComment}>
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          )}
           </div>
         )}
         {notification && (
