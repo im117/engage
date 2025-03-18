@@ -236,6 +236,7 @@ function Home() {
   }, [comments, loggedIn]);
 
   const handleNext = () => {
+    toggleComments();
     setVideoIndex(
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
