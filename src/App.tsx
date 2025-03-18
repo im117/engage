@@ -115,6 +115,7 @@ function Home() {
   // The comment section is toggled by the COMMENT button.
   const [showComments, setShowComments] = useState(false);
 
+  
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
@@ -122,6 +123,79 @@ function Home() {
   const [liked, setLiked] = useState(false);
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
+
+  const [replyLikeCount, setReplyLikeCount] = useState<{ [key: number]: number }>({}); // Like counts are stored with replyId as keys
+  const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
+  
+  // const getReplyLikeCount = async (replyId: number): Promise<number | string> => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${loginServer}/reply-like-count/${replyId}`
+  //     );
+      
+  //     // Update the state with the fetched like count
+  //     setReplyLikeCount(prev => ({
+  //       ...prev,
+  //       [replyId]: response.data.likeCount
+  //     }));
+  
+  //     // Return the like count immediately
+  //     return response.data.likeCount;
+  //   } catch (error) {
+  //     console.error("Error fetching like count:", error);
+      
+  //     // Return a fallback value in case of error
+  //     return "Error";
+  //   }
+  // };
+
+  // // Function to toggle the like status for a specific reply
+  // const handleReplyLikeToggle = (replyId: number) => {
+  //   setReplyLiked((prev) => ({
+  //     ...prev,
+  //     [replyId]: !prev[replyId], // Toggle the like status for the reply
+  //   }));
+  // };
+
+  // Function to set the reply liked status to true
+const likeReply = (replyId: number) => {
+  setReplyLiked((prev) => ({
+    ...prev,
+    [replyId]: true, // Set the liked status to true
+  }));
+};
+
+// Function to set the reply liked status to false
+const unlikeReply = (replyId: number) => {
+  setReplyLiked((prev) => ({
+    ...prev,
+    [replyId]: false, // Set the liked status to false
+  }));
+};
+
+// Function to decrement the like count for a specific reply
+const decrementLikeCount = (replyId: number) => {
+  setReplyLikeCount((prev) => {
+    const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
+    return {
+      ...prev, // Spread the previous state
+      [replyId]: Math.max(0, currentLikeCount - 1), // Update the like count for this specific replyId, ensuring it doesn't go below 0
+    };
+  });
+};
+
+
+// Function to increment the like count for a specific reply
+const incrementLikeCount = (replyId: number) => {
+  setReplyLikeCount((prev) => {
+    const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
+    return {
+      ...prev, // Spread the previous state
+      [replyId]: currentLikeCount + 1, // Increment the like count for this specific replyId
+    };
+  });
+};
+
 
   const navigate = useNavigate();
 
@@ -143,6 +217,37 @@ function Home() {
       displayComments();
     }
   }, [currentVideo, loggedIn, userID]);
+
+  useEffect(() => {
+    const fetchReplyLikes = async () => {
+      const initialLikedState: { [key: number]: boolean } = {};
+  
+      // Fetch like status for each reply
+      for (const comment of comments) {
+        if (Array.isArray(comment.replies)) {
+          for (const reply of comment.replies) {
+            try {
+              const { data } = await axios.get(`${loginServer}/fetch-reply-liked`, {
+                params: { reply_id: reply.id },
+              });
+  
+              // Set like status from API response
+              initialLikedState[reply.id] = data.liked || false;
+            } catch (err) {
+              console.error("Error fetching reply like status:", err);
+              initialLikedState[reply.id] = false; // Default to false if there's an error
+            }
+          }
+        }
+      }
+  
+      setReplyLiked(initialLikedState); // Update state after all API calls
+    };
+  
+    fetchReplyLikes();
+  }, [comments]); // Runs when comments are updated
+  
+  
 
   const handleNext = () => {
     setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
@@ -364,11 +469,11 @@ function Home() {
         { params: { auth: token } }
       );
       if (response.data.message.includes("unliked")) {
-        setLiked(false);
-        setLikeCount((prev) => Math.max(0, prev - 1));
+        unlikeReply(reply_id);
+        decrementLikeCount(reply_id);
       } else {
-        setLiked(true);
-        setLikeCount((prev) => prev + 1);
+        likeReply(reply_id);
+        incrementLikeCount(reply_id);
       }
     } catch (error) {
       console.error("Error liking/unliking video:", error);
@@ -376,17 +481,7 @@ function Home() {
     }
   }
 
-  async function getReplyLikeCount(reply_id : number) {
-    try {
-      const response = await axios.get(
-        `${loginServer}/reply-like-count/${reply_id}`
-      );
-      setLikeCount(response.data.likeCount);
-    } catch (error) {
-      console.error("Error fetching like count:", error);
-      setLikeCount(0);
-    }
-  }
+
 
   // Toggle the comment section using the COMMENT button.
   const toggleComments = () => {
@@ -513,6 +608,8 @@ function Home() {
       [commentId]: !prev[commentId],
     }));
   };
+
+  console.log("Reply Liked State Before Rendering:", replyLiked);
 
   return (
     <div className="app-container">
@@ -653,29 +750,22 @@ function Home() {
                     <div style={{ marginLeft: "20px" }}>
 
                         {c.replies.map((r) => (
-                          
                           <div>
                             <div>
                             <p key={r.id}>
                               <strong>{r.username}</strong> ({r.created_at}): {r.reply}
                             </p>
                             </div>
-                            <div style={{position:"relative", top:"-10px", marginBottom:"-10px"}}>
-                              <button onClick={() => handleReplyLike(r.id)}>
+                            <div style={{display:"flex", gap:"3px", position:"relative", top:"-10px", marginBottom:"-10px"}}>
+                              <button onClick={() => handleReplyLike(r.id)} style={{ color: replyLiked[r.id] ? "red" : "black" }}>
                                 <i className="fa-regular fa-thumbs-up"></i>
-                                <div id={`like-count-${r.id}`}></div> {/* Unique ID for like count */}
                               </button>
+                              <div id={`like-count-${r.id}`}>{replyLikeCount[r.id] !== undefined ? replyLikeCount[r.id] : ""}</div> {/* Unique ID for like count */}
                             </div>
                           </div>
-
-                          
-                        ))}
-
-                      
+                        ))}                      
                     </div>
                   )}
-                  
-
                 </div>
               ))}
             </div>

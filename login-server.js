@@ -503,6 +503,31 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
       });
 });
 
+app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
+  const { reply_id } = req.query;
+  const user_id = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+  db.query(query, [user_id, reply_id], (err, results) => {
+    db.destroy();
+
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length > 0) {
+      // If a matching record is found, return a success response with the data
+      return res.status(200).json({ liked: true });
+    } else {
+      // If no matching record is found, return a response indicating the reply is not liked
+      return res.status(200).json({ liked: false });
+    }
+  });
+});
+
+
 app.get("/reply-like-count", authenticateTokenGet, (req, res) => {
   const {reply_id} = req.query;
   const db = dbRequest(dbHost);
