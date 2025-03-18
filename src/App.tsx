@@ -341,6 +341,53 @@ function Home() {
     }
   }
 
+  async function handleReplyLike(reply_id: number) {
+    if (!userID || !loggedIn) {
+      alert("You must be logged in to like replies.");
+      return;
+    }
+    const fileName = currentVideo.split("/").pop();
+    if (!fileName) {
+      console.error("Error: fileName is missing.");
+      return;
+    }
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Authentication error. Please log in again.");
+      setLoggedIn(false);
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${loginServer}/like-reply`,
+        { fileName: fileName, reply_id },
+        { params: { auth: token } }
+      );
+      if (response.data.message.includes("unliked")) {
+        setLiked(false);
+        setLikeCount((prev) => Math.max(0, prev - 1));
+      } else {
+        setLiked(true);
+        setLikeCount((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error liking/unliking video:", error);
+      alert("Failed to process like. Please try again.");
+    }
+  }
+
+  async function getReplyLikeCount(reply_id : number) {
+    try {
+      const response = await axios.get(
+        `${loginServer}/reply-like-count/${reply_id}`
+      );
+      setLikeCount(response.data.likeCount);
+    } catch (error) {
+      console.error("Error fetching like count:", error);
+      setLikeCount(0);
+    }
+  }
+
   // Toggle the comment section using the COMMENT button.
   const toggleComments = () => {
     setShowComments((prev) => !prev);
@@ -604,11 +651,27 @@ function Home() {
 
                   {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
                     <div style={{ marginLeft: "20px" }}>
-                      {c.replies.map((r) => (
-                        <p key={r.id}>
-                          <strong>{r.username}</strong> ({r.created_at}): {r.reply}
-                        </p>
-                      ))}
+
+                        {c.replies.map((r) => (
+                          
+                          <div>
+                            <div>
+                            <p key={r.id}>
+                              <strong>{r.username}</strong> ({r.created_at}): {r.reply}
+                            </p>
+                            </div>
+                            <div style={{position:"relative", top:"-10px", marginBottom:"-10px"}}>
+                              <button onClick={() => handleReplyLike(r.id)}>
+                                <i className="fa-regular fa-thumbs-up"></i>
+                                <div id={`like-count-${r.id}`}></div> {/* Unique ID for like count */}
+                              </button>
+                            </div>
+                          </div>
+
+                          
+                        ))}
+
+                      
                     </div>
                   )}
                   

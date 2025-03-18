@@ -449,6 +449,75 @@ app.get("/video-views/:fileName", (req, res) => {
     });
 });
 
+
+// Updated like-video endpoint
+app.post("/like-reply", authenticateTokenGet, (req, res) => {
+  const { fileName, reply_id } = req.body;
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  console.log("User ID:", userId);
+
+
+      // Check if user already liked the reply
+      const checkLikeQuery =
+        "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+      db.query(checkLikeQuery, [userId, reply_id], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        if (results.length > 0) {
+          // User already liked the video -> Unlike it
+          const unlikeQuery =
+            "DELETE FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+          db.query(unlikeQuery, [userId, reply_id], (err) => {
+            if (err) {
+              console.error("Database error:", err);
+              db.destroy();
+              return res.status(500).json({ message: "Database error" });
+            }
+            db.destroy();
+            return res
+              .status(200)
+              .json({ message: "Reply unliked successfully" });
+          });
+        } else {
+          // User hasn't liked the comment -> Like it
+          const likeQuery =
+            "INSERT INTO reply_likes (user_id, reply_id) VALUES (?, ?)";
+          db.query(likeQuery, [userId, reply_id], (err) => {
+            if (err) {
+              console.error("Database error:", err);
+              db.destroy();
+              return res.status(500).json({ message: "Database error" });
+            }
+            db.destroy();
+            return res
+              .status(200)
+              .json({ message: "Reply liked successfully" });
+          });
+        }
+      });
+});
+
+app.get("/reply-like-count", authenticateTokenGet, (req, res) => {
+  const {reply_id} = req.query;
+  const db = dbRequest(dbHost);
+  const query = "SELECT COUNT(*) AS like_count FROM reply_likes WHERE reply_id = ?";
+  db.query(query, [reply_id], (err, results) => {
+    db.destroy();
+    if (err) {
+      console.error("Database error:", err);
+      
+      return res.status(500).json({ message: "Database error" });
+    }
+    res.json({ like_count: results[0].like_count }); // Send response
+  });
+});
+
 // Anonymous version of record-view that doesn't require authentication
 app.post("/record-anonymous-view", (req, res) => {
   const db = dbRequest(dbHost);
