@@ -61,7 +61,6 @@ export const signup = async (req, res) => {
         if (results.length > 0) {
           return reject({ status: 409, message: "Username already exists" });
         }
-        db.destroy();
         resolve(); // Continue to the next step if username is unique
       });
     }),
@@ -72,7 +71,6 @@ export const signup = async (req, res) => {
         if (results.length > 0) {
           return reject({ status: 409, message: "Email already exists" });
         }
-        db.destroy();
         resolve(); // Continue to the next step if email is unique
       });
     }),
