@@ -162,44 +162,6 @@ function Home() {
   //   }));
   // };
 
-  // Function to set the reply liked status to true
-  const likeReply = (replyId: number) => {
-    setReplyLiked((prev) => ({
-      ...prev,
-      [replyId]: true, // Set the liked status to true
-    }));
-  };
-
-  // Function to set the reply liked status to false
-  const unlikeReply = (replyId: number) => {
-    setReplyLiked((prev) => ({
-      ...prev,
-      [replyId]: false, // Set the liked status to false
-    }));
-  };
-
-  // Function to decrement the like count for a specific reply
-  const decrementLikeCount = (replyId: number) => {
-    setReplyLikeCount((prev) => {
-      const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
-      return {
-        ...prev, // Spread the previous state
-        [replyId]: Math.max(0, currentLikeCount - 1), // Update the like count for this specific replyId, ensuring it doesn't go below 0
-      };
-    });
-  };
-
-  // Function to increment the like count for a specific reply
-  const incrementLikeCount = (replyId: number) => {
-    setReplyLikeCount((prev) => {
-      const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
-      return {
-        ...prev, // Spread the previous state
-        [replyId]: currentLikeCount + 1, // Increment the like count for this specific replyId
-      };
-    });
-  };
-
   const navigate = useNavigate();
 
   useEffect(() => {
