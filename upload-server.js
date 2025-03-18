@@ -272,7 +272,6 @@ app.get("/get-comments", async (req, res) => {
 
 // Post a reply to a comment (requires authentication)
 app.post("/post-reply", authenticateToken, async (req, res) => {
-  console.log("..............................................................................Auth token:", token);
   const db = dbRequest(dbHost);
   const { comment_id, reply } = req.body;
   const userId = req.user.userId;
