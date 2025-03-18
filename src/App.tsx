@@ -259,6 +259,7 @@ assignUsername();
   return (
     <div className="app-container">
       <h1>Engage</h1>
+      <span style={{ color: "white", backgroundColor: "rgba(255,0,0,0.7)", borderRadius: "25px", padding: "10px" }}>Engage will go down for updates/maintenance today near 6PM EST.</span>
       <div className="video-player">
         <ReactPlayer
           id="video"
