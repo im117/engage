@@ -40,6 +40,7 @@ const transporter = nodemailer.createTransport({
 
 // Signup Route
 export const signup = async (req, res) => {
+  const db = dbRequest(dbHost);
   const { username, email, password } = req.body;
 
   // Basic input validation
@@ -51,7 +52,6 @@ export const signup = async (req, res) => {
   const checkUsernameQuery = "SELECT * FROM users WHERE username = ?";
   const checkEmailQuery = "SELECT * FROM users WHERE email = ?";
 
-  const db = dbRequest(dbHost);
   // Promise allows multiple checks in succession before an action
   Promise.all([
     new Promise((resolve, reject) => {
@@ -330,6 +330,239 @@ app.post("/verifyToken", (req, res) => {
     if (err) return res.json({ valid: false });
     res.json({ valid: true });
   });
+});
+// Function to get videoId from fileName
+function getVideoIdFromFileName(db, fileName) {
+  return new Promise((resolve, reject) => {
+    if (!fileName) {
+      reject(new Error("Video file name is required"));
+      return;
+    }
+
+    const getVideoIdQuery = "SELECT id FROM videos WHERE fileName = ?";
+    db.query(getVideoIdQuery, [fileName], (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        reject(err);
+        return;
+      }
+
+      if (results.length === 0) {
+        reject(new Error("Video not found"));
+        return;
+      }
+
+      const videoId = results[0].id;
+      console.log("Found videoId:", videoId);
+      resolve(videoId);
+    });
+  });
+}
+
+// Video likes by filename endpoint
+app.get("/video-likes-by-filename/:fileName", (req, res) => {
+  const { fileName } = req.params;
+  const db = dbRequest(dbHost);
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const likeCountQuery =
+        "SELECT COUNT(*) AS likeCount FROM likes WHERE video_id = ?";
+      db.query(likeCountQuery, [videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ likeCount: results[0].likeCount });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ likeCount: 0, message: error.message });
+    });
+});
+
+// Check like status endpoint
+app.get("/check-like-status", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const { fileName } = req.query;
+  const db = dbRequest(dbHost);
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const query = "SELECT * FROM likes WHERE user_id = ? AND video_id = ?";
+      db.query(query, [userId, videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res
+            .status(500)
+            .json({ liked: false, message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ liked: results.length > 0 });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ liked: false, message: error.message });
+    });
+});
+
+// Updated like-video endpoint
+app.post("/like-video", authenticateTokenGet, (req, res) => {
+  const { fileName } = req.body;
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  console.log("User ID:", userId);
+  console.log("Video Name:", fileName);
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      // Check if user already liked the video
+      const checkLikeQuery =
+        "SELECT * FROM likes WHERE user_id = ? AND video_id = ?";
+      db.query(checkLikeQuery, [userId, videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        if (results.length > 0) {
+          // User already liked the video -> Unlike it
+          const unlikeQuery =
+            "DELETE FROM likes WHERE user_id = ? AND video_id = ?";
+          db.query(unlikeQuery, [userId, videoId], (err) => {
+            if (err) {
+              console.error("Database error:", err);
+              db.destroy();
+              return res.status(500).json({ message: "Database error" });
+            }
+            db.destroy();
+            return res
+              .status(200)
+              .json({ message: "Video unliked successfully" });
+          });
+        } else {
+          // User hasn't liked the video -> Like it
+          const likeQuery =
+            "INSERT INTO likes (user_id, video_id) VALUES (?, ?)";
+          db.query(likeQuery, [userId, videoId], (err) => {
+            if (err) {
+              console.error("Database error:", err);
+              db.destroy();
+              return res.status(500).json({ message: "Database error" });
+            }
+            db.destroy();
+            return res
+              .status(200)
+              .json({ message: "Video liked successfully" });
+          });
+        }
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ message: error.message });
+    });
+});
+
+// Record a view when a video is watched
+app.post("/record-view", authenticateTokenGet, (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.body;
+  const userId = req.user.userId;
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const recordViewQuery =
+        "INSERT INTO video_views (video_id, user_id) VALUES (?, ?)";
+      db.query(recordViewQuery, [videoId, userId], (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ message: "View recorded successfully" });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ message: error.message });
+    });
+});
+
+// Get total view count for a specific video by fileName
+app.get("/video-views/:fileName", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.params;
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const viewCountQuery =
+        "SELECT COUNT(*) AS viewCount FROM video_views WHERE video_id = ?";
+      db.query(viewCountQuery, [videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ viewCount: results[0].viewCount });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ viewCount: 0, message: error.message });
+    });
+});
+
+// Anonymous version of record-view that doesn't require authentication
+app.post("/record-anonymous-view", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.body;
+
+  if (!fileName) {
+    db.destroy();
+    return res.status(400).json({ message: "Video file name is required" });
+  }
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const recordViewQuery =
+        "INSERT INTO video_views (video_id, user_id) VALUES (?, NULL)";
+      db.query(recordViewQuery, [videoId], (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res
+          .status(200)
+          .json({ message: "Anonymous view recorded successfully" });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ message: error.message });
+    });
 });
 
 // Register routes

@@ -17,6 +17,7 @@ import Upload from "./upload.tsx";
 import VerifyEmail from "./VerifyEmail.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
+import LikeButton from "./likeButton";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -122,12 +123,31 @@ function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
+  const [likeCount, setLikeCount] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [viewCount, setViewCount] = useState(0);
+  const [viewRecorded, setViewRecorded] = useState(false);
 
-  // Update current video path when videoIndex changes
   useEffect(() => {
+    // Immediately reset states when changing videos
+    setLiked(false);
+    setViewRecorded(false);
+
+    // Set the current video
     setCurrentVideo(filteredArray[videoIndex] || "");
-    // console.log(currentVideo)
+
+    // Use a separate effect for fetching like data to ensure it runs AFTER the currentVideo is set
   }, [videoIndex]);
+
+  // Add a separate useEffect that depends on currentVideo
+  useEffect(() => {
+    // Only fetch like data if there's a valid video
+    if (currentVideo) {
+      console.log("Video changed to:", currentVideo.split("/").pop());
+      getViewCount();
+      // Only check if user has liked if they're logged in
+    }
+  }, [currentVideo]);
 
   // Switch to the next video in the array
   const handleNext = () => {
@@ -191,7 +211,7 @@ function Home() {
       desc = "No description provided";
     }
     alert(
-      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}`
+      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}\n--------------------------\nViews: ${viewCount}`
     );
   }
 
@@ -252,6 +272,63 @@ function Home() {
   }
   assignUsername();
 
+  async function getViewCount() {
+    try {
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+
+      const response = await axios.get(
+        `${loginServer}/video-views/${fileName}`
+      );
+      setViewCount(response.data.viewCount);
+    } catch (error) {
+      console.error("Error fetching view count:", error);
+      setViewCount(0); // Default to 0 if there's an error
+    }
+  }
+
+  async function recordView() {
+    try {
+      if (viewRecorded) return; // Prevent multiple view records for the same video session
+
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+
+      if (loggedIn) {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        // For logged-in users
+        await axios.post(
+          `${loginServer}/record-view`,
+          { fileName },
+          {
+            params: { auth: token },
+          }
+        );
+      } else {
+        // For anonymous users
+        await axios.post(`${loginServer}/record-anonymous-view`, { fileName });
+      }
+
+      // Update view count locally after recording
+      setViewCount((prev) => prev + 1);
+      setViewRecorded(true);
+    } catch (error) {
+      console.error("Error recording view:", error);
+    }
+  }
+
+  const handleVideoStart = () => {
+    recordView();
+  };
+
   return (
     <div className="app-container">
       <h1>Engage</h1>
@@ -266,7 +343,21 @@ function Home() {
           playsinline={true}
           width="80vw"
           height="60vh"
+          onStart={handleVideoStart}
         />
+      </div>
+      <div className="video-stats">
+        <LikeButton
+          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          loggedIn={loggedIn}
+          userId={userID}
+          initialLikeCount={likeCount}
+          initialLiked={liked}
+          loginServer={loginServer}
+        />
+        <span className="view-count">
+          <i className="fa-solid fa-eye"></i> {viewCount} Views
+        </span>
       </div>
 
       {/* 1. Video control buttons */}
