@@ -14,8 +14,8 @@ if (process.env.DATABASE_HOST) {
 }
 
 let frontendUrl = "http://localhost:3000"; // Default for development
-if (process.env.FRONTEND_URL) {
-  frontendUrl = process.env.FRONTEND_URL; // Use environment variable in production
+if (process.env.VITE_FRONTEND_URL) {
+  frontendUrl = process.env.VITE_FRONTEND_URLL; // Use environment variable in production
 }
 
 // Middleware to parse incoming JSON requests
