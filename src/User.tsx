@@ -195,16 +195,28 @@ function User() {
         }`}
         {...handlers}
       >
-        <p style={{ color: "white", padding: "0px", top: "0" }}>
-          Swipe left and right to navigate
-        </p>
+        {/* Logout button */}
+        <div className="logout__section">
+        <a className="button" onClick={handleLogout}>
+            <i className="fas fa-door-open"></i><span className="desktop__text"> Logout</span>
+            </a>
+        </div>
+        
         <div className="content-container">
           {/* Section title */}
+          
           <div className="my-videos-container">
+            <div className="text">
             <h2>Your engagements</h2>
-            <button className="button" onClick={handleLogout}>
-              Logout
-            </button>
+            <p style={{ fontSize: "1rem" }} className="mobile__text">
+              Swipe left and right to navigate.<br></br> Touch video to play. <br></br>Tap background to return.
+            </p>
+            <p className="desktop__text">
+              Click and drag left and right to navigate.
+              <br></br> Click video to play.
+              <br></br>Click background to return.
+            </p>
+            </div>
           </div>
 
           {/* AnimatePresence ensures smooth transition between pages */}

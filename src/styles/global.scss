@@ -36,7 +36,8 @@ body {
   text-decoration: none;
   text-shadow: 0px 0px 13px #283966;
   width: auto; // Let buttons size to their content
-  min-width: 120px; // Optional: Ensure a minimum width
+  height: auto;
+  // min-width: 120px; // Optional: Ensure a minimum width
   // display: inline-block;
   transition: all 0.3s ease;
 
@@ -62,6 +63,10 @@ body {
   margin-top: 200px;
 }
 
+.mobile__text{
+  display: none;
+}
+
 @media screen and (max-width: 800px){
   .center-container{
     margin-top: 300px;
@@ -70,7 +75,10 @@ body {
 
 @media screen and (max-width: 1250px){
   .desktop__text{
-      display:none;
+    display:none;
+  }
+  .mobile__text{
+    display: block;
   }
   .button{
     padding: 10px;

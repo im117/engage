@@ -152,6 +152,16 @@ export default function FileUploader() {
     return 0;
   };
 
+  // Watch the status and redirect to home if successful
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => {
+        window.location.href = "/"; // Redirect to home
+      }, 1500); // Wait for 3 seconds before redirecting
+
+      return () => clearTimeout(timer); // Cleanup the timer on unmount
+    }
+  }, [status]);
   // Get the progress message based on status
   const getProgressMessage = () => {
     if (status === "uploading") {
@@ -200,7 +210,14 @@ export default function FileUploader() {
               Transcoding may take a while depending on video size...
             </p>
           )}
+          
         </div>
+      )}
+
+      {status === "success" && (
+        <p className="info-text">
+        Redirecting back to home...
+      </p>
       )}
 
       {/* <style>{`

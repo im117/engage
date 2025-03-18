@@ -3,10 +3,10 @@
 //  Outer wrapper for the entire user page (full viewport)
 .user-page-wrapper {
   position: relative;
-  width: 100vw;
-  min-width: 100vw;
-  height: 100vh;
-  display: flex;
+  // width: 100vw;
+  // min-width: 100vw;
+  height: 70vh;
+  display: block;
   justify-content: center; // Centers content horizontally
   align-items: center; // Centers content vertically
 }
@@ -17,6 +17,8 @@
   flex-direction: column;
   align-items: center; // Centers children horizontally
   transition: filter 0.3s ease, transform 0.2s ease-in-out;
+  margin: 0 auto;
+  max-width: 80vw;
 
   //  Blur effect when a video is opened in fullscreen
   &.blur {
@@ -48,30 +50,51 @@
 
 //  Content box with elevation and rounded corners
 .content-container {
-  display: flex;
+  // display: flex;
   // min-width: 1000px;
   flex-direction: column;
   align-items: center;
   // background-color: white;
   border: 2px solid white;
-  margin: auto;
-  padding: 20px;
+  // margin: auto;
+  // padding: 20px;
+  height: 70vh;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.logout__section{
+  width: 90vw;
+  height: 60px;
+  margin: 10px 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
 //  "My Videos" section title
 .my-videos-container {
-  // background-color: darkgreen;
   display: flex;
+
+  padding: 0px 10px;
+  // background-color: darkgreen;
+  // display: flex;
   justify-content: space-between;
   color: white;
   // padding: 10px 20px;
   border-radius: 5px;
-  gap: 50vw; // Adds space between elements
-  margin-bottom: 20px;
+  // gap: 50vw; // Adds space between elements
+  // margin-bottom: 10px;
   font-size: 1.4rem;
   font-weight: bold;
+  .button{
+    font-size: 1.5rem;
+    height: 40px;
+    width: 80px;
+    // padding: 2px 15px;
+    text-align: center;
+    padding: auto;
+  }
 }
 
 //  Video grid container with smooth page transition effect
@@ -79,11 +102,13 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr); // 3-column layout
   gap: 2%;
-  background-color: #3b7543af;
+  // background-color: #3b7543af;
   backdrop-filter: blur(5px); // Adds a subtle background blur effect
   width: 90vw;
-  height: 73vh;
-  min-height: 73vh;
+  // height: 73vh;
+  // min-height: 73vh;
+  max-height: 40vh;
+  padding: 5px;
   border-radius: 10px;
   padding: 10px;
   box-sizing: border-box;
@@ -222,22 +247,21 @@
 
 //  Mobile Responsiveness Adjustments
 @media (max-width: 768px) {
+  .my-videos-container {
+    font-size: 1.2rem; // Adjust font size for smaller screens
+    display: block;
+  }
   .video-grid {
     grid-template-columns: repeat(2, 1fr); // Adjust to 2 columns for tablets
+    grid-auto-rows: auto; // Automatically create new rows for video thumbnails
   }
 
-  .home-button {
-    width: 100%; // Full-width button for easier tap access
-  }
+  // .home-button {
+  //   width: 100%; // Full-width button for easier tap access
+  // }
 }
 
-@media (max-width: 480px) {
-  .video-grid {
-    grid-template-columns: repeat(
-      1,
-      1fr
-    ); // Show only 1 video per row for mobile
-  }
+@media (max-width: 670px) {
 
   .user-container {
     padding: 10px; // Reduce padding to better fit small screens
