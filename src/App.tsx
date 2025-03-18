@@ -453,7 +453,7 @@ function Home() {
           controls={true}
           loop={true}
           playsinline={true}
-          // width="60vw"
+          width="90vw"
           height="65vh"
           onStart={handleVideoStart}
         />

@@ -297,7 +297,8 @@ body {
 
 #video{
   max-height: 90vh;
-  max-width: 60vh;
+  // width: 90vw;
+  max-width: 60vw;
 }
 
 @media screen and (max-width: 870px) {
