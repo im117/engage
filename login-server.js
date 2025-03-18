@@ -504,9 +504,14 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
 });
 
 app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
-  const { reply_id } = req.query;
+  // console.log("Request headers:", req.headers);
   const user_id = req.user.userId;
+  const { reply_id } = req.query;
+  
   const db = dbRequest(dbHost);
+  
+
+  console.log("User ID:", userId);
 
   const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
   db.query(query, [user_id, reply_id], (err, results) => {

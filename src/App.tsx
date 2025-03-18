@@ -221,31 +221,40 @@ const incrementLikeCount = (replyId: number) => {
   useEffect(() => {
     const fetchReplyLikes = async () => {
       const initialLikedState: { [key: number]: boolean } = {};
+      const token = localStorage.getItem("authToken"); 
   
-      // Fetch like status for each reply
+      if (!token) {
+        console.error("Authorization token is missing!");
+        return;
+      }
+  
       for (const comment of comments) {
         if (Array.isArray(comment.replies)) {
           for (const reply of comment.replies) {
             try {
-              const { data } = await axios.get(`${loginServer}/fetch-reply-liked`, {
-                params: { reply_id: reply.id },
+              console.log(`Fetching like status for reply_id: ${reply.id}`);
+              console.log("Sending token:", token);
+              const response = await axios.get(`${loginServer}/fetch-reply-liked`, {
+                params: { auth: token, reply_id: reply.id },
               });
+
   
-              // Set like status from API response
-              initialLikedState[reply.id] = data.liked || false;
+              initialLikedState[reply.id] = response.data.liked || false;
             } catch (err) {
               console.error("Error fetching reply like status:", err);
-              initialLikedState[reply.id] = false; // Default to false if there's an error
+              initialLikedState[reply.id] = false;
             }
           }
         }
       }
-  
-      setReplyLiked(initialLikedState); // Update state after all API calls
+      setReplyLiked(initialLikedState);
     };
   
+    // Run only if the token exists
+  if (localStorage.getItem("authToken")) {
     fetchReplyLikes();
-  }, [comments]); // Runs when comments are updated
+  }
+  }, [comments]);
   
   
 
