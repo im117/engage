@@ -504,10 +504,20 @@ function Home() {
       </div>
       <div className="video-details">
         <div className="details-metadata">
-          <h1>{currentVideoTitle}</h1>
-          <h2>Engager: {currentVideoCreatorName}</h2>
-          <h3>Uploaded: {currentVideoDate}</h3>
-          <p>{currentVideoDesc != "" ? currentVideoDesc : "No Description Provided"}</p>
+          {filteredArray.length > 0 && (
+            <>
+              <h1>{currentVideoTitle}</h1>
+              <h2>Engager: {currentVideoCreatorName}</h2>
+              <h3>Uploaded: {currentVideoDate}</h3>
+              <p>{currentVideoDesc !== "" ? currentVideoDesc : "No Description Provided"}</p>
+            </>
+          )}
+          {filteredArray.length == 0 && (
+            <>
+              <h2>There are no videos available</h2>
+              <h3>Upload one to kick things off.</h3>
+            </>
+          )}
         </div>
         <div className="details-comments">
 
