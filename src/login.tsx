@@ -103,7 +103,6 @@ const Login: React.FC = () => {
   return (
     <div className="login__body">
       <div className="login__form">
-        <button className="login__btn login__btn--home" onClick={() => navigate('/')}>Home</button>
         <h2>Login</h2>
         {successMessage && (
           <div className="login__success-message">{successMessage}</div> // Show success message

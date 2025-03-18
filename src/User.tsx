@@ -143,8 +143,8 @@ function User() {
   const handleLogout = () => {
     // Clear the authentication token from localStorage
     localStorage.removeItem("authToken");
-    // Navigate to login page
-    navigate("/");
+    // Navigate to login page (force refresh the page)
+    window.location.href = "/";
   };
 
   /**

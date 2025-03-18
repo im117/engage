@@ -455,17 +455,17 @@ function Home() {
         <a onClick={handleLike} className={ liked ? "button liked" : "button " }>
           <i className="fa-solid fa-heart"></i> {likeCount} Likes
         </a>
-        <span className="button">
+        <span className="views">
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
         
         </div>
         <div className="download-next">
           
-        <a className="button" href={currentVideo} download>
+        <a className={filteredArray.length == 0 ? "button greyed" : "button"} href={filteredArray.length == 0 ? "" : currentVideo} download>
           <i className="fa-solid fa-download"></i> DOWNLOAD
         </a>
-        <a className="button" onClick={handleNext}>
+        <a className={filteredArray.length < 2 ? "button greyed" : "button"} onClick={handleNext}>
           NEXT <i className="fa-solid fa-arrow-right"></i>
         </a>
         </div>
