@@ -436,7 +436,7 @@ function Home() {
     }
   }
 
-  async function handleReplyLike(reply_id) {
+  async function handleReplyLike(reply_id:number) {
     if (!userID || !loggedIn) {
       alert("You must be logged in to like replies.");
       return;
