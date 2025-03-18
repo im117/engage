@@ -41,8 +41,8 @@ db.connect((err) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "donotreply@gmail.com", // Replace with your email
-    pass: "xxxx yyyyy aaaa bbbb", // Replace with your app password( watch the video to know how to get app password)
+    user: "ngagellc@gmail.com", // Replace with your email
+    pass: "tqas lqmp flxb dqin", // Replace with your app password( watch the video to know how to get app password)
   },
 });
 
@@ -117,7 +117,7 @@ export const signup = async (req, res) => {
           // Send verification email
           const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
           const mailOptions = {
-            from: "donotreply@gmail.com", // your email
+            from: "ngagellc@gmail.com", // your email
             to: email,
             subject: "Verify Your Email",
             text: `Click this link to verify your email: ${verificationLink}`,
