@@ -4,9 +4,9 @@ body {
   // display: flex;
 }
 
-// .app{
-  
-// }
+.app{
+  animation: fade-in 0.3s ease-in forwards;
+}
 .app-container {
   margin-top: 40px;
   position: relative; // Ensure container acts as a positioning context
@@ -52,7 +52,8 @@ body {
 }
 
 .video-details{
-
+  opacity: 0;
+  animation: fade-in 0.3s 0.2s ease-in forwards;
   align-items: flex-end;
   justify-content: flex-end;
   width: 100%;
@@ -77,6 +78,8 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  opacity: 0;
+  animation: fade-in 0.3s 0.2s ease-in forwards;
 }
 
 .video-stats{
