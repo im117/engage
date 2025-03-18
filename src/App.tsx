@@ -14,6 +14,7 @@ import ReactPlayer from "react-player"; // Library for embedding and playing vid
 import User from "./User";
 import path from "path-browserify"; // Path library to work with file paths in the browser
 import Upload from "./upload.tsx";
+import VerifyEmail from "./VerifyEmail.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
 import LikeButton from "./likeButton";
@@ -468,6 +469,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         {/* User Page Route */}
 
         {/* Protected Route for Dashboard and Video Player */}
