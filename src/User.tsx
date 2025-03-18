@@ -200,7 +200,12 @@ function User() {
         </p>
         <div className="content-container">
           {/* Section title */}
-          <div className="my-videos-container">My Engagements</div>
+          <div className="my-videos-container">
+            <h2>Your engagements</h2>
+            <button className="button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
 
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
@@ -209,7 +214,7 @@ function User() {
               className="video-grid"
               initial={{ x: direction * 100, opacity: 0 }} // Start position
               animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
-              exit={{ x: -direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
+              exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
               transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
             >
               {currentVideos.length > 0 ? (
@@ -237,19 +242,12 @@ function User() {
           </AnimatePresence>
 
           {/* Home button for navigation */}
-          <div className="user-buttons">
+          {/* <div className="user-buttons">
             <button className="home-button" onClick={() => navigate("/")}>
               Home
             </button>
-            <button className="home-button btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Display username at the bottom */}
-        <div className="username-display">
-          Engaged as: <span className="username">{username}</span>
+            
+          </div> */}
         </div>
       </div>
 

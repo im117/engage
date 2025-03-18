@@ -49,10 +49,12 @@
 //  Content box with elevation and rounded corners
 .content-container {
   display: flex;
-  min-width: 1000px;
+  // min-width: 1000px;
   flex-direction: column;
   align-items: center;
-  background-color: white;
+  // background-color: white;
+  border: 2px solid white;
+  margin: auto;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -61,9 +63,12 @@
 //  "My Videos" section title
 .my-videos-container {
   // background-color: darkgreen;
-  color: rgb(37, 37, 37);
-  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  // padding: 10px 20px;
   border-radius: 5px;
+  gap: 50vw; // Adds space between elements
   margin-bottom: 20px;
   font-size: 1.4rem;
   font-weight: bold;
@@ -74,9 +79,9 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr); // 3-column layout
   gap: 2%;
-  background-color: #c9d6c9;
-  width: 100%;
-  min-width: 100%;
+  background-color: #3b7543af;
+  backdrop-filter: blur(5px); // Adds a subtle background blur effect
+  width: 90vw;
   height: 73vh;
   min-height: 73vh;
   border-radius: 10px;

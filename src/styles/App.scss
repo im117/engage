@@ -8,9 +8,11 @@ body {
   
 // }
 .app-container {
-  margin-top: 50px;
+  margin-top: 40px;
   position: relative; // Ensure container acts as a positioning context
   width: 90vw;
+  height: 75vh;
+  // height: 100%;
   margin-left: auto;
   margin-right: auto;
   // background-color: blue;
@@ -24,27 +26,35 @@ body {
   flex-direction: row; // Stack items vertically
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
-  grid-template-columns: 2fr 2fr;
+  grid-template-columns: 2fr 1fr;
   // grid-gap: 20px;
 }
 
 .video-player {
-  // background: green;
-  // border: 2px solid #ddd;
-  width: 100%; // Adjust width to fit container if necessary
-  height: 60vh;
+  // // background: green;
+  // // border: 2px solid #ddd;
+  // width: 100%; // Adjust width to fit container if necessary
+  // height: 70vh;
+  // display: flex;
+  // flex-direction:column;
+  // justify-content: center;
+  // align-items: center;
+  // border-radius: 10px;
+  // // margin-bottom: 20px; // Add spacing for other content
+  width: 100%;
+  height: 70vh;
   display: flex;
-  flex-direction:column;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   border-radius: 10px;
-  // margin-bottom: 20px; // Add spacing for other content
+  flex-wrap: nowrap;
+  justify-content: flex-start;
 }
 
 .video-details{
 
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: flex-end;
+  justify-content: flex-end;
   width: 100%;
   margin: auto;
   text-align: right;
@@ -52,16 +62,16 @@ body {
   display: flex;
   flex-direction: column;
   // flex-direction: column;
-  
+  margin-right: 15px;
   .details-metadata {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     color: white;
   }
 }
 
 .controls {
-  margin-top: 25px;
+  margin-top: 30px;
   width: 100%; // Ensure controls take up full width
   display: flex;
   justify-content: space-between;
@@ -69,6 +79,17 @@ body {
   gap: 10px;
 }
 
+.video-stats{
+  *{
+    margin: 0px 5px;
+  }
+}
+.download-next{
+  *{
+    margin: 0px 5px;
+  }
+  
+}
 /* Control Button Styling */
 // .control-button {
 //   // background-color: #065527;
@@ -131,6 +152,13 @@ body {
   }
 }
 
+
+.button.not-liked{
+  &:hover{
+    color: #f10372;
+    padding: 18px 35px;
+  }
+}
 .button.liked{
   background-color: #f10372;
   border-radius: 25px;
@@ -149,7 +177,8 @@ body {
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: $button-hover-color;
+    background-color: #ff75b6;
+    
   }
 }
 // .like-button.not-liked{
@@ -213,6 +242,33 @@ body {
   }
 }
 
+
+@keyframes fade-in {
+  0% {
+    opacity: 0; // Fully transparent
+  }
+  100% {
+    opacity: 1; // Fully visible
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1; // Fully visible
+  }
+  100% {
+    opacity: 0; // Fully transparent
+  }
+}
+
+.fade-out {
+  animation: fade-out 0.1s ease-out forwards;
+}
+
+.fade-in{
+  animation: fade-in 0.1s ease-in forwards;
+}
+
 .upload-button {
   background-color: #065527;
   border-radius: 19px;
@@ -239,21 +295,32 @@ body {
 }
 
 
+#video{
+  max-height: 90vh;
+  max-width: 60vh;
+}
 
-
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 870px) {
   .app-container {
-    width: 100vw;
-    margin: 0;
+    width: 90vw;
+    height: 100%;
+    margin: 0 auto;
+    margin-top: 25px;
     padding: 10px;
     grid-template-columns: 1fr; // Stack items vertically
+    // justify-content: center;
   }
 
   .video-player {
-    height: 40vh; // Adjust height for smaller screens
+    height: 70vh; // Adjust height for smaller screens
+    #video{
+      max-height: 60vh;
+      max-width: 90vw;
+    }
   }
 
   .video-details {
+    display: block;
     text-align: center; // Center-align text for better readability
     margin-top: 10px;
 
@@ -262,10 +329,10 @@ body {
     }
   }
 
-  .controls {
-    flex-direction: column; // Stack controls vertically
-    gap: 15px;
-  }
+  // .controls {
+  //   flex-direction: column; // Stack controls vertically
+  //   gap: 15px;
+  // }
 
   .button, .user-button, .upload-button {
     font-size: 14px; // Reduce font size for smaller screens

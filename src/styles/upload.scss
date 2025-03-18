@@ -3,9 +3,20 @@
 $uploadColor: #4CAF50;
 $backgroundImageUrl: url('src/assets/blob.png');  
 
-.upload-container {
+
+.upload-app{
+  margin-top: 75px;
+  width: 90vw;
+  max-height: 90vh;
+  margin: 0px auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: rows;
+  color: white;
+
+}
+.upload-container {
+  // display: flex;
+  // flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
@@ -13,15 +24,24 @@ $backgroundImageUrl: url('src/assets/blob.png');
   background-position: top;
   background-repeat: no-repeat;
   background-size: 300px;
-  background-color: #e0f7e0;
+  // background-color: #e0f7e0;
   padding: 20px;
+  max-height: 40vh;  
+}
+
+.upload-banner{
+  display: flex;
+  flex-direction: column;
+  // justify-content: space-between;
+  // gap: 50px;
+  text-align: left;
 }
 
 .upload-title {
-  font-size: 2.5rem;
-  color: $uploadColor;
+  font-size:3rem;
+  // color: $uploadColor;
   margin-bottom: 20px;
-  text-align: center;
+  // text-align: center;
 }
 
 .back-button {
@@ -48,6 +68,44 @@ $backgroundImageUrl: url('src/assets/blob.png');
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+// FileUploader.tsx
+.upload-container {
+  padding: 20px;
+  max-width: 600px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: inline-block;
+  width: 100px;
+}
+.progress-container {
+  margin-top: 20px;
+}
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+.progress-message {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.info-text {
+  font-size: 0.8rem;
+  color: #666;
+}
+
 
 @media (max-width: 768px) {
   .upload-title {

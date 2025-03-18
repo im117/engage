@@ -11,6 +11,7 @@ services:
     environment:
       - VITE_UPLOAD_SERVER=https://upload.ngage.lol
       - VITE_LOGIN_SERVER=https://login.ngage.lol
+      - TZ="America/Detroit"
     volumes:
       - ./media:/app/media
     depends_on:
@@ -23,6 +24,7 @@ services:
     image: upload-server:latest
     environment:
       - DATABASE_HOST=db
+      - TZ="America/Detroit"
     build:
       context: .
       dockerfile: upload-server.dockerfile
@@ -43,6 +45,7 @@ services:
     image: login-server:latest
     environment:
       - DATABASE_HOST=db
+      - TZ="America/Detroit"
     build:
       context: .
       dockerfile: login-server.dockerfile
@@ -57,6 +60,7 @@ services:
   db:
     image: mysql:latest
     environment:
+      TZ: "America/Detroit"
       MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
       MYSQL_ROOT_PASSWORD: pass123
       MYSQL_DATABASE: engage

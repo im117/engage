@@ -90,20 +90,22 @@ export default function TopBar(){
         <nav className="topbar">
             <div className="topbar__container">
                 <div className="topbar__logo">
+                  
                     <a onClick={() => navigate('/')}><h1>Engage</h1></a>
                 </div>
                 <div className="topbar__menu">
                     <ul className="link__items">
                         <li>
-                            <a className="button" onClick={() => navigate('/upload')}>Upload</a>
+                          
+                            <a className="button" onClick={() => navigate('/upload')}><i className="fa-solid fa-upload persist"></i> <span className="desktop__text">Upload</span></a>
                         </li>
                         <li>
                             <a className="button" onClick={loggedIn ? () => navigate("/user") : () => navigate('/login')}>{loggedIn ? (<>
-              <i className="fa-solid fa-user"></i> {username}
+              <i className="fa-solid fa-user persist"></i> <span className="desktop__text">{username}</span>
             </>
           ) : (
             <>
-              <i className="fa solid fa-right-to-bracket"></i> Log In
+              <i className="fa solid fa-right-to-bracket persist"></i> <span className="desktop__text">Log In</span>
             </>)}
             </a>
                         </li>

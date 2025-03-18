@@ -15,6 +15,8 @@ interface FormValues {
   fileName: string;
 }
 
+import "../styles/upload.scss";
+
 type UploadStatus = "idle" | "uploading" | "transcoding" | "success" | "error";
 
 const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB
@@ -88,8 +90,12 @@ export default function FileUploader() {
 
   async function handleFileUpload() {
     if (!file) return;
-    console.log("File size: " + file.size);
-    console.log("Max file size: " + MAX_FILE_SIZE);
+    if (!title){
+      alert("Title is required");
+      return;
+    }
+    // console.log("File size: " + file.size);
+    // console.log("Max file size: " + MAX_FILE_SIZE);
     if (!isMP4(file)) {
       alert("File is not an mp4.");
       return;
@@ -155,7 +161,7 @@ export default function FileUploader() {
     } else if (status === "success") {
       return "Success! Video uploaded and processed.";
     } else if (status === "error") {
-      return "Upload error, please try again. (Title is required)";
+      return "Upload error, please try again.";
     }
     return "";
   };
@@ -175,7 +181,7 @@ export default function FileUploader() {
       <div className="form-group">
         <input type="file" accept="video/mp4" onChange={handleFileChange} />
         {file && status === "idle" && (
-          <button onClick={handleFileUpload}>Upload</button>
+          <button className="button" onClick={handleFileUpload}>Upload</button>
         )}
       </div>
 
@@ -197,43 +203,9 @@ export default function FileUploader() {
         </div>
       )}
 
-      <style>{`
-        .upload-container {
-          padding: 20px;
-          max-width: 600px;
-        }
-        .form-group {
-          margin-bottom: 15px;
-        }
-        .form-group label {
-          display: inline-block;
-          width: 100px;
-        }
-        .progress-container {
-          margin-top: 20px;
-        }
-        .progress-bar-container {
-          width: 100%;
-          height: 20px;
-          background-color: #f0f0f0;
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 10px;
-        }
-        .progress-bar {
-          height: 100%;
-          background-color: #4caf50;
-          transition: width 0.3s ease;
-        }
-        .progress-message {
-          margin-bottom: 5px;
-          font-weight: bold;
-        }
-        .info-text {
-          font-size: 0.8rem;
-          color: #666;
-        }
-      `}</style>
+      {/* <style>{`
+        
+      `}</style> */}
     </div>
   );
 }

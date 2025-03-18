@@ -1,6 +1,6 @@
 import "./styles/App.scss"; // Import global and App-specific styles
 
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 // React Router for navigation between different pages (Home and User page)
 
 import { useState, useEffect } from "react";
@@ -127,6 +127,13 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
+
+  // current video use states
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+  const [currentVideoDesc, setCurrentVideoDesc] = useState("");
+  const [currentVideoDate, setCurrentVideoDate] = useState("");
+  const [currentVideoCreatorName, setCurrentVideoCreatorName] = useState("");
+
   useEffect(() => {
     // Immediately reset states when changing videos
     setLiked(false);
@@ -160,13 +167,13 @@ function Home() {
     // console.log(videoIndex);
   };
 
-  const navigate = useNavigate(); // Hook to navigate to other pages
+  // const navigate = useNavigate(); // Hook to navigate to other pages
   // const handleBackToDashboard = () => {
   //   navigate("/dashboard");
   // };
-  const handleBackToLogin = () => {
-    navigate("/login");
-  };
+  // const handleBackToLogin = () => {
+  //   navigate("/login");
+  // };
 
   // Function to get user info from API
   async function getUsername(userid: number) {
@@ -183,39 +190,36 @@ function Home() {
     return creatorName as string;
   }
   // Function to grab video information from API
-  async function getVideoInfo() {
-    let title = "";
-    let desc = "";
-    let userid = 0;
-    let creatorName = "";
-    // Get the previousIndex and previousVideo, since index seeks ahead at the moment
-    // const previousIndex = (videoIndex - 1 + filteredArray.length) % filteredArray.length;
-    // const previousVideo = filteredArray[previousIndex] || "";
+  async function setVideoInfo() {
 
     // Get video info
-    await axios
-      .get(`${uploadServer}/video`, {
-        params: {
-          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
-        },
-      })
-      .then((response) => {
-        // get user info
-        title = response.data.title;
-        desc = response.data.description;
-        userid = response.data.creator_id;
-      })
-      .catch((error) => {
-        alert(`There was an error fetching the video info!\n\n${error}`);
+    try {
+      const response = await axios.get(`${uploadServer}/video`, {
+      params: {
+        fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
+      },
       });
 
-    creatorName = await getUsername(userid);
-    if (desc == "" || desc == undefined) {
-      desc = "No description provided";
+      // get user info
+      setCurrentVideoTitle(response.data.title);
+      setCurrentVideoDesc(response.data.description);
+      const username = await getUsername(response.data.creator_id);
+      setCurrentVideoCreatorName(username);
+      // translate the timestamp in created_at
+      const date = new Date(response.data.created_at).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const time = new Date(response.data.created_at).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setCurrentVideoDate(`${date} at ${time}`);
+    } catch (error) {
+      alert(`There was an error fetching the video info!\n\n${error}`);
     }
-    alert(
-      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}\n--------------------------\nViews: ${viewCount}`
-    );
+
   }
 
   // const token = localStorage.getItem("authToken");
@@ -431,7 +435,11 @@ function Home() {
   const handleVideoStart = () => {
     recordView();
   };
-
+  useEffect(() => {
+    if (currentVideo) {
+      setVideoInfo();
+    }
+  }, [currentVideo]);
   return (
     
     <div className="app">
@@ -445,36 +453,61 @@ function Home() {
           controls={true}
           loop={true}
           playsinline={true}
-          width="60vw"
-          height="50vh"
+          // width="60vw"
+          height="65vh"
           onStart={handleVideoStart}
         />
         {/* 1. Video control buttons */}
       <div className="controls">
         <div className="video-stats">
-        <a onClick={handleLike} className={ liked ? "button liked" : "button " }>
-          <i className="fa-solid fa-heart"></i> {likeCount} Likes
+        <a onClick={handleLike} className={ liked ? "button liked" : "button not-liked" }>
+          <i className="fa-solid fa-heart"></i> {likeCount}<span className="desktop__text"> Likes</span>
         </a>
         <span className="views">
-          <i className="fa-solid fa-eye"></i> {viewCount} Views
+          <i className="fa-solid fa-eye"></i> {viewCount}<span className="desktop__text"> Views</span>
         </span>
         
         </div>
         <div className="download-next">
           
-        <a className={filteredArray.length == 0 ? "button greyed" : "button"} href={filteredArray.length == 0 ? "" : currentVideo} download>
-          <i className="fa-solid fa-download"></i> DOWNLOAD
-        </a>
-        <a className={filteredArray.length < 2 ? "button greyed" : "button"} onClick={handleNext}>
-          NEXT <i className="fa-solid fa-arrow-right"></i>
+        {filteredArray.length > 0 && (
+          <a className="button" href={currentVideo} download>
+        <i className="fa-solid fa-download"></i><span className="desktop__text"> DOWNLOAD</span>
+          </a>
+        )}
+        {filteredArray.length == 0 && (
+          <a className="button greyed">
+        <i className="fa-solid fa-download"></i><span className="desktop__text"> DOWNLOAD</span>
+          </a>
+        )}
+        <a
+          className={filteredArray.length < 2 ? "button greyed" : "button"}
+          onClick={() => {
+        const videoElement = document.getElementById("video");
+        if (videoElement) {
+          videoElement.classList.remove("fade-in");
+          videoElement.classList.add("fade-out");
+          setTimeout(() => {
+            handleNext();
+            videoElement.classList.remove("fade-out");
+            videoElement.classList.add("fade-in");
+          }, 200); // Match the duration of the fade-out animation
+        } else {
+          handleNext();
+        }
+          }}
+        >
+        <span className="desktop__text">NEXT </span><i className="fa-solid fa-arrow-right"></i>
         </a>
         </div>
       </div>
       </div>
       <div className="video-details">
         <div className="details-metadata">
-        <h1>BS title</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+          <h1>{currentVideoTitle}</h1>
+          <h2>Engager: {currentVideoCreatorName}</h2>
+          <h3>Uploaded: {currentVideoDate}</h3>
+          <p>{currentVideoDesc != "" ? currentVideoDesc : "No Description Provided"}</p>
         </div>
         <div className="details-comments">
 

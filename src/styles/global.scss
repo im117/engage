@@ -20,32 +20,45 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+
   }
 
+.button{
+  cursor: pointer;
+  border-radius: 25px;
+  border: 3px solid #ddd;
+  // display: inline-block;
+  background: none;
+  color: #ddd;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 30px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  width: auto; // Let buttons size to their content
+  min-width: 120px; // Optional: Ensure a minimum width
+  // display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: $button-hover-color;
+    background: none;
+    border: 3px solid $button-hover-color;
+  }
+}
+
+.button.greyed{
+  cursor:default;
+  color: #4b4b4b;
+  border: 3px solid #615e5e;
+}
+
+@media screen and (max-width: 1250px){
+  .desktop__text{
+      display:none;
+  }
   .button{
-    cursor: pointer;
+    padding: 10px;
     border-radius: 25px;
-    border: 3px solid #ddd;
-    // display: inline-block;
-    color: #ddd;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 16px 30px;
-    text-decoration: none;
-    text-shadow: 0px 0px 13px #283966;
-    width: auto; // Let buttons size to their content
-    min-width: 120px; // Optional: Ensure a minimum width
-    // display: inline-block;
-    transition: all 0.3s ease;
-  
-    &:hover {
-      color: $button-hover-color;
-      border: 3px solid $button-hover-color;
-    }
   }
-  
-  .button.greyed{
-    cursor:default;
-    color: #4b4b4b;
-    border: 3px solid #615e5e;
-  }
+}
