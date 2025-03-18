@@ -13,7 +13,7 @@ if (process.env.DATABASE_HOST) {
   dbHost = process.env.DATABASE_HOST;
 }
 
-let frontendUrl = "http://localhost:3000"; // Default for development
+let frontendUrl = "http://localhost:8081"; // Default for development
 if (process.env.VITE_FRONTEND_URL) {
   frontendUrl = process.env.VITE_FRONTEND_URLL; // Use environment variable in production
 }
@@ -145,14 +145,17 @@ export const signup = async (req, res) => {
 };
 // Email Verification Route
 app.get("/verify-email", (req, res) => {
+  const db = dbRequest(dbHost);
   const { token } = req.query;
 
   if (!token) {
+    db.destroy();
     return res.status(400).json({ message: "Missing token" });
   }
 
   jwt.verify(token, "secretkey", (err, decoded) => {
     if (err) {
+      db.destroy();
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
@@ -162,8 +165,10 @@ app.get("/verify-email", (req, res) => {
 
     db.query(updateQuery, [email], (err, result) => {
       if (err) {
+        db.destroy();
         return res.status(500).json({ message: "Database error" });
       }
+      db.destroy();
       return res
         .status(200)
         .json({ message: "Email verified successfully! You can now log in." });
