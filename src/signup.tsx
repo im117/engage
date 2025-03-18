@@ -68,9 +68,9 @@ const Signup: React.FC = () => {
           if (error.response) {
             if (error.response.status === 409) {
               setErrorMessage(error.response.data.message); // Sets error message to error message as written in route
-            } else if (error.response.status == 500) {
+            } else if (error.response.status === 400)
               setErrorMessage(error.response.data.message);
-            } else {
+            else {
               setErrorMessage(
                 "An unexpected error occurred. Please try again."
               );
