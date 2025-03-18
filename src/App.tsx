@@ -554,6 +554,7 @@ function Home() {
 
                   {/* Toggle button for showing/hiding replies using icons */}
                   {c.replies && c.replies.length > 0 && (
+                    <div style={{ width: "24px", textAlign: "center" }}>
                     <button
                       onClick={() => toggleRepliesVisible(c.id)}
                       style={{
@@ -574,13 +575,14 @@ function Home() {
                         ></i>
                       )}
                     </button>
+                    </div>
                   )}
 
                   { loggedIn && (
                     <div >
                     <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
                     {replyVisible[c.id] && (
-                      <div style={{ marginLeft: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ marginTop: "5px", display: "flex", alignItems: "center", gap: "8px", minHeight: "40px" }}>
                         <input
                           type="text"
                           value={replyInputs[c.id] || ""}
@@ -629,6 +631,7 @@ function Home() {
           )}
           </div>
         )}
+
         {notification && (
           <div
             className="notification"
