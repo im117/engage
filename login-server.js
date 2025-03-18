@@ -125,7 +125,7 @@ export const signup = async (req, res) => {
           // Send verification email
           const verificationLink = `${frontendUrl}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
           const mailOptions = {
-            from: "ngagellc@gmail.com", // your email
+            from: emailUser, // your email
             to: email,
             subject: "Verify Your Email",
             text: `Click this link to verify your email: ${verificationLink}`,
