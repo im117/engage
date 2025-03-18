@@ -16,6 +16,7 @@ import path from "path-browserify"; // Path library to work with file paths in t
 import Upload from "./upload.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
+import LikeButton from "./likeButton";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -142,14 +143,10 @@ function Home() {
     // Only fetch like data if there's a valid video
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
-      getLikeCount();
       getViewCount();
       // Only check if user has liked if they're logged in
-      if (loggedIn && userID) {
-        checkIfLiked();
-      }
     }
-  }, [currentVideo, loggedIn, userID]);
+  }, [currentVideo]);
 
   // Switch to the next video in the array
   const handleNext = () => {
@@ -274,106 +271,6 @@ function Home() {
   }
   assignUsername();
 
-  async function getLikeCount() {
-    try {
-      const fileName = currentVideo.split("/").pop();
-      if (!fileName) {
-        console.error("Error: fileName is missing.");
-        return;
-      }
-
-      const response = await axios.get(
-        `${loginServer}/video-likes-by-filename/${fileName}`
-      );
-      setLikeCount(response.data.likeCount);
-    } catch (error) {
-      console.error("Error fetching like count:", error);
-      setLikeCount(0); // Default to 0 if there's an error
-    }
-  }
-
-  async function checkIfLiked() {
-    // console.log("Checking if liked for:", currentVideo.split("/").pop());
-
-    if (!loggedIn) {
-      // console.log("Not logged in, setting liked to false");
-      setLiked(false);
-      return;
-    }
-
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      // console.log("No token, setting liked to false");
-      setLiked(false);
-      return;
-    }
-
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      // No fileName, setting liked to false
-      setLiked(false);
-      return;
-    }
-
-    try {
-      console.log("Making API request to check like status for:", fileName);
-      const response = await axios.get(`${loginServer}/check-like-status`, {
-        params: {
-          auth: token,
-          fileName: fileName,
-        },
-      });
-
-      console.log("Like status response:", response.data);
-      setLiked(response.data.liked);
-    } catch (error) {
-      console.error("Error checking like status:", error);
-      setLiked(false);
-    }
-  }
-
-  async function handleLike() {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like videos.");
-      return;
-    }
-
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-video`,
-        { fileName: fileName }, // Send fileName in the request body
-        {
-          params: { auth: token }, // Send token as a query parameter
-        }
-      );
-
-      // Update UI based on the response message
-      if (response.data.message.includes("unliked")) {
-        setLiked(false);
-        setLikeCount((prev) => Math.max(0, prev - 1));
-      } else {
-        setLiked(true);
-        setLikeCount((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error liking/unliking video:", error);
-      alert("Failed to process like. Please try again.");
-    }
-  }
-
   async function getViewCount() {
     try {
       const fileName = currentVideo.split("/").pop();
@@ -449,9 +346,14 @@ function Home() {
         />
       </div>
       <div className="video-stats">
-        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
-          <i className="fa-solid fa-heart"></i> {likeCount} Likes
-        </button>
+        <LikeButton
+          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          loggedIn={loggedIn}
+          userId={userID}
+          initialLikeCount={likeCount}
+          initialLiked={liked}
+          loginServer={loginServer}
+        />
         <span className="view-count">
           <i className="fa-solid fa-eye"></i> {viewCount} Views
         </span>
