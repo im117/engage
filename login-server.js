@@ -13,6 +13,11 @@ if (process.env.DATABASE_HOST) {
   dbHost = process.env.DATABASE_HOST;
 }
 
+let frontendUrl = "http://localhost:3000"; // Default for development
+if (process.env.FRONTEND_URL) {
+  frontendUrl = process.env.FRONTEND_URL; // Use environment variable in production
+}
+
 // Middleware to parse incoming JSON requests
 app.use(express.json());
 
@@ -115,7 +120,7 @@ export const signup = async (req, res) => {
               .json({ message: "Database error", error: err });
           }
           // Send verification email
-          const verificationLink = `http://localhost:${port}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
+          const verificationLink = `${frontendUrl}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
           const mailOptions = {
             from: "ngagellc@gmail.com", // your email
             to: email,
