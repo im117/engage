@@ -227,12 +227,12 @@ const incrementLikeCount = (replyId: number) => {
         if (Array.isArray(comment.replies)) {
           for (const reply of comment.replies) {
             try {
-              const { data } = await axios.get(`${loginServer}/fetch-reply-liked`, {
+              const response = await axios.get(`${loginServer}/fetch-reply-liked`, {
                 params: { reply_id: reply.id },
               });
   
               // Set like status from API response
-              initialLikedState[reply.id] = data.liked || false;
+              initialLikedState[reply.id] = response.data.liked || false;
             } catch (err) {
               console.error("Error fetching reply like status:", err);
               initialLikedState[reply.id] = false; // Default to false if there's an error
