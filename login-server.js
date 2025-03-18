@@ -449,40 +449,24 @@ app.get("/video-views/:fileName", (req, res) => {
     });
 });
 
-// app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
-//   // console.log("Request headers:", req.headers);
-//   const user_id = req.user.userId;
-//   const { reply_id } = req.query;
-  
-//   const db = dbRequest(dbHost);
-  
+app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
+  const user_id = req.user.userId;
+  const { reply_id } = req.query;
 
-//   console.log("User ID:", user_id);
+  const db = dbRequest(dbHost);
 
-//   const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
-//   db.query(query, [user_id, reply_id], (err, results) => {
-//     db.destroy();
+  const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+  db.query(query, [user_id, reply_id], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
 
-//     if (err) {
-//       console.error("Database error:", err);
-//       return res.status(500).json({ message: "Database error" });
-//     }
-
-//     if (results.length > 0) {
-//       // If a matching record is found, return a success response with the data
-//       return res.status(200).json({ liked: true });
-//     } else {
-//       // If no matching record is found, return a response indicating the reply is not liked
-//       return res.status(200).json({ liked: false });
-//     }
-//   }).catch((error) => {
-//     console.error("Error:", error.message);
-//     db.destroy();
-//     return res.status(400).json({ message: error.message });
-//   });
-// });
-
-
+    db.destroy();
+    return res.status(200).json({ liked: results.length > 0 });
+  });
+});
 
 // Updated like-video endpoint
 app.post("/like-reply", authenticateTokenGet, (req, res) => {
@@ -492,60 +476,56 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
 
   console.log("User ID:", userId);
 
+  // Check if user already liked the reply
+  const checkLikeQuery =
+    "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+  db.query(checkLikeQuery, [userId, reply_id], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
 
-      // Check if user already liked the reply
-      const checkLikeQuery =
-        "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
-      db.query(checkLikeQuery, [userId, reply_id], (err, results) => {
+    if (results.length > 0) {
+      // User already liked the video -> Unlike it
+      const unlikeQuery =
+        "DELETE FROM reply_likes WHERE user_id = ? AND reply_id = ?";
+      db.query(unlikeQuery, [userId, reply_id], (err) => {
         if (err) {
           console.error("Database error:", err);
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-
-        if (results.length > 0) {
-          // User already liked the video -> Unlike it
-          const unlikeQuery =
-            "DELETE FROM reply_likes WHERE user_id = ? AND reply_id = ?";
-          db.query(unlikeQuery, [userId, reply_id], (err) => {
-            if (err) {
-              console.error("Database error:", err);
-              db.destroy();
-              return res.status(500).json({ message: "Database error" });
-            }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Reply unliked successfully" });
-          });
-        } else {
-          // User hasn't liked the comment -> Like it
-          const likeQuery =
-            "INSERT INTO reply_likes (user_id, reply_id) VALUES (?, ?)";
-          db.query(likeQuery, [userId, reply_id], (err) => {
-            if (err) {
-              console.error("Database error:", err);
-              db.destroy();
-              return res.status(500).json({ message: "Database error" });
-            }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Reply liked successfully" });
-          });
-        }
+        db.destroy();
+        return res.status(200).json({ message: "Reply unliked successfully" });
       });
+    } else {
+      // User hasn't liked the comment -> Like it
+      const likeQuery =
+        "INSERT INTO reply_likes (user_id, reply_id) VALUES (?, ?)";
+      db.query(likeQuery, [userId, reply_id], (err) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+        db.destroy();
+        return res.status(200).json({ message: "Reply liked successfully" });
+      });
+    }
+  });
 });
 
 app.get("/reply-like-count", authenticateTokenGet, (req, res) => {
-  const {reply_id} = req.query;
+  const { reply_id } = req.query;
   const db = dbRequest(dbHost);
-  const query = "SELECT COUNT(*) AS like_count FROM reply_likes WHERE reply_id = ?";
+  const query =
+    "SELECT COUNT(*) AS like_count FROM reply_likes WHERE reply_id = ?";
   db.query(query, [reply_id], (err, results) => {
     db.destroy();
     if (err) {
       console.error("Database error:", err);
-      
+
       return res.status(500).json({ message: "Database error" });
     }
     res.json({ like_count: results[0].like_count }); // Send response
@@ -589,23 +569,38 @@ app.post("/record-anonymous-view", (req, res) => {
 // addReply const
 export const addReply = async (req, res) => {
   const db = dbRequest(dbHost);
-  const { filename, content } = req.body;
+  const { commentId, content } = req.body;
   const userId = req.user.userId;
-  // const commentId = 
 
-  getVideoIdFromFileName(db, fileName)
-    .then((videoId) => {
-      const addReply = "INSERT INTO REPLY (creatorId, content, commentId) VALUES (userId, content, commentId)";
-      db.query(() => {
-        
-      })
-      .catch((error) => {
-        console.error("Error:", error.message);
+  if (!commentId || !content) {
+    db.destroy();
+    return res
+      .status(400)
+      .json({ message: "Comment ID and content are required" });
+  }
+
+  try {
+    const addReplyQuery =
+      "INSERT INTO REPLY (creator_id, content, comment_id) VALUES (?, ?, ?)";
+    db.query(addReplyQuery, [userId, content, commentId], (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
         db.destroy();
-        return res.status(400).json({ message: error.message });
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      db.destroy();
+      return res.status(201).json({
+        message: "Reply added successfully",
+        replyId: result.insertId,
       });
     });
-}
+  } catch (error) {
+    console.error("Error:", error.message);
+    db.destroy();
+    return res.status(400).json({ message: error.message });
+  }
+};
 
 // Register routes
 app.post("/signup", signup);

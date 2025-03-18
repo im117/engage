@@ -109,13 +109,16 @@ function Home() {
   // - replyVisible toggles showing the reply input field.
   // - repliesVisible toggles showing/hiding the entire replies list.
   const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
-  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
-  const [repliesVisible, setRepliesVisible] = useState<{ [key: number]: boolean }>({});
+  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>(
+    {}
+  );
+  const [repliesVisible, setRepliesVisible] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // The comment section is toggled by the COMMENT button.
   const [showComments, setShowComments] = useState(false);
 
-  
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
@@ -124,26 +127,28 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
-  const [replyLikeCount, setReplyLikeCount] = useState<{ [key: number]: number }>({}); // Like counts are stored with replyId as keys
+  const [replyLikeCount, setReplyLikeCount] = useState<{
+    [key: number]: number;
+  }>({}); // Like counts are stored with replyId as keys
   const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
-  
+
   // const getReplyLikeCount = async (replyId: number): Promise<number | string> => {
   //   try {
   //     const response = await axios.get(
   //       `${loginServer}/reply-like-count/${replyId}`
   //     );
-      
+
   //     // Update the state with the fetched like count
   //     setReplyLikeCount(prev => ({
   //       ...prev,
   //       [replyId]: response.data.likeCount
   //     }));
-  
+
   //     // Return the like count immediately
   //     return response.data.likeCount;
   //   } catch (error) {
   //     console.error("Error fetching like count:", error);
-      
+
   //     // Return a fallback value in case of error
   //     return "Error";
   //   }
@@ -158,44 +163,42 @@ function Home() {
   // };
 
   // Function to set the reply liked status to true
-const likeReply = (replyId: number) => {
-  setReplyLiked((prev) => ({
-    ...prev,
-    [replyId]: true, // Set the liked status to true
-  }));
-};
+  const likeReply = (replyId: number) => {
+    setReplyLiked((prev) => ({
+      ...prev,
+      [replyId]: true, // Set the liked status to true
+    }));
+  };
 
-// Function to set the reply liked status to false
-const unlikeReply = (replyId: number) => {
-  setReplyLiked((prev) => ({
-    ...prev,
-    [replyId]: false, // Set the liked status to false
-  }));
-};
+  // Function to set the reply liked status to false
+  const unlikeReply = (replyId: number) => {
+    setReplyLiked((prev) => ({
+      ...prev,
+      [replyId]: false, // Set the liked status to false
+    }));
+  };
 
-// Function to decrement the like count for a specific reply
-const decrementLikeCount = (replyId: number) => {
-  setReplyLikeCount((prev) => {
-    const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
-    return {
-      ...prev, // Spread the previous state
-      [replyId]: Math.max(0, currentLikeCount - 1), // Update the like count for this specific replyId, ensuring it doesn't go below 0
-    };
-  });
-};
+  // Function to decrement the like count for a specific reply
+  const decrementLikeCount = (replyId: number) => {
+    setReplyLikeCount((prev) => {
+      const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
+      return {
+        ...prev, // Spread the previous state
+        [replyId]: Math.max(0, currentLikeCount - 1), // Update the like count for this specific replyId, ensuring it doesn't go below 0
+      };
+    });
+  };
 
-
-// Function to increment the like count for a specific reply
-const incrementLikeCount = (replyId: number) => {
-  setReplyLikeCount((prev) => {
-    const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
-    return {
-      ...prev, // Spread the previous state
-      [replyId]: currentLikeCount + 1, // Increment the like count for this specific replyId
-    };
-  });
-};
-
+  // Function to increment the like count for a specific reply
+  const incrementLikeCount = (replyId: number) => {
+    setReplyLikeCount((prev) => {
+      const currentLikeCount = prev[replyId] || 0; // Get the current like count for the replyId, default to 0
+      return {
+        ...prev, // Spread the previous state
+        [replyId]: currentLikeCount + 1, // Increment the like count for this specific replyId
+      };
+    });
+  };
 
   const navigate = useNavigate();
 
@@ -220,53 +223,60 @@ const incrementLikeCount = (replyId: number) => {
 
   useEffect(() => {
     const fetchReplyLikes = async () => {
-      const initialLikedState: { [key: number]: boolean } = {};
-      const token = localStorage.getItem("authToken"); 
-  
-      if (!token) {
-        console.error("Authorization token is missing!");
-        return;
-      }
-  
+      if (!loggedIn || !comments.length) return;
+
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      const initialLikedState = { ...replyLiked }; // Preserve existing state
+      const initialLikeCountState = { ...replyLikeCount }; // Preserve existing state
+
       for (const comment of comments) {
         if (Array.isArray(comment.replies)) {
           for (const reply of comment.replies) {
-            try {
-              console.log(`Fetching like status for reply_id: ${reply.id}`);
-              console.log("Sending token:", token);
-              const response = await axios.get(`${loginServer}/fetch-reply-liked`, {
-                params: { auth: token, reply_id: reply.id },
-              });
+            // Only fetch for replies we don't already have data for
+            if (initialLikedState[reply.id] === undefined) {
+              try {
+                const likeStatusResponse = await axios.get(
+                  `${loginServer}/fetch-reply-liked`,
+                  {
+                    params: { auth: token, reply_id: reply.id },
+                  }
+                );
+                initialLikedState[reply.id] = likeStatusResponse.data.liked;
 
-              initialLikedState[reply.id] = response.data.liked;
-            } catch (err) {
-              console.error("Error fetching reply like status:", err);
-              initialLikedState[reply.id] = false;
-            }
-
-            try {
-              console.log(`Fetching like count for reply_id: ${reply.id}`);
-              console.log("Sending token:", token);
-              const response = await axios.get(`${loginServer}/reply-like-count`, {
-                params: { reply_id: reply.id },
-              });
-              replyLikeCount[reply.id] = response.data.like_count;
-            } catch (err) {
-              console.error("Error fetching reply like count:", err);
+                const likeCountResponse = await axios.get(
+                  `${loginServer}/reply-like-count`,
+                  {
+                    params: { reply_id: reply.id, auth: token },
+                  }
+                );
+                initialLikeCountState[reply.id] =
+                  likeCountResponse.data.like_count;
+              } catch (err) {
+                console.error(
+                  `Error fetching data for reply ${reply.id}:`,
+                  err
+                );
+                initialLikedState[reply.id] = false;
+                initialLikeCountState[reply.id] = 0;
+              }
             }
           }
         }
       }
+
       setReplyLiked(initialLikedState);
+      setReplyLikeCount(initialLikeCountState);
     };
 
     fetchReplyLikes();
-  }, [comments]);
-  
-  
+  }, [comments, loggedIn]);
 
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
+    setVideoIndex(
+      (prevIndex) => (prevIndex + initState) % filteredArray.length
+    );
   };
 
   const handleBackToLogin = () => {
@@ -428,7 +438,9 @@ const incrementLikeCount = (replyId: number) => {
         console.error("Error: fileName is missing.");
         return;
       }
-      const response = await axios.get(`${loginServer}/video-views/${fileName}`);
+      const response = await axios.get(
+        `${loginServer}/video-views/${fileName}`
+      );
       setViewCount(response.data.viewCount);
     } catch (error) {
       console.error("Error fetching view count:", error);
@@ -462,42 +474,54 @@ const incrementLikeCount = (replyId: number) => {
     }
   }
 
-  async function handleReplyLike(reply_id: number) {
+  async function handleReplyLike(reply_id) {
     if (!userID || !loggedIn) {
       alert("You must be logged in to like replies.");
       return;
     }
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
+
     const token = localStorage.getItem("authToken");
     if (!token) {
       alert("Authentication error. Please log in again.");
       setLoggedIn(false);
       return;
     }
+
+    const fileName = currentVideo.split("/").pop();
+    if (!fileName) {
+      console.error("Error: fileName is missing.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${loginServer}/like-reply`,
-        { fileName: fileName, reply_id },
+        { fileName, reply_id },
         { params: { auth: token } }
       );
-      if (response.data.message.includes("unliked")) {
-        unlikeReply(reply_id);
-        decrementLikeCount(reply_id);
-      } else {
-        likeReply(reply_id);
-        incrementLikeCount(reply_id);
-      }
+
+      // Update both states atomically
+      setReplyLiked((prev) => {
+        const newState = { ...prev, [reply_id]: !prev[reply_id] };
+
+        // Update like count based on the new liked state
+        setReplyLikeCount((prevCounts) => {
+          const currentCount = prevCounts[reply_id] || 0;
+          return {
+            ...prevCounts,
+            [reply_id]: newState[reply_id]
+              ? currentCount + 1
+              : Math.max(0, currentCount - 1),
+          };
+        });
+
+        return newState;
+      });
     } catch (error) {
-      console.error("Error liking/unliking video:", error);
+      console.error("Error liking/unliking reply:", error);
       alert("Failed to process like. Please try again.");
     }
   }
-
-
 
   // Toggle the comment section using the COMMENT button.
   const toggleComments = () => {
@@ -556,14 +580,20 @@ const incrementLikeCount = (replyId: number) => {
           });
           let replies: any[] = [];
           try {
-            const repliesResponse = await axios.get(`${uploadServer}/get-replies`, {
-              params: { comment_id: comment.id },
-            });
+            const repliesResponse = await axios.get(
+              `${uploadServer}/get-replies`,
+              {
+                params: { comment_id: comment.id },
+              }
+            );
             replies = await Promise.all(
               repliesResponse.data.map(async (reply: any) => {
-                const replyUserResponse = await axios.get(`${uploadServer}/user`, {
-                  params: { userID: reply.creator_id },
-                });
+                const replyUserResponse = await axios.get(
+                  `${uploadServer}/user`,
+                  {
+                    params: { userID: reply.creator_id },
+                  }
+                );
                 return {
                   id: reply.id,
                   username: replyUserResponse.data.username,
@@ -672,7 +702,9 @@ const incrementLikeCount = (replyId: number) => {
           ENGAGE <i className="fa-solid fa-upload"></i>
         </button>
       </div>
-      <div className="back-button-section">{/* Removed VIDEO INFO button */}</div>
+      <div className="back-button-section">
+        {/* Removed VIDEO INFO button */}
+      </div>
       <div className="login-button-section">
         <button
           className="control-button"
@@ -702,7 +734,7 @@ const incrementLikeCount = (replyId: number) => {
               maxHeight: "40vh",
               overflowY: "auto",
             }}
-          > 
+          >
             <div className="comments-list">
               {comments.map((c) => (
                 <div key={c.id} className="comment-box">
@@ -710,94 +742,124 @@ const incrementLikeCount = (replyId: number) => {
                     <strong>{c.username}</strong> ({c.created_at}): {c.comment}
                   </p>
 
-                  <div style={{display:"flex", gap:"5x"}}>
-
-                  {/* Toggle button for showing/hiding replies using icons */}
-                  {c.replies && c.replies.length > 0 && (
-                    <div style={{ width: "24px", textAlign: "center" }}>
-                    <button
-                      onClick={() => toggleRepliesVisible(c.id)}
-                      style={{
-                        border: "none",
-                        background: "transparent",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {repliesVisible[c.id] ? (
-                        <i
-                          className="fa-solid fa-chevron-up"
-                          style={{ fontSize: "1.2em", color: "#333" }}
-                        ></i>
-                      ) : (
-                        <i
-                          className="fa-solid fa-chevron-down"
-                          style={{ fontSize: "1.2em", color: "#333" }}
-                        ></i>
-                      )}
-                    </button>
-                    </div>
-                  )}
-
-                  { loggedIn && (
-                    <div >
-                    <button onClick={() => toggleReplyInput(c.id)}><i className="fa-regular fa-comments"></i></button>
-                    {replyVisible[c.id] && (
-                      <div style={{ marginTop: "5px", display: "flex", alignItems: "center", gap: "8px", minHeight: "40px" }}>
-                        <input
-                          type="text"
-                          value={replyInputs[c.id] || ""}
-                          onChange={(e) =>
-                            setReplyInputs((prev) => ({
-                              ...prev,
-                              [c.id]: e.target.value,
-                            }))
-                          }
-                          placeholder="Write a reply..."
-                        />
-                        <button onClick={() => postReply(c.id)}><i className="fa-regular fa-paper-plane"></i></button>
+                  <div style={{ display: "flex", gap: "5x" }}>
+                    {/* Toggle button for showing/hiding replies using icons */}
+                    {c.replies && c.replies.length > 0 && (
+                      <div style={{ width: "24px", textAlign: "center" }}>
+                        <button
+                          onClick={() => toggleRepliesVisible(c.id)}
+                          style={{
+                            border: "none",
+                            background: "transparent",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {repliesVisible[c.id] ? (
+                            <i
+                              className="fa-solid fa-chevron-up"
+                              style={{ fontSize: "1.2em", color: "#333" }}
+                            ></i>
+                          ) : (
+                            <i
+                              className="fa-solid fa-chevron-down"
+                              style={{ fontSize: "1.2em", color: "#333" }}
+                            ></i>
+                          )}
+                        </button>
                       </div>
                     )}
-                    </div>
-                  )}
 
+                    {loggedIn && (
+                      <div>
+                        <button onClick={() => toggleReplyInput(c.id)}>
+                          <i className="fa-regular fa-comments"></i>
+                        </button>
+                        {replyVisible[c.id] && (
+                          <div
+                            style={{
+                              marginTop: "5px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              minHeight: "40px",
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={replyInputs[c.id] || ""}
+                              onChange={(e) =>
+                                setReplyInputs((prev) => ({
+                                  ...prev,
+                                  [c.id]: e.target.value,
+                                }))
+                              }
+                              placeholder="Write a reply..."
+                            />
+                            <button onClick={() => postReply(c.id)}>
+                              <i className="fa-regular fa-paper-plane"></i>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
-                    <div style={{ marginLeft: "20px" }}>
-
+                  {repliesVisible[c.id] &&
+                    c.replies &&
+                    c.replies.length > 0 && (
+                      <div style={{ marginLeft: "20px" }}>
                         {c.replies.map((r) => (
                           <div>
                             <div>
-                            <p key={r.id}>
-                              <strong>{r.username}</strong> ({r.created_at}): {r.reply}
-                            </p>
+                              <p key={r.id}>
+                                <strong>{r.username}</strong> ({r.created_at}):{" "}
+                                {r.reply}
+                              </p>
                             </div>
-                            <div style={{display:"flex", gap:"3px", position:"relative", top:"-10px", marginBottom:"-10px"}}>
-                              <button onClick={() => handleReplyLike(r.id)} style={{ color: replyLiked[r.id] ? "red" : "black" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "3px",
+                                position: "relative",
+                                top: "-10px",
+                                marginBottom: "-10px",
+                              }}
+                            >
+                              <button
+                                onClick={() => handleReplyLike(r.id)}
+                                style={{
+                                  color: replyLiked[r.id] ? "red" : "black",
+                                }}
+                              >
                                 <i className="fa-regular fa-thumbs-up"></i>
                               </button>
-                              <div id={`like-count-${r.id}`}>{replyLikeCount[r.id] !== undefined ? replyLikeCount[r.id] : ""}</div> {/* Unique ID for like count */}
+                              <div id={`like-count-${r.id}`}>
+                                {replyLikeCount[r.id] !== undefined
+                                  ? replyLikeCount[r.id]
+                                  : ""}
+                              </div>{" "}
+                              {/* Unique ID for like count */}
                             </div>
                           </div>
-                        ))}                      
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
             {loggedIn && (
-            <div className="comment-input-div">
-              <textarea
-                id="comment-input"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Write a comment..."
-              ></textarea>
-              <button onClick={postComment}>
-                <i className="fa-solid fa-paper-plane"></i>
-              </button>
-            </div>
-          )}
+              <div className="comment-input-div">
+                <textarea
+                  id="comment-input"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Write a comment..."
+                ></textarea>
+                <button onClick={postComment}>
+                  <i className="fa-solid fa-paper-plane"></i>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
