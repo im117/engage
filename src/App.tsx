@@ -249,11 +249,8 @@ const incrementLikeCount = (replyId: number) => {
       }
       setReplyLiked(initialLikedState);
     };
-  
-    // Run only if the token exists
-  if (localStorage.getItem("authToken")) {
+
     fetchReplyLikes();
-  }
   }, [comments]);
   
   
