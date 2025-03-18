@@ -454,7 +454,7 @@ function Home() {
           loop={true}
           playsinline={true}
           width="90vw"
-          height="65vh"
+          height="60vh"
           onStart={handleVideoStart}
         />
         {/* 1. Video control buttons */}
