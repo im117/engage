@@ -185,7 +185,7 @@ function Home() {
 
   useEffect(() => {
     if (currentVideo) {
-      // console.log("Video changed to:", currentVideo.split("/").pop());
+      console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
       if (loggedIn && userID) {
         checkIfLiked();
@@ -248,11 +248,10 @@ function Home() {
   }, [comments, loggedIn]);
 
   const handleNext = () => {
-    // toggleComments();
     setVideoIndex(
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
-    displayComments();
+    // No need to call displayComments here; it will be triggered by the useEffect above
   };
 
   // const navigate = useNavigate(); // Hook to navigate to other pages
@@ -417,7 +416,7 @@ function Home() {
 
   async function getViewCount() {
     try {
-      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1); 
+      const fileName = currentVideo.split("/").pop();
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -427,22 +426,15 @@ function Home() {
       );
       setViewCount(response.data.viewCount);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          `Error fetching view count: ${error.response?.status} - ${error.response?.statusText}`
-        );
-      } else {
-        console.error("Unexpected error fetching view count:", error);
-      }
-      setViewCount(0); // Default to 0 if there's an error
+      console.error("Error fetching view count:", error);
+      setViewCount(0);
     }
   }
 
   async function recordView() {
     try {
-      if (viewRecorded) return; // Prevent multiple view records for the same video session
-
-      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1);
+      if (viewRecorded) return;
+      const fileName = currentVideo.split("/").pop();
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -649,6 +641,7 @@ function Home() {
   useEffect(() => {
     if (currentVideo) {
       setVideoInfo();
+      displayComments(); // Ensure comments are fetched when the video changes
     }
   }, [currentVideo]);
 
@@ -674,7 +667,7 @@ function Home() {
       <div className="controls">
         <div className="video-stats">
         <LikeButton
-          fileName={currentVideo ? currentVideo.substring(currentVideo.lastIndexOf("/") + 1) : ""}
+          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
           loggedIn={loggedIn}
           userId={userID}
           initialLikeCount={likeCount}
@@ -738,16 +731,16 @@ function Home() {
         {/* {showComments && ( */}
           <div
             className="comment-section"
-            // style={{
-            //   position: "fixed",
-            //   bottom: "13%",
-            //   right: "28%",
-            //   background: "white",
-            //   padding: "10px",
-            //   borderRadius: "5px",
-            //   maxHeight: "40vh",
-            //   overflowY: "auto",
-            // }}
+            style={{
+              position: "fixed",
+              bottom: "13%",
+              right: "28%",
+              background: "white",
+              padding: "10px",
+              borderRadius: "5px",
+              maxHeight: "40vh",
+              overflowY: "auto",
+            }}
           >
             <div className="comments-list">
               {comments.map((c) => (
