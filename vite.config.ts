@@ -7,7 +7,7 @@ export default defineConfig({
   base: "./",
   root: "./",
   server: {
-    allowedHosts: ['ngage.lol'],
+    allowedHosts: true,
   },
   build: {
     rollupOptions: {
