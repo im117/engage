@@ -308,8 +308,8 @@ body {
   // position:fixed;
   max-width: 250px;
   width: 250px;
-  height: 275px;
-  max-height: 275px;
+  height: 20vh;
+  max-height: 20vh;
   align-self: flex-end;
   // max-height: 400px;
   // bottom:13%;
@@ -350,6 +350,8 @@ body {
   }
   .comment-section{
     align-self:center;
+    height: 40vh;
+    max-height: 40vh;
   }
   .app-container {
     width: 90vw;
