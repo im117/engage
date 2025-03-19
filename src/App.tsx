@@ -291,7 +291,13 @@ function Home() {
       );
       setViewCount(response.data.viewCount);
     } catch (error) {
-      console.error("Error fetching view count:", error);
+      if (axios.isAxiosError(error)) {
+        console.error(
+          `Error fetching view count: ${error.response?.status} - ${error.response?.statusText}`
+        );
+      } else {
+        console.error("Unexpected error fetching view count:", error);
+      }
       setViewCount(0); // Default to 0 if there's an error
     }
   }
@@ -359,7 +365,7 @@ function Home() {
       <div className="controls">
         <div className="video-stats">
         <LikeButton
-          fileName={currentVideo ? currentVideo.substring(currentVideo.lastIndexOf("/") + 1) || "" : ""}
+          fileName={currentVideo ? currentVideo.substring(currentVideo.lastIndexOf("/") + 1) : ""}
           loggedIn={loggedIn}
           userId={userID}
           initialLikeCount={likeCount}
