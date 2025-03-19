@@ -19,6 +19,7 @@ import axios from "axios";
 import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
+import RecoverAccount from "./recoverAccount.tsx";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -460,7 +461,8 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/recover-account/:token" element={<RecoverAccount />} />
         {/* User Page Route */}
 
           {/* Protected Route for Dashboard and Video Player */}

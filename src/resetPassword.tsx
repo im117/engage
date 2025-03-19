@@ -19,35 +19,22 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 
 const ResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
 
-    // Frontend validation for matching passwords
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     try {
       const response = await axios.post(
-        `${loginServer}/reset-password`,
-        {
-          email,
-          newPassword,
-        }
+      `${loginServer}/send-recovery-link`,
+      {
+        email,
+      }
       );
-      setMessage(response.data.message);
-      setTimeout(() => {
-        navigate("/login"); // Redirect to Login after success message
-      }, 1500); // Redirect after 1.5 seconds
+      setMessage(response.data.message || "Recovery link sent successfully");
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred");
     }
@@ -75,39 +62,8 @@ const ResetPassword: React.FC = () => {
             className="auth__form-control"
           />
           </div>
-
-<div className="auth__container">
-
-          <label>
-            <strong>New Password:</strong>
-          </label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-            required
-            className="auth__form-control"
-          />
-</div>
-
-<div className="auth__container">
-
-          <label>
-            <strong>Confirm Password:</strong>
-          </label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-            required
-            className="auth__form-control"
-          />
-</div>
-
           
-        <button type="submit" className="button danger">Reset Password</button>
+        <button type="submit" className="button warning">Send Recovery Email</button>
         <br /> <br />
           <Link to="/login">
             <button className="button primary">Go to Login</button>

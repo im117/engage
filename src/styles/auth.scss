@@ -154,3 +154,18 @@
     text-align: left;
   }
 
+.verify-email__container{
+  color: #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-position: top;
+  background-repeat: no-repeat;
+  padding: 20px;
+  max-height: 40vh;
+
+}
+
+// http://localhost:5173/verify-email/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Impvc2gzQGpvc2hyYW5kYWxsLm5ldCIsImlhdCI6MTc0MjM0NDc2MiwiZXhwIjoxNzQyNDMxMTYyfQ.HAVUd4k3iFVUfqh4Ek4PnqHnKZV_0iiIgVCZ90qskD8
