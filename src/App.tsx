@@ -252,6 +252,7 @@ function Home() {
     setVideoIndex(
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
+    displayComments();
   };
 
   // const navigate = useNavigate(); // Hook to navigate to other pages
