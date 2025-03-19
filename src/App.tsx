@@ -731,16 +731,16 @@ function Home() {
         {/* {showComments && ( */}
           <div
             className="comment-section"
-            style={{
-              position: "fixed",
-              bottom: "13%",
-              right: "28%",
-              background: "white",
-              padding: "10px",
-              borderRadius: "5px",
-              maxHeight: "40vh",
-              overflowY: "auto",
-            }}
+            // style={{
+            //   position: "fixed",
+            //   bottom: "13%",
+            //   right: "28%",
+            //   background: "white",
+            //   padding: "10px",
+            //   borderRadius: "5px",
+            //   maxHeight: "40vh",
+            //   overflowY: "auto",
+            // }}
           >
             <div className="comments-list">
               {comments.map((c) => (
