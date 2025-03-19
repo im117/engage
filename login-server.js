@@ -3,13 +3,20 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs"; // For hashing passwords
 import jwt from "jsonwebtoken"; // For generating tokens
-
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 const port = 8081;
 
 let dbHost = "localhost";
 if (process.env.DATABASE_HOST) {
   dbHost = process.env.DATABASE_HOST;
+}
+
+let frontendUrl = "http://localhost:5173"; // Default for development
+if (process.env.VITE_FRONTEND_URL) {
+  frontendUrl = process.env.VITE_FRONTEND_URL; // Use environment variable in production
 }
 
 // Middleware to parse incoming JSON requests
@@ -19,6 +26,19 @@ app.use(express.json());
 app.use(cors());
 
 import dbRequest from "./db.js";
+
+
+// Nodemailer setup
+const emailUser = process.env.VITE_EMAIL_USER;
+const emailPassword = process.env.VITE_EMAIL_PASSWORD;
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: emailUser, // Replace with your email
+    pass: emailPassword, // Replace with your app password( watch the video to know how to get app password)
+  },
+});
 
 // Signup Route
 export const signup = async (req, res) => {
@@ -65,10 +85,22 @@ export const signup = async (req, res) => {
           return res.status(500).json({ message: "Server error" });
         }
 
+        // Generate a verification token
+        const verificationToken = jwt.sign({ email }, "secretkey", {
+          expiresIn: "1d",
+        });
+
         // Insert new user into the database
         const query =
-          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-        const values = [username, email, hashedPassword, "user"];
+          "INSERT INTO users (username, email, password, role, isVerified, verificationToken) VALUES (?, ?, ?, ?, ?, ?)";
+        const values = [
+          username,
+          email,
+          hashedPassword,
+          "user",
+          false,
+          verificationToken,
+        ];
 
         db.query(query, values, (err, result) => {
           if (err) {
@@ -78,9 +110,25 @@ export const signup = async (req, res) => {
               .status(500)
               .json({ message: "Database error", error: err });
           }
-          db.destroy();
-          return res.status(201).json({
-            message: "User signed up successfully",
+          // Send verification email
+          const verificationLink = `${frontendUrl}/verify-email/${verificationToken}`; // Change to your frontend URL when deploying
+          const mailOptions = {
+            from: emailUser, // your email
+            to: email,
+            subject: "Verify Your Email",
+            text: `Click this link to verify your email: ${verificationLink}`,
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Error sending email: ", error);
+              return res.status(500).json({ message: "Error sending email" });
+            }
+            db.destroy();
+            return res.status(201).json({
+              message:
+                "User signed up successfully. Please check your email to verify your account.",
+            });
           });
         });
       });
@@ -97,6 +145,132 @@ export const signup = async (req, res) => {
       return res.status(500).json({ message: "Database error", error });
     });
 };
+
+// Recover Account Route
+app.get("/recover-account", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { token } = req.query;
+
+  if (!token) {
+    db.destroy();
+    return res.status(400).json({ message: "Recovery token is required" });
+  }
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      db.destroy();
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const email = decoded.email;
+
+    const updateQuery =
+      "UPDATE users SET recoveryToken = NULL WHERE email = ?";
+      db.query(updateQuery, [email], (err, result) => {
+        if (err) {
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+        db.destroy();
+        return res
+          .status(200)
+          .json({ message: email });
+    });
+  });
+});
+
+// Send Recovery Link Route
+app.post("/send-recovery-link", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { email } = req.body;
+
+  if (!email) {
+    db.destroy();
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const findUserQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(findUserQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Email does not exist" });
+    }
+
+    const user = results[0];
+    const recoveryToken = jwt.sign({ email: user.email }, "secretkey", {
+      expiresIn: "1h",
+    });
+
+    const recoveryLink = `${frontendUrl}/recover-account/${recoveryToken}`;
+    const mailOptions = {
+      from: emailUser,
+      to: email,
+      subject: "Password Recovery",
+      text: `The link will expire in 1 hour. Click this link to reset your password: ${recoveryLink}`,
+    };
+    const attachTokenQuery = "UPDATE users SET recoveryToken = ? WHERE email = ?";
+    db.query(attachTokenQuery, [recoveryToken, email], (err) => {
+      if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+      }
+    });
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        db.destroy();
+        return res.status(500).json({ message: "Error sending email" });
+      }
+
+      db.destroy();
+      return res.status(200).json({
+        message: "Recovery link sent successfully. Please check your email.",
+      });
+    });
+  });
+});
+
+
+// Email Verification Route
+app.get("/verify-email", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { token } = req.query;
+
+  if (!token) {
+    db.destroy();
+    return res.status(400).json({ message: "Missing token" });
+  }
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      db.destroy();
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const email = decoded.email;
+    const updateQuery =
+      "UPDATE users SET isVerified = true, verificationToken = NULL WHERE email = ?";
+
+    db.query(updateQuery, [email], (err, result) => {
+      if (err) {
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
+      }
+      db.destroy();
+      return res
+        .status(200)
+        .json({ message: "Email verified successfully! You can now log in." });
+    });
+  });
+});
 
 const authenticateTokenGet = (req, res, next) => {
   const { auth: token } = req.query;
@@ -142,6 +316,13 @@ app.post("/login", (req, res) => {
     }
 
     const user = results[0];
+
+    // Check if user is verified
+    if (!user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Please verify your email before logging in." });
+    }
 
     // Compare passwords
     bcrypt.compare(password, user.password, (err, isMatch) => {

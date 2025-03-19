@@ -9,8 +9,14 @@ import ReactPlayer from "react-player";
 import User from "./User";
 import path from "path-browserify";
 import Upload from "./upload.tsx";
+import VerifyEmail from "./VerifyEmail.tsx";
 import axios from "axios";
 import Terms from "./terms.tsx";
+import LikeButton from "./components/likeButton.tsx";
+import TopBar from "./components/TopBar.tsx";
+import RecoverAccount from "./recoverAccount.tsx";
+// import { createContext, useContext } from 'react';
+// import VideoPlayer from './components/VideoPlayerUser.tsx';
 
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob("../media/*trans.mp4");
@@ -164,6 +170,13 @@ function Home() {
 
   const navigate = useNavigate();
 
+
+  // current video use states
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+  const [currentVideoDesc, setCurrentVideoDesc] = useState("");
+  const [currentVideoDate, setCurrentVideoDate] = useState("");
+  const [currentVideoCreatorName, setCurrentVideoCreatorName] = useState("");
+
   useEffect(() => {
     setLiked(false);
     setViewRecorded(false);
@@ -173,7 +186,6 @@ function Home() {
   useEffect(() => {
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
-      getLikeCount();
       getViewCount();
       if (loggedIn && userID) {
         checkIfLiked();
@@ -181,7 +193,7 @@ function Home() {
       // Fetch comments for current video.
       displayComments();
     }
-  }, [currentVideo, loggedIn, userID]);
+  }, [currentVideo]);
 
   useEffect(() => {
     const fetchReplyLikes = async () => {
@@ -242,9 +254,13 @@ function Home() {
     );
   };
 
-  const handleBackToLogin = () => {
-    navigate("/login");
-  };
+  // const navigate = useNavigate(); // Hook to navigate to other pages
+  // const handleBackToDashboard = () => {
+  //   navigate("/dashboard");
+  // };
+  // const handleBackToLogin = () => {
+  //   navigate("/login");
+  // };
 
   async function getUsername(userid: number) {
     let creatorName = "";
@@ -257,33 +273,37 @@ function Home() {
       });
     return creatorName as string;
   }
+  // Function to grab video information from API
+  async function setVideoInfo() {
 
-  async function getVideoInfo() {
-    let title = "";
-    let desc = "";
-    let userid = 0;
-    let creatorName = "";
-    await axios
-      .get(`${uploadServer}/video`, {
-        params: {
-          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
-        },
-      })
-      .then((response) => {
-        title = response.data.title;
-        desc = response.data.description;
-        userid = response.data.creator_id;
-      })
-      .catch((error) => {
-        alert(`There was an error fetching the video info!\n\n${error}`);
+    // Get video info
+    try {
+      const response = await axios.get(`${uploadServer}/video`, {
+      params: {
+        fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
+      },
       });
-    creatorName = await getUsername(userid);
-    if (!desc) {
-      desc = "No description provided";
+
+      // get user info
+      setCurrentVideoTitle(response.data.title);
+      setCurrentVideoDesc(response.data.description);
+      const username = await getUsername(response.data.creator_id);
+      setCurrentVideoCreatorName(username);
+      // translate the timestamp in created_at
+      const date = new Date(response.data.created_at).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const time = new Date(response.data.created_at).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setCurrentVideoDate(`${date} at ${time}`);
+    } catch (error) {
+      alert(`There was an error fetching the video info!\n\n${error}`);
     }
-    alert(
-      `Title: ${title}\n--------------------------\nDescription: ${desc}\n--------------------------\nCreator: ${creatorName}\n--------------------------\nViews: ${viewCount}`
-    );
+
   }
 
   async function getLoggedInUserId() {
@@ -621,8 +641,9 @@ function Home() {
   console.log("Reply Liked State Before Rendering:", replyLiked);
 
   return (
-    <div className="app-container">
-      <h1>Engage</h1>
+    
+    <div className="app">
+      <div className="app-container">
       <div className="video-player">
         <ReactPlayer
           id="video"
@@ -632,57 +653,73 @@ function Home() {
           controls={true}
           loop={true}
           playsinline={true}
-          width="80vw"
+          width="90vw"
           height="60vh"
           onStart={handleVideoStart}
         />
-      </div>
-      <div className="video-stats">
-        <button onClick={handleLike} style={{ color: liked ? "red" : "black" }}>
-          <i className="fa-solid fa-heart"></i> {likeCount} Likes
-        </button>
-        <span className="view-count">
-          <i className="fa-solid fa-eye"></i> {viewCount} Views
-        </span>
-      </div>
       <div className="controls">
-        <a className="control-button" href={currentVideo} download>
-          <i className="fa-solid fa-download"></i> DOWNLOAD
-        </a>
-        <div className="control-button" onClick={getVideoInfo}>
-          <i className="fas fa-info-circle"></i> VIDEO INFO
+        <div className="video-stats">
+        <LikeButton
+          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          loggedIn={loggedIn}
+          userId={userID}
+          initialLikeCount={likeCount}
+          initialLiked={liked}
+          loginServer={loginServer}
+        />
+        <span className="views">
+          <i className="fa-solid fa-eye"></i> {viewCount}<span className="desktop__text"> Views</span>
+        </span>
+        
         </div>
-        {/* The COMMENT button toggles the entire comment section */}
-        <button className="control-button" onClick={toggleComments}>
-          COMMENT <i className="fa-solid fa-comment"></i>
-        </button>
-        <button className="control-button" onClick={handleNext}>
-          NEXT <i className="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
-      <div className="upload-section">
-        <button className="upload-button" onClick={() => navigate("/upload")}>
-          ENGAGE <i className="fa-solid fa-upload"></i>
-        </button>
-      </div>
-      <div className="back-button-section">
-        {/* Removed VIDEO INFO button */}
-      </div>
-      <div className="login-button-section">
-        <button
-          className="control-button"
-          onClick={loggedIn ? () => navigate("/user") : handleBackToLogin}
+        <div className="download-next">
+          
+        {filteredArray.length > 0 && (
+          <a className="button" href={currentVideo} download>
+        <i className="fa-solid fa-download"></i><span className="desktop__text"> DOWNLOAD</span>
+          </a>
+        )}
+        {filteredArray.length == 0 && (
+          <a className="button greyed">
+        <i className="fa-solid fa-download"></i><span className="desktop__text"> DOWNLOAD</span>
+          </a>
+        )}
+        <a
+          className={filteredArray.length < 2 ? "button greyed" : "button"}
+          onClick={() => {
+        const videoElement = document.getElementById("video");
+        if (videoElement && filteredArray.length >= 2) {
+          videoElement.classList.remove("fade-in");
+          videoElement.classList.add("fade-out");
+          setTimeout(() => {
+            handleNext();
+            videoElement.classList.remove("fade-out");
+            videoElement.classList.add("fade-in");
+          }, 200); // Match the duration of the fade-out animation
+        };
+          }}
         >
-          {loggedIn ? (
+        <span className="desktop__text">NEXT </span><i className="fa-solid fa-arrow-right"></i>
+        </a>
+        </div>
+      </div>
+      </div>
+      <div className="video-details">
+        <div className="details-metadata">
+          {filteredArray.length > 0 && (
             <>
-              <i className="fa-solid fa-user"></i> {username}
-            </>
-          ) : (
-            <>
-              <i className="fa-solid fa-right-to-bracket"></i> Log In
+              <h1>{currentVideoTitle}</h1>
+              <h2>Engager: {currentVideoCreatorName}</h2>
+              <h3>Uploaded: {currentVideoDate}</h3>
+              <p>{currentVideoDesc !== "" ? currentVideoDesc : "No Description Provided"}</p>
             </>
           )}
-        </button>
+          {filteredArray.length == 0 && (
+            <>
+              <h2>There are no videos available</h2>
+              <h3>Upload one to kick things off.</h3>
+            </>
+          )}
         {/* Comment Section toggled by the COMMENT button */}
         {showComments && (
           <div
@@ -844,25 +881,32 @@ function Home() {
         )}
       </div>
     </div>
+    </div>
+    </div>
   );
 }
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<App />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        {/* Protected Routes */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/user" element={<User />} />
-          <Route path="/upload" element={<Upload />} />
-        </Route>
-      </Routes>
+        <TopBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/recover-account/:token" element={<RecoverAccount />} />
+        {/* User Page Route */}
+
+          {/* Protected Route for Dashboard and Video Player */}
+          <Route element={<PrivateRoute />}>
+        <Route path="/user" element={<User />} />
+        <Route path="/upload" element={<Upload />} />
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+          </Route>
+        </Routes>
     </BrowserRouter>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./styles/resetPassword.scss";
+import "./styles/auth.scss";
 import { Link, useNavigate } from "react-router-dom";
 
 // let uploadServer = "http://localhost:3001";
@@ -19,47 +19,37 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 
 const ResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
 
-    // Frontend validation for matching passwords
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     try {
       const response = await axios.post(
-        `${loginServer}/reset-password`,
-        {
-          email,
-          newPassword,
-        }
+      `${loginServer}/send-recovery-link`,
+      {
+        email,
+      }
       );
-      setMessage(response.data.message);
-      setTimeout(() => {
-        navigate("/login"); // Redirect to Login after success message
-      }, 1500); // Redirect after 1.5 seconds
+      setMessage(response.data.message || "Recovery link sent successfully");
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred");
     }
   };
 
   return (
-    <div className="reset-password__body">
-      <div className="reset-password__form">
+    <div className="auth__body">
+      <div className="auth__form">
         <h2>Reset Password</h2>
-        {message && <div className="reset-password__success">{message}</div>}
-        {error && <div className="reset-password__error">{error}</div>}
+        {message && <div className="auth__success">{message}</div>}
+        {error && <div className="auth__error">{error}</div>}
         <form onSubmit={handleSubmit}>
+
+          <div className="auth__container">
+
           <label>
             <strong>Email:</strong>
           </label>
@@ -69,37 +59,20 @@ const ResetPassword: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
+            className="auth__form-control"
           />
-
-          <label>
-            <strong>New Password:</strong>
-          </label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-            required
-          />
-
-          <label>
-            <strong>Confirm Password:</strong>
-          </label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-            required
-          />
-
-          <button type="submit">Reset Password</button>
+          </div>
+          
+        <button type="submit" className="button warning">Send Recovery Email</button>
+        <br /> <br />
+          <Link to="/login">
+            <button className="button primary">Go to Login</button>
+          </Link>
+          
         </form>
 
-        <div className="reset__buttons-container">
-          <Link to="/login">
-            <button className="reset__button">Go to Login</button>
-          </Link>
+        <div>
+          
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./styles/login.scss";
+import "./styles/auth.scss";
 import validation from "./loginValidation";
 import axios from "axios";
 
@@ -92,6 +92,9 @@ const Login: React.FC = () => {
           } else if (error.response && error.response.status === 401) {
             // Invalid password
             setErrors({ password: "Incorrect password! Please try again!" });
+              } else if (error.response && error.response.status === 403) {
+              // Forbidden error
+              setErrors({ password: "Account is not verified! Please check your email." });
           } else {
             // General error
             setErrors({ password: "An error occurred during login" });
@@ -101,16 +104,15 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login__body">
-      <div className="login__form">
-        <button className="login__btn login__btn--home" onClick={() => navigate('/')}>Home</button>
-        <h2>Login</h2>
+    <div className="auth__body">
+      <div className="auth__form">
+        <h2 className="auth__title">Login</h2>
         {successMessage && (
-          <div className="login__success-message">{successMessage}</div> // Show success message
+          <div className="auth__success-message">{successMessage}</div> // Show success message
         )}
         <form onSubmit={handleSubmit}>
-          <div className="login__container">
-            <label htmlFor="usernameOrEmail" className="login__label">
+          <div className="auth__container">
+            <label htmlFor="usernameOrEmail">
               <strong>User Id</strong>
             </label>
             <input
@@ -119,14 +121,14 @@ const Login: React.FC = () => {
               value={usernameOrEmail} // Can be username OR email
               onChange={handleUsernameOrEmailChange}
               placeholder="Enter Username OR Email"
-              className="login__form-control"
+              className="auth__form-control"
             />
             {errors.usernameOrEmail && (
-              <span className="login__text-danger">{errors.usernameOrEmail}</span>
+              <span className="auth__text-danger">{errors.usernameOrEmail}</span>
             )}
           </div>
-          <div className="login__container">
-            <label htmlFor="password" className="login__label">
+          <div className="auth__container">
+            <label htmlFor="password">
               <strong>Password</strong>
             </label>
             <input
@@ -135,20 +137,20 @@ const Login: React.FC = () => {
               value={password}
               onChange={handlePasswordChange}
               placeholder="Enter Password"
-              className="login__form-control"
+              className="auth__form-control"
             />
             {errors.password && (
-              <span className="login__text-danger">{errors.password}</span>
+              <span className="auth__text-danger">{errors.password}</span>
             )}
           </div>
-          <div className="login__buttons-container">
-            <button type="submit" className="login__btn login__btn--success">
+          <div className="auth__buttons-container">
+            <button type="submit" className="button success">
               Login
             </button>
-            <Link to="/reset-password" className="login__button">
+            <Link to="/reset-password" className="button danger">
               Reset Password
             </Link>
-            <Link to="/signup" className="login__button">
+            <Link to="/signup" className="button primary">
               Create Account
             </Link>
           </div>

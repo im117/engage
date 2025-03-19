@@ -12,7 +12,7 @@ import axios from "axios";
 // }
 
 // Set the number of videos displayed per page
-const VIDEOS_PER_PAGE = 9;
+const VIDEOS_PER_PAGE = 6;
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -143,8 +143,8 @@ function User() {
   const handleLogout = () => {
     // Clear the authentication token from localStorage
     localStorage.removeItem("authToken");
-    // Navigate to login page
-    navigate("/");
+    // Navigate to login page (force refresh the page)
+    window.location.href = "/";
   };
 
   /**
@@ -195,12 +195,29 @@ function User() {
         }`}
         {...handlers}
       >
-        <p style={{ color: "white", padding: "0px", top: "0" }}>
-          Swipe left and right to navigate
-        </p>
+        {/* Logout button */}
+        <div className="logout__section">
+        <a className="button warning" onClick={handleLogout}>
+            <i className="fas fa-door-open"></i><span className="desktop__text"> Logout</span>
+            </a>
+        </div>
+        
         <div className="content-container">
           {/* Section title */}
-          <div className="my-videos-container">My Engagements</div>
+          
+          <div className="my-videos-container">
+            <div className="text">
+            <h2>Your engagements</h2>
+            <p style={{ fontSize: "1rem" }} className="mobile__text">
+              Swipe left and right to navigate.<br></br> Touch video to play. <br></br>Tap background to return.
+            </p>
+            <p className="desktop__text">
+              Click and drag left and right to navigate.
+              <br></br> Click video to play.
+              <br></br>Click background to return.
+            </p>
+            </div>
+          </div>
 
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
@@ -209,7 +226,7 @@ function User() {
               className="video-grid"
               initial={{ x: direction * 100, opacity: 0 }} // Start position
               animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
-              exit={{ x: -direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
+              exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
               transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
             >
               {currentVideos.length > 0 ? (
@@ -237,19 +254,12 @@ function User() {
           </AnimatePresence>
 
           {/* Home button for navigation */}
-          <div className="user-buttons">
+          {/* <div className="user-buttons">
             <button className="home-button" onClick={() => navigate("/")}>
               Home
             </button>
-            <button className="home-button btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Display username at the bottom */}
-        <div className="username-display">
-          Engaged as: <span className="username">{username}</span>
+            
+          </div> */}
         </div>
       </div>
 

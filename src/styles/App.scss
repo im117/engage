@@ -1,65 +1,137 @@
 @use 'global.scss' as *;
 
 body {
-  display: flex;
+  // display: flex;
 }
 
+.app{
+  animation: fade-in 0.3s ease-in forwards;
+}
 .app-container {
+  margin-top: 40px;
   position: relative; // Ensure container acts as a positioning context
   width: 90vw;
-  height: 80vh; // Ensure enough height for content
-  background: white;
-  border: 1px solid #ddd;
+  height: 75vh;
+  // height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  // background-color: blue;
+  // background: $app-background;
+  border: 2px solid #ddd;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex; // Flexbox to center the video player
-  flex-direction: column; // Stack items vertically
+  // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  display: grid;
+  flex-direction: row; // Stack items vertically
   justify-content: center; // Vertically center the video player
   align-items: center; // Horizontally center the video player
+  grid-template-columns: 2fr 1fr;
+  // grid-gap: 20px;
 }
 
 .video-player {
-  background: #e0ffe0;
-  width: 100%; // Adjust width to fit container if necessary
-  height: 80vh;
+  // // background: green;
+  // // border: 2px solid #ddd;
+  // width: 100%; // Adjust width to fit container if necessary
+  // height: 70vh;
+  // display: flex;
+  // flex-direction:column;
+  // justify-content: center;
+  // align-items: center;
+  // border-radius: 10px;
+  // // margin-bottom: 20px; // Add spacing for other content
+  width: 100%;
+  height: 70vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 20px; // Add spacing for other content
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.video-details{
+  opacity: 0;
+  animation: fade-in 0.3s 0.2s ease-in forwards;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  margin: auto;
+  text-align: right;
+  vertical-align: top;
+  display: flex;
+  flex-direction: column;
+  // flex-direction: column;
+  margin-right: 15px;
+  .details-metadata {
+    display: flex;
+    flex-direction: column;
+    color: white;
+  }
 }
 
 .controls {
+  margin-top: 30px;
   width: 100%; // Ensure controls take up full width
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  opacity: 0;
+  animation: fade-in 0.3s 0.2s ease-in forwards;
 }
 
+.video-stats{
+  *{
+    margin: 0px 5px;
+  }
+}
+.download-next{
+  *{
+    margin: 0px 5px;
+  }
+  
+}
 /* Control Button Styling */
-.control-button {
-  background-color: #065527;
-  border-radius: 19px;
-  border: 2px solid #4e6096;
-  display: inline-block;
-  cursor: pointer;
-  color: #ffffff;
-  font-family: Courier New;
+// .control-button {
+//   // background-color: #065527;
+//   border-radius: 19px;
+//   border: 2px solid #4e6096;
+//   // display: inline-block;
+//   cursor: pointer;
+//   color: #ffffff;
+//   font-size: 16px;
+//   font-weight: bold;
+//   padding: 16px 31px;
+//   text-decoration: none;
+//   text-shadow: 0px 0px 13px #283966;
+//   width: auto; // Let buttons size to their content
+//   min-width: 120px; // Optional: Ensure a minimum width
+//   display: inline-block;
+//   transition: all 0.3s ease;
+
+//   &:hover {
+//     background-color: $button-hover-color;
+//   }
+// }
+
+
+
+.views{
+  border-radius: 25px;
+  // border: 3px solid #ddd;
+  // display: inline-block;
+  color: #ddd;
   font-size: 16px;
   font-weight: bold;
-  padding: 16px 31px;
+  padding: 16px 25px;
   text-decoration: none;
   text-shadow: 0px 0px 13px #283966;
   width: auto; // Let buttons size to their content
   min-width: 120px; // Optional: Ensure a minimum width
-  display: inline-block;
+  // display: inline-block;
   transition: all 0.3s ease;
-
-  &:hover {
-    background-color: $button-hover-color;
-  }
 }
 
 /* Our new user button */
@@ -82,6 +154,57 @@ body {
     font-size: 18px;
   }
 }
+
+
+.button.not-liked{
+  &:hover{
+    color: #f10372;
+    padding: 18px 35px;
+  }
+}
+.button.liked{
+  background-color: #f10372;
+  border-radius: 25px;
+  border: 3px solid #ddd;
+  // display: inline-block;
+  // cursor: pointer;
+  // color: #ffffff;
+  // font-size: 16px;
+  // font-weight: bold;
+  // padding: 16px 30px;
+  // text-decoration: none;
+  // text-shadow: 0px 0px 13px #283966;
+  // width: auto; // Let buttons size to their content
+  // min-width: 120px; // Optional: Ensure a minimum width
+  // // display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #ff75b6;
+    
+  }
+}
+// .like-button.not-liked{
+//   background-color: #065527;
+//   border-radius: 19px;
+//   border: 2px solid #4e6096;
+//   // display: inline-block;
+//   cursor: pointer;
+//   color: #ffffff;
+//   font-size: 16px;
+//   font-weight: bold;
+//   padding: 16px 31px;
+//   text-decoration: none;
+//   text-shadow: 0px 0px 13px #283966;
+//   width: auto; // Let buttons size to their content
+//   min-width: 120px; // Optional: Ensure a minimum width
+//   display: inline-block;
+//   transition: all 0.3s ease;
+
+//   &:hover {
+//     background-color: $button-hover-color;
+//   }
+// }
 
 .upload-section {
   position: absolute; // Allows precise positioning within app-container
@@ -122,6 +245,33 @@ body {
   }
 }
 
+
+@keyframes fade-in {
+  0% {
+    opacity: 0; // Fully transparent
+  }
+  100% {
+    opacity: 1; // Fully visible
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1; // Fully visible
+  }
+  100% {
+    opacity: 0; // Fully transparent
+  }
+}
+
+.fade-out {
+  animation: fade-out 0.1s ease-out forwards;
+}
+
+.fade-in{
+  animation: fade-in 0.1s ease-in forwards;
+}
+
 .upload-button {
   background-color: #065527;
   border-radius: 19px;
@@ -129,7 +279,6 @@ body {
   display: inline-block;
   cursor: pointer;
   color: #ffffff;
-  font-family: Courier New;
   font-size: 16px;
   font-weight: bold;
   padding: 16px 31px;
@@ -145,6 +294,65 @@ body {
   &:active {
     position: relative;
     top: 1px;
+  }
+}
+
+
+#video{
+  max-height: 65vh;
+  // width: 90vw;
+  max-width: 60vw;
+}
+
+@media screen and (max-width: 870px) {
+  .button.not-liked{
+    &:hover{
+      color: #f10372;
+      padding: 15px 20px;
+    }
+  }
+  .app-container {
+    width: 90vw;
+    height: 100%;
+    margin: 0 auto;
+    margin-top: 25px;
+    padding: 10px;
+    grid-template-columns: 1fr; // Stack items vertically
+    // justify-content: center;
+  }
+
+  .video-player {
+    height: 70vh; // Adjust height for smaller screens
+    #video{
+      max-height: 60vh;
+      max-width: 90vw;
+    }
+  }
+
+  .video-details {
+    display: block;
+    text-align: center; // Center-align text for better readability
+    margin-top: 10px;
+
+    .details-metadata {
+      grid-template-rows: auto; // Adjust layout for smaller screens
+    }
+  }
+
+  // .controls {
+  //   flex-direction: column; // Stack controls vertically
+  //   gap: 15px;
+  // }
+
+  .button, .user-button, .upload-button {
+    font-size: 14px; // Reduce font size for smaller screens
+    padding: 10px 20px;
+  }
+
+  .upload-section, .login-button-section, .back-button-section {
+    position: static; // Remove absolute positioning for better layout
+    margin: 10px 0;
+    text-align: center;
   }
 }
 
