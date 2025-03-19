@@ -638,6 +638,12 @@ function Home() {
     }));
   };
 
+  useEffect(() => {
+    if (currentVideo) {
+      setVideoInfo();
+    }
+  }, [currentVideo]);
+
   console.log("Reply Liked State Before Rendering:", replyLiked);
 
   return (
@@ -737,7 +743,7 @@ function Home() {
           >
             <div className="comments-list">
               {comments.map((c) => (
-                <div key={c.id} className="comment-box">
+                <div key={c.id} className="comment-box" style={{color:"black", textAlign: "left"}}>
                   <p>
                     <strong>{c.username}</strong> ({c.created_at}): {c.comment}
                   </p>
@@ -745,7 +751,7 @@ function Home() {
                   <div style={{ display: "flex", gap: "5x" }}>
                     {/* Toggle button for showing/hiding replies using icons */}
                     {c.replies && c.replies.length > 0 && (
-                      <div style={{ width: "24px", textAlign: "center" }}>
+                      <div style={{ width: "24px", textAlign: "left", color:"black" }}>
                         <button
                           onClick={() => toggleRepliesVisible(c.id)}
                           style={{
