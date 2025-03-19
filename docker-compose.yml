@@ -12,7 +12,7 @@ services:
       - VITE_UPLOAD_SERVER=https://upload.ngage.lol
       - VITE_LOGIN_SERVER=https://login.ngage.lol
       - VITE_FRONTEND_URL=https://ngage.lol
-      - TZ="America/Detroit"
+      #- TZ="America/Detroit"
     env_file:
       - .env
     volumes:
@@ -27,7 +27,7 @@ services:
     image: upload-server:latest
     environment:
       - DATABASE_HOST=db
-      - TZ="America/Detroit"
+      #- TZ="America/Detroit"
       - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
@@ -51,7 +51,7 @@ services:
     image: login-server:latest
     environment:
       - DATABASE_HOST=db
-      - TZ="America/Detroit"
+      #- TZ="America/Detroit"
       - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
@@ -69,7 +69,7 @@ services:
   db:
     image: mysql:latest
     environment:
-      TZ: "America/Detroit"
+      #TZ: "America/Detroit"
       MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
       MYSQL_ROOT_PASSWORD: pass123
       MYSQL_DATABASE: engage
