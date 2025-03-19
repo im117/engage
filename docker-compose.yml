@@ -28,6 +28,7 @@ services:
     environment:
       - DATABASE_HOST=db
       - TZ="America/Detroit"
+      - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
     build:
@@ -51,6 +52,7 @@ services:
     environment:
       - DATABASE_HOST=db
       - TZ="America/Detroit"
+      - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
     build:
