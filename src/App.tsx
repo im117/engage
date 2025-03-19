@@ -152,7 +152,7 @@ function Home() {
   useEffect(() => {
     // Only fetch like data if there's a valid video
     if (currentVideo) {
-      console.log("Video changed to:", currentVideo.split("/").pop());
+      // console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
       // Only check if user has liked if they're logged in
     }
@@ -280,7 +280,7 @@ function Home() {
 
   async function getViewCount() {
     try {
-      const fileName = currentVideo.split("/").pop();
+      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1); 
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -300,7 +300,7 @@ function Home() {
     try {
       if (viewRecorded) return; // Prevent multiple view records for the same video session
 
-      const fileName = currentVideo.split("/").pop();
+      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1);
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -359,7 +359,7 @@ function Home() {
       <div className="controls">
         <div className="video-stats">
         <LikeButton
-          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          fileName={currentVideo ? currentVideo.substring(currentVideo.lastIndexOf("/") + 1) || "" : ""}
           loggedIn={loggedIn}
           userId={userID}
           initialLikeCount={likeCount}
