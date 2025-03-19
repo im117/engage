@@ -185,7 +185,7 @@ function Home() {
 
   useEffect(() => {
     if (currentVideo) {
-      console.log("Video changed to:", currentVideo.split("/").pop());
+      // console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
       if (loggedIn && userID) {
         checkIfLiked();
@@ -417,7 +417,7 @@ function Home() {
 
   async function getViewCount() {
     try {
-      const fileName = currentVideo.split("/").pop();
+      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1); 
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -427,15 +427,22 @@ function Home() {
       );
       setViewCount(response.data.viewCount);
     } catch (error) {
-      console.error("Error fetching view count:", error);
-      setViewCount(0);
+      if (axios.isAxiosError(error)) {
+        console.error(
+          `Error fetching view count: ${error.response?.status} - ${error.response?.statusText}`
+        );
+      } else {
+        console.error("Unexpected error fetching view count:", error);
+      }
+      setViewCount(0); // Default to 0 if there's an error
     }
   }
 
   async function recordView() {
     try {
-      if (viewRecorded) return;
-      const fileName = currentVideo.split("/").pop();
+      if (viewRecorded) return; // Prevent multiple view records for the same video session
+
+      const fileName = currentVideo.substring(currentVideo.lastIndexOf("/") + 1);
       if (!fileName) {
         console.error("Error: fileName is missing.");
         return;
@@ -667,7 +674,7 @@ function Home() {
       <div className="controls">
         <div className="video-stats">
         <LikeButton
-          fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+          fileName={currentVideo ? currentVideo.substring(currentVideo.lastIndexOf("/") + 1) : ""}
           loggedIn={loggedIn}
           userId={userID}
           initialLikeCount={likeCount}
