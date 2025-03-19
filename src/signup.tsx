@@ -84,6 +84,16 @@ const Signup: React.FC = () => {
     <div className="auth__body">
       <div className="auth__form">
         <h2>Sign up</h2>
+        <p>
+      Password requirements:
+      <ul>
+        <li>At least 8 characters long</li>
+        <li>One uppercase letter</li>
+        <li>One lowercase letter</li>
+        <li>One number</li>
+        <li>One special character</li>
+        </ul>
+        </p>
         <div className="auth__container">
           {successMessage && (
             <div className="auth__success-message">{successMessage}</div>
