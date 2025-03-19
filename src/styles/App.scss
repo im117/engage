@@ -357,18 +357,23 @@ body {
 }
 
 .comment-section{
-  position:fixed;
+  // position:fixed;
   max-width: 250px;
-  max-height: 400px;
-  bottom:13%;
-  right:28%;
-  background-color: white;
+  width: 250px;
+  height: 300px;
+  align-self: flex-end;
+  // max-height: 400px;
+  // bottom:13%;
+  // right:28%;
+  background-color: #000;
+  border: 3px solid #ddd;
+  border-radius: 10px;
   padding:10px;
   overflow-y: scroll;
 }
 
 .comment {
-  background-color: white;
+  background-color: #ddd;
   padding-bottom: 20px; /* Padding inside each comment */
   border-bottom: 2px solid black; /* Optional: Separator */
 }
