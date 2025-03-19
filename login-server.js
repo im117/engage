@@ -4,7 +4,8 @@ import cors from "cors";
 import bcrypt from "bcryptjs"; // For hashing passwords
 import jwt from "jsonwebtoken"; // For generating tokens
 import nodemailer from "nodemailer";
-
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 const port = 8081;
 
@@ -13,9 +14,9 @@ if (process.env.DATABASE_HOST) {
   dbHost = process.env.DATABASE_HOST;
 }
 
-let frontendUrl = "http://localhost:8081"; // Default for development
+let frontendUrl = "http://localhost:5173"; // Default for development
 if (process.env.VITE_FRONTEND_URL) {
-  frontendUrl = process.env.VITE_FRONTEND_URLL; // Use environment variable in production
+  frontendUrl = process.env.VITE_FRONTEND_URL; // Use environment variable in production
 }
 
 // Middleware to parse incoming JSON requests
@@ -26,9 +27,10 @@ app.use(cors());
 
 import dbRequest from "./db.js";
 
+
 // Nodemailer setup
-const emailUser = process.env.EMAIL_USER || "ngagellc@gmail.com";
-const emailPassword = process.env.EMAIL_APP_PASSWORD || "tqas lqmp flxb dqin";
+const emailUser = process.env.VITE_EMAIL_USER;
+const emailPassword = process.env.VITE_EMAIL_PASSWORD;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -109,7 +111,7 @@ export const signup = async (req, res) => {
               .json({ message: "Database error", error: err });
           }
           // Send verification email
-          const verificationLink = `${frontendUrl}/verify-email?token=${verificationToken}`; // Change to your frontend URL when deploying
+          const verificationLink = `${frontendUrl}/verify-email/${verificationToken}`; // Change to your frontend URL when deploying
           const mailOptions = {
             from: emailUser, // your email
             to: email,
@@ -143,6 +145,100 @@ export const signup = async (req, res) => {
       return res.status(500).json({ message: "Database error", error });
     });
 };
+
+// Recover Account Route
+app.get("/recover-account", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { token } = req.query;
+
+  if (!token) {
+    db.destroy();
+    return res.status(400).json({ message: "Recovery token is required" });
+  }
+
+  jwt.verify(token, "secretkey", (err, decoded) => {
+    if (err) {
+      db.destroy();
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const email = decoded.email;
+
+    const updateQuery =
+      "UPDATE users SET recoveryToken = NULL WHERE email = ?";
+      db.query(updateQuery, [email], (err, result) => {
+        if (err) {
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+        db.destroy();
+        return res
+          .status(200)
+          .json({ message: email });
+    });
+  });
+});
+
+// Send Recovery Link Route
+app.post("/send-recovery-link", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { email } = req.body;
+
+  if (!email) {
+    db.destroy();
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const findUserQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(findUserQuery, [email], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Email does not exist" });
+    }
+
+    const user = results[0];
+    const recoveryToken = jwt.sign({ email: user.email }, "secretkey", {
+      expiresIn: "1h",
+    });
+
+    const recoveryLink = `${frontendUrl}/recover-account/${recoveryToken}`;
+    const mailOptions = {
+      from: emailUser,
+      to: email,
+      subject: "Password Recovery",
+      text: `The link will expire in 1 hour. Click this link to reset your password: ${recoveryLink}`,
+    };
+    const attachTokenQuery = "UPDATE users SET recoveryToken = ? WHERE email = ?";
+    db.query(attachTokenQuery, [recoveryToken, email], (err) => {
+      if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+      }
+    });
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        db.destroy();
+        return res.status(500).json({ message: "Error sending email" });
+      }
+
+      db.destroy();
+      return res.status(200).json({
+        message: "Recovery link sent successfully. Please check your email.",
+      });
+    });
+  });
+});
+
+
 // Email Verification Route
 app.get("/verify-email", (req, res) => {
   const db = dbRequest(dbHost);

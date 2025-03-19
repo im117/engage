@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import "../styles/App.scss";
 interface LikeButtonProps {
   fileName: string;
   loggedIn: boolean;
@@ -117,13 +117,16 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   }
 
   return (
-    <button
-      onClick={handleLike}
-      style={{ color: liked ? "red" : "black" }}
-      data-testid="like-button"
-    >
-      <i className="fa-solid fa-heart"></i> {likeCount} Likes
-    </button>
+    <a onClick={handleLike} className={ liked ? "button liked" : "button not-liked" }>
+          <i className="fa-solid fa-heart"></i> {likeCount}<span className="desktop__text"> Likes</span>
+        </a>
+    // <button
+    //   onClick={handleLike}
+    //   style={{ color: liked ? "red" : "black" }}
+    //   data-testid="like-button"
+    // >
+    //   <i className="fa-solid fa-heart"></i> {likeCount} Likes
+    // </button>
   );
 };
 

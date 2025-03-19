@@ -1,9 +1,15 @@
 // Color Variables
-$background-color: #245526;
-$button-color: #1d4d2f;
-$button-hover-color: #87b8da;
-$text-color: #333;
-$uploadColor: red;
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+  font-family: "Prompt", sans-serif;
+}
+$background-color: #000;
+$app-background: #fff;
+$button-color: #0db7fa;
+$button-hover-color: #b9b9b9;
+$text-color: #000000;
+$uploadColor: rgb(0, 191, 255);
 
 body {
     margin: 0;
@@ -14,4 +20,111 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+
   }
+
+.button{
+  cursor: pointer;
+  border-radius: 25px;
+  border: 3px solid #ddd;
+  // display: inline-block;
+  background: none;
+  color: #ddd;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px 30px;
+  text-decoration: none;
+  text-shadow: 0px 0px 13px #283966;
+  width: auto; // Let buttons size to their content
+  height: auto;
+  // min-width: 120px; // Optional: Ensure a minimum width
+  // display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: $button-hover-color;
+    background: none;
+    border: 3px solid $button-hover-color;
+  }
+}
+
+.button.success{
+  // background: #28a745;
+  color: #fff;
+  border: 3px solid #28a745;
+  &:hover{
+    background: #28a745;
+    color: #fff;
+    border: 3px solid #28a745;
+  }
+}
+.button.danger{
+  // background: #e74c3c;
+  color: #fff;
+  border: 3px solid #e74c3c;
+  &:hover{
+    background: #e74c3c;
+    color: #fff;
+    border: 3px solid #e74c3c;
+  }
+}
+
+.button.primary{
+  // background: #007bff;
+  color: #fff;
+  border: 3px solid #007bff;
+  &:hover{
+    background: #007bff;
+    color: #fff;
+    border: 3px solid #007bff;
+  }
+}
+
+.button.warning{
+  // background: #ffc107;
+  color: #fff;
+  border: 3px solid #ffc107;
+  &:hover{
+    background: #ffc107;
+    color: #fff;
+    border: 3px solid #ffc107;
+  }
+}
+
+.button.greyed{
+  cursor:default;
+  color: #4b4b4b;
+  border: 3px solid #615e5e;
+}
+
+.center-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: auto;
+  margin-top: 200px;
+}
+
+.mobile__text{
+  display: none;
+}
+
+@media screen and (max-width: 800px){
+  .center-container{
+    margin-top: 300px;
+  }
+}
+
+@media screen and (max-width: 1250px){
+  .desktop__text{
+    display:none;
+  }
+  .mobile__text{
+    display: block;
+  }
+  .button{
+    padding: 10px;
+    border-radius: 25px;
+  }
+}

@@ -9,6 +9,7 @@ CREATE TABLE users (
     role VARCHAR(10),
     isVerified BOOLEAN DEFAULT FALSE,
     verificationToken VARCHAR(255),  -- This column stores the verification token
+    recoveryToken VARCHAR(255), -- This column stores the password recovery token
     dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE videos(

@@ -29,7 +29,9 @@ dist-ssr
 
 # Engage data files
 data
+data.bkp
 media
+media.bkp
 
 # Environment File
 .env

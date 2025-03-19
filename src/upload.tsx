@@ -4,6 +4,7 @@ import "./styles/upload.scss"; // Import the updated styles
 import FileUploader from "./components/FileUploader";
 import { useState, useEffect } from 'react'; // React hook for managing state
 import axios from "axios";
+import App from "./App";
 
 
 let uploadServer = "http://localhost:3001";
@@ -65,19 +66,19 @@ useEffect(() => {
   getUsername(userID);
 },)
   return (
-    <div className="upload-container">
-      <h3 style={{ color: "green" }}>Disclaimer: The host is not responsible for any content on this site.</h3>
-      <button
-        className="back-button"
-        onClick={() => (window.location.href = "/")}
-        >
-        Home
-      </button>
-      <h4>Engager: <span>{username}</span></h4>
-      <h1 className="upload-title">Upload Your Video</h1>
-      <FileUploader />
-        <p>Transcoding is now done server side. Max file size is 80MB.</p>
+    <div className="upload-app">
+      <div className="upload-container">
+        <div className="upload-banner">
+        <h1 className="upload-title">Upload Your Video</h1>
+        <h3>Disclaimer: The host is not responsible for any content on this site.</h3>
+        <p>Max file size is 80MB.</p>
+        </div>
+        <div className="uploader">
+        <FileUploader />
+        </div>  
     </div>
+    </div>
+    
   );
 }
 

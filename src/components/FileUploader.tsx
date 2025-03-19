@@ -4,6 +4,10 @@ import "dotenv";
 import { io, Socket } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
+
+import "../styles/auth.scss";
+
+
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
@@ -14,6 +18,8 @@ interface FormValues {
   desc: string;
   fileName: string;
 }
+
+import "../styles/upload.scss";
 
 type UploadStatus = "idle" | "uploading" | "transcoding" | "success" | "error";
 
@@ -88,8 +94,12 @@ export default function FileUploader() {
 
   async function handleFileUpload() {
     if (!file) return;
-    console.log("File size: " + file.size);
-    console.log("Max file size: " + MAX_FILE_SIZE);
+    if (!title){
+      alert("Title is required");
+      return;
+    }
+    // console.log("File size: " + file.size);
+    // console.log("Max file size: " + MAX_FILE_SIZE);
     if (!isMP4(file)) {
       alert("File is not an mp4.");
       return;
@@ -146,6 +156,16 @@ export default function FileUploader() {
     return 0;
   };
 
+  // Watch the status and redirect to home if successful
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => {
+        window.location.href = "/"; // Redirect to home
+      }, 1500); // Wait for 3 seconds before redirecting
+
+      return () => clearTimeout(timer); // Cleanup the timer on unmount
+    }
+  }, [status]);
   // Get the progress message based on status
   const getProgressMessage = () => {
     if (status === "uploading") {
@@ -155,27 +175,35 @@ export default function FileUploader() {
     } else if (status === "success") {
       return "Success! Video uploaded and processed.";
     } else if (status === "error") {
-      return "Upload error, please try again. (Title is required)";
+      return "Upload error, please try again.";
     }
     return "";
   };
 
   return (
-    <div className="upload-container">
+    <div className="">
+      <div className="auth__container">
       <div className="form-group">
         <label htmlFor="title">Title: </label>
-        <input name="title" value={title} onChange={handleTitleChange} />
+        <input name="title" className="auth__form-control" value={title} onChange={handleTitleChange} />
+
+      </div>
       </div>
 
+      <div className="auth__container">
       <div className="form-group">
         <label htmlFor="desc">Description: </label>
-        <input name="desc" value={desc} onChange={handleDescChange} />
+        <input name="desc" className="auth__form-control" value={desc} onChange={handleDescChange} />
+      </div>
+        
       </div>
 
-      <div className="form-group">
+
+      <div className="form-group ">
         <input type="file" accept="video/mp4" onChange={handleFileChange} />
+        <br />
         {file && status === "idle" && (
-          <button onClick={handleFileUpload}>Upload</button>
+          <button style={{margin: "15px auto"}} className="button primary" onClick={handleFileUpload}>Upload</button>
         )}
       </div>
 
@@ -194,46 +222,19 @@ export default function FileUploader() {
               Transcoding may take a while depending on video size...
             </p>
           )}
+          
         </div>
       )}
 
-      <style>{`
-        .upload-container {
-          padding: 20px;
-          max-width: 600px;
-        }
-        .form-group {
-          margin-bottom: 15px;
-        }
-        .form-group label {
-          display: inline-block;
-          width: 100px;
-        }
-        .progress-container {
-          margin-top: 20px;
-        }
-        .progress-bar-container {
-          width: 100%;
-          height: 20px;
-          background-color: #f0f0f0;
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 10px;
-        }
-        .progress-bar {
-          height: 100%;
-          background-color: #4caf50;
-          transition: width 0.3s ease;
-        }
-        .progress-message {
-          margin-bottom: 5px;
-          font-weight: bold;
-        }
-        .info-text {
-          font-size: 0.8rem;
-          color: #666;
-        }
-      `}</style>
+      {status === "success" && (
+        <p className="info-text">
+        Redirecting back to home...
+      </p>
+      )}
+
+      {/* <style>{`
+        
+      `}</style> */}
     </div>
   );
 }

@@ -1,14 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import './styles/signup.scss';
+import './styles/auth.scss';
 
 
 function Terms(){
     const navigate = useNavigate();
     return(
-        <div>
+        <main>
+            <div className="center-container">
             <h3 style={{ color: 'white' }}>No illegal content, otherwise go nuts</h3>
-            <button className="signup__button" onClick={() => navigate('/signup')}>Back to Signup</button>
+            <button className="button primary" onClick={() => navigate('/signup')}>Back to Signup</button>
         </div>
+        </main>
+        
     )
 }
 
