@@ -123,7 +123,7 @@ function Home() {
   }>({});
 
   // The comment section is toggled by the COMMENT button.
-  const [showComments, setShowComments] = useState(false);
+  // const [showComments, setShowComments] = useState(false);
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -248,7 +248,7 @@ function Home() {
   }, [comments, loggedIn]);
 
   const handleNext = () => {
-    toggleComments();
+    // toggleComments();
     setVideoIndex(
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
@@ -507,10 +507,10 @@ function Home() {
   }
 
   // Toggle the comment section using the COMMENT button.
-  const toggleComments = () => {
-    setShowComments((prev) => !prev);
-    if (!showComments) displayComments();
-  };
+  // const toggleComments = () => {
+  //   setShowComments((prev) => !prev);
+  //   if (!showComments) displayComments();
+  // };
 
   // Post a comment and refresh the comments list.
   const postComment = async () => {
@@ -721,7 +721,7 @@ function Home() {
             </>
           )}
         {/* Comment Section toggled by the COMMENT button */}
-        {showComments && (
+        {/* {showComments && ( */}
           <div
             className="comment-section"
             style={{
@@ -861,7 +861,7 @@ function Home() {
               </div>
             )}
           </div>
-        )}
+        {/* )} */}
 
         {notification && (
           <div
