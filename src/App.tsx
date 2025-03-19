@@ -387,7 +387,7 @@ function Home() {
           className={filteredArray.length < 2 ? "button greyed" : "button"}
           onClick={() => {
         const videoElement = document.getElementById("video");
-        if (videoElement) {
+        if (videoElement && filteredArray.length >= 2) {
           videoElement.classList.remove("fade-in");
           videoElement.classList.add("fade-out");
           setTimeout(() => {
@@ -395,9 +395,7 @@ function Home() {
             videoElement.classList.remove("fade-out");
             videoElement.classList.add("fade-in");
           }, 200); // Match the duration of the fade-out animation
-        } else {
-          handleNext();
-        }
+        };
           }}
         >
         <span className="desktop__text">NEXT </span><i className="fa-solid fa-arrow-right"></i>
