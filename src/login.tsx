@@ -92,6 +92,9 @@ const Login: React.FC = () => {
           } else if (error.response && error.response.status === 401) {
             // Invalid password
             setErrors({ password: "Incorrect password! Please try again!" });
+              } else if (error.response && error.response.status === 403) {
+              // Forbidden error
+              setErrors({ password: "Account is not verified! Please check your email." });
           } else {
             // General error
             setErrors({ password: "An error occurred during login" });

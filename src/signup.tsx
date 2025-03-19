@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles/auth.scss";
-import validation from "./signupValidation";
+import validation from "./components/signupValidation";
 import axios from "axios";
 
 // let uploadServer = "http://localhost:3001";
@@ -51,10 +51,12 @@ const Signup: React.FC = () => {
       axios
         .post(`${loginServer}/signup`, formValues)
         .then(() => {
-          setSuccessMessage("You have successfully signed up! Redirecting...");
+          setSuccessMessage(
+            "You have successfully signed up! Please verify your email."
+          );
           setTimeout(() => {
-            navigate("/login"); // Redirect after 1.5 seconds
-          }, 1500);
+            navigate("/login"); // Redirect after 3 seconds
+          }, 3000);
           setName("");
           setEmail("");
           setPassword("");
