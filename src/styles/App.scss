@@ -346,7 +346,7 @@ body {
 .comment-notice{
   color: white;
   background-color: #b411057c;
-  width: 80%;
+  width: 280px;
   align-self: flex-end;
 }
 
@@ -354,6 +354,7 @@ body {
 
 @media screen and (max-width: 870px) {
   .comment-notice{
+    width: 75vw;
     align-self: center;
   }
   .button.not-liked{
