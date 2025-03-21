@@ -115,8 +115,8 @@ export const signup = async (req, res) => {
           const mailOptions = {
             from: emailUser, // your email
             to: email,
-            subject: "Verify Your Email",
-            text: `Click this link to verify your email: ${verificationLink}`,
+            subject: "Welcome to Engage: Verification",
+            text: `Welcome to Engage!\nPlease verify here: ${verificationLink}`,
           };
 
           transporter.sendMail(mailOptions, (error, info) => {
@@ -211,8 +211,8 @@ app.post("/send-recovery-link", (req, res) => {
     const mailOptions = {
       from: emailUser,
       to: email,
-      subject: "Password Recovery",
-      text: `The link will expire in 1 hour. Click this link to reset your password: ${recoveryLink}`,
+      subject: "Engage: Password Recovery",
+      text: `Reset your password here: ${recoveryLink}\nYour token will expire in 1 hour.`,
     };
     const attachTokenQuery = "UPDATE users SET recoveryToken = ? WHERE email = ?";
     db.query(attachTokenQuery, [recoveryToken, email], (err) => {
