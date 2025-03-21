@@ -341,7 +341,21 @@ body {
   margin-top: 20px;
 }
 
+
+// Remove this once comments is fixed
+.comment-notice{
+  color: white;
+  background-color: #b411057c;
+  width: 80%;
+  align-self: flex-end;
+}
+
+// Mobile SCSS
+
 @media screen and (max-width: 870px) {
+  .comment-notice{
+    align-self: center;
+  }
   .button.not-liked{
     &:hover{
       color: #f10372;
