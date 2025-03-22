@@ -30,6 +30,7 @@ const Signup: React.FC = () => {
     confirmPassword?: string;
   }>({});
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [emailMessage, setEmailMessage] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -54,6 +55,7 @@ const Signup: React.FC = () => {
           setSuccessMessage(
             "You have successfully signed up! Please verify your email."
           );
+          setEmailMessage("Check your spam folder if you don't see the email.");
           setTimeout(() => {
             navigate("/login"); // Redirect after 3 seconds
           }, 3000);
@@ -96,7 +98,7 @@ const Signup: React.FC = () => {
         </p>
         <div className="auth__container">
           {successMessage && (
-            <div className="auth__success-message">{successMessage}</div>
+            <div className="auth__success-message">{successMessage}<br />{emailMessage}</div>
           )}
           {errorMessage && (
             <div className="auth__error-message">{errorMessage}</div>
