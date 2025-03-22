@@ -52,7 +52,7 @@ const Signup: React.FC = () => {
         .post(`${loginServer}/signup`, formValues)
         .then(() => {
           setSuccessMessage(
-            "You have successfully signed up! Please check your SPAM folder to verify your email."
+            "You have successfully signed up! Please check your email SPAM folder to verify your email."
           );
           setTimeout(() => {
             navigate("/login"); // Redirect after 3 seconds
