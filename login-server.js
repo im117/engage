@@ -232,7 +232,7 @@ app.post("/send-recovery-link", (req, res) => {
 
       db.destroy();
       return res.status(200).json({
-        message: "Recovery link sent successfully. Please check your email.",
+        message: "Recovery link sent successfully. Please check your email and spam folder.",
       });
     });
   });
