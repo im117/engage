@@ -276,7 +276,7 @@ function Home() {
           const token = localStorage.getItem("authToken");
           try {
             const likeStatusResponse = await axios.get(
-              `${uploadServer}/fetch-comment-liked`,
+              `${loginServer}/fetch-comment-liked`,
               {
                 params: { auth: token, comment_id: comment.id },
               }
