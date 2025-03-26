@@ -721,6 +721,10 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
   const db = dbRequest(dbHost);
 
   console.log("User ID:", userId);
+  if (!comment_id) {
+    db.destroy();
+    return res.status(400).json({ message: "Comment ID is required" });
+  }
 
   // Check if user already liked the comment
   const checkLikeQuery =
@@ -745,7 +749,7 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
         db.destroy();
         return res
           .status(200)
-          .json({ message: "comment unliked successfully" });
+          .json({ message: "Comment unliked successfully" });
       });
     } else {
       // User hasn't liked the comment -> Like it
@@ -758,7 +762,7 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           return res.status(500).json({ message: "Database error" });
         }
         db.destroy();
-        return res.status(200).json({ message: "comment liked successfully" });
+        return res.status(200).json({ message: "Comment liked successfully" });
       });
     }
   });
