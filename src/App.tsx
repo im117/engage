@@ -252,11 +252,15 @@ function Home() {
     fetchReplyLikes();
   }, [comments, loggedIn]);
 
+  // Modify the useEffect for comment likes to preserve existing state
   useEffect(() => {
     const fetchCommentLikes = async () => {
       const newCommentLikeCount: { [key: number]: number } = {};
+      const newCommentLiked: { [key: number]: boolean } = {};
+
       for (const comment of comments) {
         try {
+          // Fetch like count, preserving any existing count
           const likeCountResponse = await axios.get(
             `${uploadServer}/comment-like-count`,
             {
@@ -265,15 +269,11 @@ function Home() {
           );
           newCommentLikeCount[comment.id] = likeCountResponse.data.likeCount;
         } catch (error) {
-          newCommentLikeCount[comment.id] = 0;
+          newCommentLikeCount[comment.id] = commentLikeCount[comment.id] || 0;
         }
-      }
-      setCommentLikeCount(newCommentLikeCount);
 
-      if (loggedIn) {
-        const token = localStorage.getItem("authToken");
-        const newCommentLiked: { [key: number]: boolean } = {};
-        for (const comment of comments) {
+        if (loggedIn) {
+          const token = localStorage.getItem("authToken");
           try {
             const likeStatusResponse = await axios.get(
               `${uploadServer}/fetch-comment-liked`,
@@ -281,16 +281,32 @@ function Home() {
                 params: { auth: token, comment_id: comment.id },
               }
             );
-            newCommentLiked[comment.id] = likeStatusResponse.data.liked;
+            // Preserve existing liked state if possible
+            newCommentLiked[comment.id] =
+              likeStatusResponse.data.liked ??
+              commentLiked[comment.id] ??
+              false;
           } catch (error) {
-            newCommentLiked[comment.id] = false;
+            // Fall back to existing state or default to false
+            newCommentLiked[comment.id] = commentLiked[comment.id] ?? false;
           }
         }
-        setCommentLiked(newCommentLiked);
-      } else {
-        setCommentLiked({});
+      }
+
+      // Only update if there are changes
+      setCommentLikeCount((prevCount) => ({
+        ...prevCount,
+        ...newCommentLikeCount,
+      }));
+
+      if (loggedIn) {
+        setCommentLiked((prevLiked) => ({
+          ...prevLiked,
+          ...newCommentLiked,
+        }));
       }
     };
+
     fetchCommentLikes();
   }, [comments, loggedIn]);
 
