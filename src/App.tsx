@@ -255,56 +255,79 @@ function Home() {
   // Modify the useEffect for comment likes to preserve existing state
   useEffect(() => {
     const fetchCommentLikes = async () => {
-      const newCommentLikeCount: { [key: number]: number } = {};
-      const newCommentLiked: { [key: number]: boolean } = {};
+      // Only attempt to fetch if logged in
+      if (!loggedIn) return;
 
-      for (const comment of comments) {
-        try {
-          // Fetch like count, preserving any existing count
-          const likeCountResponse = await axios.get(
-            `${uploadServer}/comment-like-count`,
-            {
-              params: { comment_id: comment.id },
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      // Create copies of existing states to preserve current information
+      const newCommentLikeCount = { ...commentLikeCount };
+      const newCommentLiked = { ...commentLiked };
+
+      // Use Promise.all to fetch likes for all comments concurrently
+      await Promise.all(
+        comments.map(async (comment) => {
+          // Only fetch for comments we don't already have data for
+          if (newCommentLikeCount[comment.id] === undefined) {
+            try {
+              // Fetch like count
+              const likeCountResponse = await axios.get(
+                `${loginServer}/comment-like-count`,
+                {
+                  params: {
+                    comment_id: comment.id,
+                    auth: token,
+                  },
+                }
+              );
+
+              // Safely update like count
+              newCommentLikeCount[comment.id] =
+                likeCountResponse.data.likeCount !== undefined
+                  ? likeCountResponse.data.likeCount
+                  : 0;
+
+              // Fetch liked status
+              const likeStatusResponse = await axios.get(
+                `${loginServer}/fetch-comment-liked`,
+                {
+                  params: {
+                    comment_id: comment.id,
+                    auth: token,
+                  },
+                }
+              );
+
+              // Safely update liked status
+              newCommentLiked[comment.id] =
+                likeStatusResponse.data.liked !== undefined
+                  ? likeStatusResponse.data.liked
+                  : false;
+            } catch (error) {
+              console.error(
+                `Error fetching like data for comment ${comment.id}:`,
+                error
+              );
+              // Keep existing values or use defaults
+              newCommentLikeCount[comment.id] =
+                commentLikeCount[comment.id] ?? 0;
+              newCommentLiked[comment.id] = commentLiked[comment.id] ?? false;
             }
-          );
-          newCommentLikeCount[comment.id] = likeCountResponse.data.likeCount;
-        } catch (error) {
-          newCommentLikeCount[comment.id] = commentLikeCount[comment.id] || 0;
-        }
-
-        if (loggedIn) {
-          const token = localStorage.getItem("authToken");
-          try {
-            const likeStatusResponse = await axios.get(
-              `${loginServer}/fetch-comment-liked`,
-              {
-                params: { auth: token, comment_id: comment.id },
-              }
-            );
-            // Preserve existing liked state if possible
-            newCommentLiked[comment.id] =
-              likeStatusResponse.data.liked ??
-              commentLiked[comment.id] ??
-              false;
-          } catch (error) {
-            // Fall back to existing state or default to false
-            newCommentLiked[comment.id] = commentLiked[comment.id] ?? false;
           }
-        }
-      }
+        })
+      );
 
-      // Only update if there are changes
+      // Update states only with new information
       setCommentLikeCount((prevCount) => ({
         ...prevCount,
         ...newCommentLikeCount,
       }));
 
-      if (loggedIn) {
-        setCommentLiked((prevLiked) => ({
-          ...prevLiked,
-          ...newCommentLiked,
-        }));
-      }
+      setCommentLiked((prevLiked) => ({
+        ...prevLiked,
+        ...newCommentLiked,
+      }));
     };
 
     fetchCommentLikes();
@@ -573,7 +596,7 @@ function Home() {
     }
   }
 
-  async function handleCommentLike(comment_id) {
+  async function handleCommentLike(comment_id: number) {
     if (!userID || !loggedIn) {
       alert("You must be logged in to like comments.");
       return;
@@ -599,21 +622,25 @@ function Home() {
         { params: { auth: token } }
       );
 
-      // Update the liked state
-      const newLiked = !commentLiked[comment_id];
-      setCommentLiked((prev) => ({
-        ...prev,
-        [comment_id]: newLiked,
-      }));
+      // Update states using functional updates to ensure consistency
+      setCommentLiked((prevLiked) => {
+        const currentLikedState = prevLiked[comment_id] ?? false;
+        const newLikedState = !currentLikedState;
 
-      // Update the like count based on the new liked state
-      setCommentLikeCount((prevCount) => {
-        const currentCount = prevCount[comment_id] || 0;
+        // Update like count simultaneously
+        setCommentLikeCount((prevCount) => {
+          const currentCount = prevCount[comment_id] ?? 0;
+          return {
+            ...prevCount,
+            [comment_id]: newLikedState
+              ? currentCount + 1
+              : Math.max(0, currentCount - 1),
+          };
+        });
+
         return {
-          ...prevCount,
-          [comment_id]: newLiked
-            ? currentCount + 1
-            : Math.max(0, currentCount - 1),
+          ...prevLiked,
+          [comment_id]: newLikedState,
         };
       });
     } catch (error) {
@@ -905,11 +932,7 @@ function Home() {
                       >
                         <i className="fa-regular fa-thumbs-up"></i>
                       </button>
-                      <span>
-                        {commentLikeCount[c.id] !== undefined
-                          ? commentLikeCount[c.id]
-                          : 0}
-                      </span>
+                      <span>{commentLikeCount[c.id] ?? 0}</span>
                     </div>
 
                     <div style={{ display: "flex", gap: "5x" }}>
