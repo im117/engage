@@ -628,13 +628,27 @@ app.get("/video-views/:fileName", (req, res) => {
 });
 
 app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
-  const user_id = req.user.userId;
+  const user_id = req.user ? req.user.userId : null;
   const { reply_id } = req.query;
-
   const db = dbRequest(dbHost);
 
-  const query = "SELECT * FROM reply_likes WHERE user_id = ? AND reply_id = ?";
-  db.query(query, [user_id, reply_id], (err, results) => {
+  const query = `
+    SELECT 
+      (SELECT COUNT(*) FROM reply_likes WHERE reply_id = ?) AS total_likes,
+      ${
+        user_id
+          ? `EXISTS (
+        SELECT 1 
+        FROM reply_likes 
+        WHERE user_id = ? AND reply_id = ?
+      ) AS user_liked`
+          : "FALSE AS user_liked"
+      }
+  `;
+
+  const queryParams = user_id ? [reply_id, user_id, reply_id] : [reply_id];
+
+  db.query(query, queryParams, (err, results) => {
     if (err) {
       console.error("Database error:", err);
       db.destroy();
@@ -642,7 +656,10 @@ app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
     }
 
     db.destroy();
-    return res.status(200).json({ liked: results.length > 0 });
+    return res.status(200).json({
+      liked: results[0].user_liked === 1,
+      totalLikes: results[0].total_likes,
+    });
   });
 });
 
@@ -652,9 +669,17 @@ app.get("/fetch-comment-liked", authenticateTokenGet, (req, res) => {
 
   const db = dbRequest(dbHost);
 
-  const query =
-    "SELECT * FROM comment_likes WHERE user_id = ? AND comment_id = ?";
-  db.query(query, [user_id, comment_id], (err, results) => {
+  const query = `
+    SELECT 
+      (SELECT COUNT(*) FROM comment_likes WHERE comment_id = ?) AS total_likes,
+      EXISTS (
+        SELECT 1 
+        FROM comment_likes 
+        WHERE user_id = ? AND comment_id = ?
+      ) AS user_liked
+  `;
+
+  db.query(query, [comment_id, user_id, comment_id], (err, results) => {
     if (err) {
       console.error("Database error:", err);
       db.destroy();
@@ -662,7 +687,10 @@ app.get("/fetch-comment-liked", authenticateTokenGet, (req, res) => {
     }
 
     db.destroy();
-    return res.status(200).json({ liked: results.length > 0 });
+    return res.status(200).json({
+      liked: results[0].user_liked === 1,
+      totalLikes: results[0].total_likes,
+    });
   });
 });
 
@@ -768,23 +796,23 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
   });
 });
 
-app.get("/reply-like-count", authenticateTokenGet, (req, res) => {
+app.get("/reply-like-count", (req, res) => {
   const { reply_id } = req.query;
   const db = dbRequest(dbHost);
   const query =
     "SELECT COUNT(*) AS like_count FROM reply_likes WHERE reply_id = ?";
+
   db.query(query, [reply_id], (err, results) => {
     db.destroy();
     if (err) {
       console.error("Database error:", err);
-
       return res.status(500).json({ message: "Database error" });
     }
-    res.json({ like_count: results[0].like_count }); // Send response
+    res.json({ like_count: results[0].like_count });
   });
 });
 
-app.get("/comment-like-count", authenticateTokenGet, (req, res) => {
+app.get("/comment-like-count", (req, res) => {
   const { comment_id } = req.query;
   const db = dbRequest(dbHost);
   const query =

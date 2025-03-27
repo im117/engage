@@ -202,19 +202,42 @@ function Home() {
 
   useEffect(() => {
     const fetchReplyLikes = async () => {
-      if (!loggedIn || !comments.length) return;
+      if (!comments.length) return;
 
       const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      const initialLikedState = { ...replyLiked }; // Preserve existing state
-      const initialLikeCountState = { ...replyLikeCount }; // Preserve existing state
+      const initialLikedState = { ...replyLiked };
+      const initialLikeCountState = { ...replyLikeCount };
 
       for (const comment of comments) {
         if (Array.isArray(comment.replies)) {
           for (const reply of comment.replies) {
-            // Only fetch for replies we don't already have data for
-            if (initialLikedState[reply.id] === undefined) {
+            // Always fetch like count, regardless of login status
+            if (initialLikeCountState[reply.id] === undefined) {
+              try {
+                // Fetch like count without authentication
+                const likeCountResponse = await axios.get(
+                  `${loginServer}/reply-like-count`,
+                  {
+                    params: { reply_id: reply.id },
+                  }
+                );
+                initialLikeCountState[reply.id] =
+                  likeCountResponse.data.like_count;
+              } catch (err) {
+                console.error(
+                  `Error fetching like count for reply ${reply.id}:`,
+                  err
+                );
+                initialLikeCountState[reply.id] = 0;
+              }
+            }
+
+            // Only fetch liked status if logged in
+            if (
+              loggedIn &&
+              token &&
+              initialLikedState[reply.id] === undefined
+            ) {
               try {
                 const likeStatusResponse = await axios.get(
                   `${loginServer}/fetch-reply-liked`,
@@ -223,29 +246,24 @@ function Home() {
                   }
                 );
                 initialLikedState[reply.id] = likeStatusResponse.data.liked;
-
-                const likeCountResponse = await axios.get(
-                  `${loginServer}/reply-like-count`,
-                  {
-                    params: { reply_id: reply.id, auth: token },
-                  }
-                );
-                initialLikeCountState[reply.id] =
-                  likeCountResponse.data.like_count;
               } catch (err) {
                 console.error(
-                  `Error fetching data for reply ${reply.id}:`,
+                  `Error fetching like status for reply ${reply.id}:`,
                   err
                 );
                 initialLikedState[reply.id] = false;
-                initialLikeCountState[reply.id] = 0;
               }
             }
           }
         }
       }
 
-      setReplyLiked(initialLikedState);
+      // Only update liked state if logged in
+      if (loggedIn) {
+        setReplyLiked(initialLikedState);
+      }
+
+      // Always update like count
       setReplyLikeCount(initialLikeCountState);
     };
 
@@ -277,7 +295,6 @@ function Home() {
                 {
                   params: {
                     comment_id: comment.id,
-                    auth: token,
                   },
                 }
               );
