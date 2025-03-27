@@ -824,6 +824,11 @@ function Home() {
                       <button
                         onClick={() => handleCommentLike(c.id)}
                         style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "4px",
+                          transition: "background-color 0.2s ease",
                           color: commentLiked[c.id] ? "red" : "black",
                         }}
                       >
@@ -928,6 +933,9 @@ function Home() {
                                 <button
                                   onClick={() => handleReplyLike(r.id)}
                                   style={{
+                                    backgroundColor: "transparent",
+                                    border: "none",
+                                    cursor: "pointer",
                                     color: replyLiked[r.id] ? "red" : "black",
                                   }}
                                 >
