@@ -270,83 +270,66 @@ function Home() {
     fetchReplyLikes();
   }, [comments, loggedIn]);
 
-  // Modify the useEffect for comment likes to preserve existing state
   useEffect(() => {
     const fetchCommentLikes = async () => {
-      // Only attempt to fetch if logged in
-      if (!loggedIn) return;
+      if (!comments.length) return;
 
       const token = localStorage.getItem("authToken");
-      if (!token) return;
 
       // Create copies of existing states to preserve current information
-      const newCommentLikeCount = { ...commentLikeCount };
-      const newCommentLiked = { ...commentLiked };
+      const initialLikedState = { ...commentLiked };
+      const initialLikeCountState = { ...commentLikeCount };
 
-      // Use Promise.all to fetch likes for all comments concurrently
-      await Promise.all(
-        comments.map(async (comment) => {
-          // Only fetch for comments we don't already have data for
-          if (newCommentLikeCount[comment.id] === undefined) {
-            try {
-              // Fetch like count
-              const likeCountResponse = await axios.get(
-                `${loginServer}/comment-like-count`,
-                {
-                  params: {
-                    comment_id: comment.id,
-                  },
-                }
-              );
-
-              // Safely update like count
-              newCommentLikeCount[comment.id] =
-                likeCountResponse.data.likeCount !== undefined
-                  ? likeCountResponse.data.likeCount
-                  : 0;
-
-              // Fetch liked status
-              const likeStatusResponse = await axios.get(
-                `${loginServer}/fetch-comment-liked`,
-                {
-                  params: {
-                    comment_id: comment.id,
-                    auth: token,
-                  },
-                }
-              );
-
-              // Safely update liked status
-              newCommentLiked[comment.id] =
-                likeStatusResponse.data.liked !== undefined
-                  ? likeStatusResponse.data.liked
-                  : false;
-            } catch (error) {
-              console.error(
-                `Error fetching like data for comment ${comment.id}:`,
-                error
-              );
-              // Keep existing values or use defaults
-              newCommentLikeCount[comment.id] =
-                commentLikeCount[comment.id] ?? 0;
-              newCommentLiked[comment.id] = commentLiked[comment.id] ?? false;
-            }
+      for (const comment of comments) {
+        // Always fetch like count, regardless of login status
+        if (initialLikeCountState[comment.id] === undefined) {
+          try {
+            // Fetch like count without authentication
+            const likeCountResponse = await axios.get(
+              `${loginServer}/comment-like-count`,
+              {
+                params: { comment_id: comment.id },
+              }
+            );
+            initialLikeCountState[comment.id] =
+              likeCountResponse.data.like_count;
+          } catch (err) {
+            console.error(
+              `Error fetching like count for comment ${comment.id}:`,
+              err
+            );
+            initialLikeCountState[comment.id] = 0;
           }
-        })
-      );
+        }
 
-      // Update states only with new information
-      setCommentLikeCount((prevCount) => ({
-        ...prevCount,
-        ...newCommentLikeCount,
-      }));
+        // Only fetch liked status if logged in
+        if (loggedIn && token && initialLikedState[comment.id] === undefined) {
+          try {
+            const likeStatusResponse = await axios.get(
+              `${loginServer}/fetch-comment-liked`,
+              {
+                params: { auth: token, comment_id: comment.id },
+              }
+            );
+            initialLikedState[comment.id] = likeStatusResponse.data.liked;
+          } catch (err) {
+            console.error(
+              `Error fetching like status for comment ${comment.id}:`,
+              err
+            );
+            initialLikedState[comment.id] = false;
+          }
+        }
+      }
 
-      setCommentLiked((prevLiked) => ({
-        ...prevLiked,
-        ...newCommentLiked,
-      }));
+      // Only update liked state if logged in
+      if (loggedIn) {
+        setCommentLiked(initialLikedState);
+      }
+
+      // Always update like count
+      setCommentLikeCount(initialLikeCountState);
     };
-
     fetchCommentLikes();
   }, [comments, loggedIn]);
 
@@ -375,42 +358,6 @@ function Home() {
         creatorName = response.data.username;
       });
     return creatorName as string;
-  }
-  // Function to grab video information from API
-  async function setVideoInfo() {
-    // Get video info
-    try {
-      const response = await axios.get(`${uploadServer}/video`, {
-        params: {
-          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
-        },
-      });
-
-      // get user info
-      setCurrentVideoTitle(response.data.title);
-      setCurrentVideoDesc(response.data.description);
-      const username = await getUsername(response.data.creator_id);
-      setCurrentVideoCreatorName(username);
-      // translate the timestamp in created_at
-      const date = new Date(response.data.created_at).toLocaleDateString(
-        "en-US",
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
-      );
-      const time = new Date(response.data.created_at).toLocaleTimeString(
-        "en-US",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      );
-      setCurrentVideoDate(`${date} at ${time}`);
-    } catch (error) {
-      alert(`There was an error fetching the video info!\n\n${error}`);
-    }
   }
 
   async function getLoggedInUserId() {
@@ -441,23 +388,6 @@ function Home() {
   }
   assignUsername();
 
-  async function getLikeCount() {
-    try {
-      const fileName = currentVideo.split("/").pop();
-      if (!fileName) {
-        console.error("Error: fileName is missing.");
-        return;
-      }
-      const response = await axios.get(
-        `${loginServer}/video-likes-by-filename/${fileName}`
-      );
-      setLikeCount(response.data.likeCount);
-    } catch (error) {
-      console.error("Error fetching like count:", error);
-      setLikeCount(0);
-    }
-  }
-
   async function checkIfLiked() {
     if (!loggedIn) {
       setLiked(false);
@@ -483,41 +413,6 @@ function Home() {
     } catch (error) {
       console.error("Error checking like status:", error);
       setLiked(false);
-    }
-  }
-
-  async function handleLike() {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like videos.");
-      return;
-    }
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-video`,
-        { fileName: fileName },
-        { params: { auth: token } }
-      );
-      if (response.data.message.includes("unliked")) {
-        setLiked(false);
-        setLikeCount((prev) => Math.max(0, prev - 1));
-      } else {
-        setLiked(true);
-        setLikeCount((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error liking/unliking video:", error);
-      alert("Failed to process like. Please try again.");
     }
   }
 
@@ -640,25 +535,22 @@ function Home() {
       );
 
       // Update states using functional updates to ensure consistency
-      setCommentLiked((prevLiked) => {
-        const currentLikedState = prevLiked[comment_id] ?? false;
-        const newLikedState = !currentLikedState;
+
+      setCommentLiked((prev) => {
+        const newState = { ...prev, [comment_id]: !prev[comment_id] };
 
         // Update like count simultaneously
-        setCommentLikeCount((prevCount) => {
-          const currentCount = prevCount[comment_id] ?? 0;
+        setCommentLikeCount((prevCounts) => {
+          const currentCount = prevCounts[comment_id] || 0;
           return {
-            ...prevCount,
-            [comment_id]: newLikedState
+            ...prevCounts,
+            [comment_id]: newState[comment_id]
               ? currentCount + 1
               : Math.max(0, currentCount - 1),
           };
         });
 
-        return {
-          ...prevLiked,
-          [comment_id]: newLikedState,
-        };
+        return newState;
       });
     } catch (error) {
       console.error("Error liking/unliking comment:", error);
@@ -798,15 +690,6 @@ function Home() {
     }));
   };
 
-  useEffect(() => {
-    if (currentVideo) {
-      setVideoInfo();
-      displayComments(); // Ensure comments are fetched when the video changes
-    }
-  }, [currentVideo]);
-
-  console.log("Reply Liked State Before Rendering:", replyLiked);
-
   return (
     <div className="app">
       <div className="app-container">
@@ -942,17 +825,18 @@ function Home() {
                         onClick={() => handleCommentLike(c.id)}
                         style={{
                           color: commentLiked[c.id] ? "red" : "black",
-                          border: "none",
-                          background: "transparent",
-                          cursor: "pointer",
                         }}
                       >
                         <i className="fa-regular fa-thumbs-up"></i>
                       </button>
-                      <span>{commentLikeCount[c.id] ?? 0}</span>
+                      <div id={`comment-count-${c.id}`}>
+                        {commentLikeCount[c.id] !== undefined
+                          ? commentLikeCount[c.id]
+                          : ""}
+                      </div>{" "}
                     </div>
 
-                    <div style={{ display: "flex", gap: "5x" }}>
+                    <div style={{ display: "flex", gap: "5px" }}>
                       {/* Toggle button for showing/hiding replies using icons */}
                       {c.replies && c.replies.length > 0 && (
                         <div
