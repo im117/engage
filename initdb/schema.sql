@@ -71,8 +71,8 @@ CREATE TABLE video_views (
 
 CREATE TABLE comment_likes(
     id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
     comment_id INT NOT NULL,
+    user_id INT NOT NULL,
     FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
