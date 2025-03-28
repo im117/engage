@@ -768,21 +768,24 @@ function Home() {
               </span>
             </div>
             {/* Add comment icon button */}
-            <button
-              onClick={toggleComments}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: showComments ? "blue" : "white",
-              }}
-            >
-              <i
-                className={`fa-${
-                  showComments ? "solid" : "regular"
-                } fa-comments`}
-              ></i>
-            </button>
+            <span className="comment-button">
+              <button
+                onClick={toggleComments}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: showComments ? "blue" : "white",
+                }}
+              >
+                <i className="fa-solid fa-comment"></i> {showComments}
+                <span className="desktop__text" style={{ fontSize: "18px" }}>
+                  {" "}
+                  Comment
+                </span>
+              </button>
+            </span>
+
             <div className="download-next">
               {filteredArray.length > 0 && (
                 <a className="button" href={currentVideo} download>
