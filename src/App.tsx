@@ -729,6 +729,11 @@ function Home() {
     }));
   };
 
+  // Toggle comments function
+  const toggleComments = () => {
+    setShowComments((prev) => !prev);
+  };
+
   return (
     <div className="app">
       <div className="app-container">
@@ -762,6 +767,22 @@ function Home() {
                 <span className="desktop__text"> Views</span>
               </span>
             </div>
+            {/* Add comment icon button */}
+            <button
+              onClick={toggleComments}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: showComments ? "blue" : "white",
+              }}
+            >
+              <i
+                className={`fa-${
+                  showComments ? "solid" : "regular"
+                } fa-comments`}
+              ></i>
+            </button>
             <div className="download-next">
               {filteredArray.length > 0 && (
                 <a className="button" href={currentVideo} download>
@@ -820,194 +841,201 @@ function Home() {
             )}
             {/* Comment Section toggled by the COMMENT button */}
             {/* {showComments && ( */}
-            <div className="comment-notice">
-              <u>
-                Experimental feature:
-                <br />
-              </u>
-              <i>Comment functionality may be broken</i>
-            </div>
-            <div
-              className="comment-section"
-              // style={{
-              //   position: "fixed",
-              //   bottom: "13%",
-              //   right: "28%",
-              //   background: "white",
-              //   padding: "10px",
-              //   borderRadius: "5px",
-              //   maxHeight: "40vh",
-              //   overflowY: "auto",
-              // }}
-            >
-              <div className="comments-list">
-                {comments.map((c) => (
-                  <div
-                    key={c.id}
-                    className="comment-box"
-                    style={{ color: "black", textAlign: "left" }}
-                  >
-                    <p>
-                      <strong>{c.username}</strong> ({c.created_at}):{" "}
-                      {c.comment}
-                    </p>
-
-                    <div
-                      className="comment-like-section"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleCommentLike(c.id)}
-                        style={{
-                          backgroundColor: "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "4px",
-                          transition: "background-color 0.2s ease",
-                          color: commentLiked[c.id] ? "red" : "black",
-                        }}
+            {showComments && (
+              <>
+                <div className="comment-notice">
+                  <u>
+                    Experimental feature:
+                    <br />
+                  </u>
+                  <i>Comment functionality may be broken</i>
+                </div>
+                <div
+                  className="comment-section"
+                  // style={{
+                  //   position: "fixed",
+                  //   bottom: "13%",
+                  //   right: "28%",
+                  //   background: "white",
+                  //   padding: "10px",
+                  //   borderRadius: "5px",
+                  //   maxHeight: "40vh",
+                  //   overflowY: "auto",
+                  // }}
+                >
+                  <div className="comments-list">
+                    {comments.map((c) => (
+                      <div
+                        key={c.id}
+                        className="comment-box"
+                        style={{ color: "black", textAlign: "left" }}
                       >
-                        <i className="fa-regular fa-thumbs-up"></i>
-                      </button>
-                      <div id={`comment-count-${c.id}`}>
-                        {commentLikeCount[c.id] !== undefined
-                          ? commentLikeCount[c.id]
-                          : ""}
-                      </div>{" "}
-                    </div>
+                        <p>
+                          <strong>{c.username}</strong> ({c.created_at}):{" "}
+                          {c.comment}
+                        </p>
 
-                    <div style={{ display: "flex", gap: "5px" }}>
-                      {/* Toggle button for showing/hiding replies using icons */}
-                      {c.replies && c.replies.length > 0 && (
                         <div
+                          className="comment-like-section"
                           style={{
-                            width: "24px",
-                            textAlign: "left",
-                            color: "black",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
                           }}
                         >
                           <button
-                            onClick={() => toggleRepliesVisible(c.id)}
+                            onClick={() => handleCommentLike(c.id)}
                             style={{
+                              backgroundColor: "transparent",
                               border: "none",
-                              background: "transparent",
                               cursor: "pointer",
+                              padding: "4px",
+                              transition: "background-color 0.2s ease",
+                              color: commentLiked[c.id] ? "red" : "black",
                             }}
                           >
-                            {repliesVisible[c.id] ? (
-                              <i
-                                className="fa-solid fa-chevron-up"
-                                style={{ fontSize: "1.2em", color: "#333" }}
-                              ></i>
-                            ) : (
-                              <i
-                                className="fa-solid fa-chevron-down"
-                                style={{ fontSize: "1.2em", color: "#333" }}
-                              ></i>
-                            )}
+                            <i className="fa-regular fa-thumbs-up"></i>
                           </button>
+                          <div id={`comment-count-${c.id}`}>
+                            {commentLikeCount[c.id] !== undefined
+                              ? commentLikeCount[c.id]
+                              : ""}
+                          </div>{" "}
                         </div>
-                      )}
 
-                      {loggedIn && (
-                        <div>
-                          <button onClick={() => toggleReplyInput(c.id)}>
-                            <i className="fa-regular fa-comments"></i>
-                          </button>
-                          {replyVisible[c.id] && (
+                        <div style={{ display: "flex", gap: "5px" }}>
+                          {/* Toggle button for showing/hiding replies using icons */}
+                          {c.replies && c.replies.length > 0 && (
                             <div
                               style={{
-                                marginTop: "5px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                minHeight: "40px",
+                                width: "24px",
+                                textAlign: "left",
+                                color: "black",
                               }}
                             >
-                              <input
-                                type="text"
-                                value={replyInputs[c.id] || ""}
-                                onChange={(e) =>
-                                  setReplyInputs((prev) => ({
-                                    ...prev,
-                                    [c.id]: e.target.value,
-                                  }))
-                                }
-                                placeholder="Write a reply..."
-                              />
-                              <button onClick={() => postReply(c.id)}>
-                                <i className="fa-regular fa-paper-plane"></i>
+                              <button
+                                onClick={() => toggleRepliesVisible(c.id)}
+                                style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {repliesVisible[c.id] ? (
+                                  <i
+                                    className="fa-solid fa-chevron-up"
+                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                  ></i>
+                                ) : (
+                                  <i
+                                    className="fa-solid fa-chevron-down"
+                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                  ></i>
+                                )}
                               </button>
                             </div>
                           )}
-                        </div>
-                      )}
-                    </div>
 
-                    {repliesVisible[c.id] &&
-                      c.replies &&
-                      c.replies.length > 0 && (
-                        <div style={{ marginLeft: "20px" }}>
-                          {c.replies.map((r) => (
+                          {loggedIn && (
                             <div>
-                              <div>
-                                <p key={r.id}>
-                                  <strong>{r.username}</strong> ({r.created_at}
-                                  ): {r.reply}
-                                </p>
-                              </div>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  gap: "3px",
-                                  position: "relative",
-                                  top: "-10px",
-                                  marginBottom: "-10px",
-                                }}
-                              >
-                                <button
-                                  onClick={() => handleReplyLike(r.id)}
+                              <button onClick={() => toggleReplyInput(c.id)}>
+                                <i className="fa-regular fa-comments"></i>
+                              </button>
+                              {replyVisible[c.id] && (
+                                <div
                                   style={{
-                                    backgroundColor: "transparent",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    color: replyLiked[r.id] ? "red" : "black",
+                                    marginTop: "5px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    minHeight: "40px",
                                   }}
                                 >
-                                  <i className="fa-regular fa-thumbs-up"></i>
-                                </button>
-                                <div id={`like-count-${r.id}`}>
-                                  {replyLikeCount[r.id] !== undefined
-                                    ? replyLikeCount[r.id]
-                                    : ""}
-                                </div>{" "}
-                                {/* Unique ID for like count */}
-                              </div>
+                                  <input
+                                    type="text"
+                                    value={replyInputs[c.id] || ""}
+                                    onChange={(e) =>
+                                      setReplyInputs((prev) => ({
+                                        ...prev,
+                                        [c.id]: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Write a reply..."
+                                  />
+                                  <button onClick={() => postReply(c.id)}>
+                                    <i className="fa-regular fa-paper-plane"></i>
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
+
+                        {repliesVisible[c.id] &&
+                          c.replies &&
+                          c.replies.length > 0 && (
+                            <div style={{ marginLeft: "20px" }}>
+                              {c.replies.map((r) => (
+                                <div>
+                                  <div>
+                                    <p key={r.id}>
+                                      <strong>{r.username}</strong> (
+                                      {r.created_at}
+                                      ): {r.reply}
+                                    </p>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: "3px",
+                                      position: "relative",
+                                      top: "-10px",
+                                      marginBottom: "-10px",
+                                    }}
+                                  >
+                                    <button
+                                      onClick={() => handleReplyLike(r.id)}
+                                      style={{
+                                        backgroundColor: "transparent",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: replyLiked[r.id]
+                                          ? "red"
+                                          : "black",
+                                      }}
+                                    >
+                                      <i className="fa-regular fa-thumbs-up"></i>
+                                    </button>
+                                    <div id={`like-count-${r.id}`}>
+                                      {replyLikeCount[r.id] !== undefined
+                                        ? replyLikeCount[r.id]
+                                        : ""}
+                                    </div>{" "}
+                                    {/* Unique ID for like count */}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              {loggedIn && (
-                <div className="comment-input-div">
-                  <textarea
-                    id="comment-input"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Write a comment..."
-                  ></textarea>
-                  <button onClick={postComment}>
-                    <i className="fa-solid fa-paper-plane"></i>
-                  </button>
+                  {loggedIn && (
+                    <div className="comment-input-div">
+                      <textarea
+                        id="comment-input"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Write a comment..."
+                      ></textarea>
+                      <button onClick={postComment}>
+                        <i className="fa-solid fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
             {/* )} */}
 
             {notification && (
