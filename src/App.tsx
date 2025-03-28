@@ -779,11 +779,8 @@ function Home() {
                 }}
               >
                 <i className="fa-solid fa-comment"></i> {showComments}
-                <span className="desktop__text" style={{ fontSize: "18px" }}>
-                  {" "}
-                  Comment
-                </span>
               </button>
+              <span className="desktop__text"> Comment</span>
             </span>
 
             <div className="download-next">
