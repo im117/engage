@@ -181,11 +181,48 @@ function Home() {
   const [currentVideoDesc, setCurrentVideoDesc] = useState("");
   const [currentVideoDate, setCurrentVideoDate] = useState("");
   const [currentVideoCreatorName, setCurrentVideoCreatorName] = useState("");
+  // Function to grab video information from API
+  async function setVideoInfo() {
+    // Get video info
+    try {
+      const response = await axios.get(`${uploadServer}/video`, {
+        params: {
+          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
+        },
+      });
+
+      // get user info
+      setCurrentVideoTitle(response.data.title);
+      setCurrentVideoDesc(response.data.description);
+      const username = await getUsername(response.data.creator_id);
+      setCurrentVideoCreatorName(username);
+      // translate the timestamp in created_at
+      const date = new Date(response.data.created_at).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
+      const time = new Date(response.data.created_at).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
+      setCurrentVideoDate(`${date} at ${time}`);
+    } catch (error) {
+      alert(`There was an error fetching the video info!\n\n${error}`);
+    }
+  }
 
   useEffect(() => {
     setLiked(false);
     setViewRecorded(false);
     setCurrentVideo(filteredArray[videoIndex] || "");
+    setVideoInfo();
   }, [videoIndex]);
 
   useEffect(() => {
