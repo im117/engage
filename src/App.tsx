@@ -93,6 +93,8 @@ function Home() {
   const [currentVideo, setCurrentVideo] = useState("");
   const [notification, setNotification] = useState("");
   const [comment, setComment] = useState("");
+  // Add a new state for showing/hiding comments
+  const [showComments, setShowComments] = useState(false);
 
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
