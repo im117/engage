@@ -225,7 +225,6 @@ function Home() {
     setLiked(false);
     setViewRecorded(false);
     setCurrentVideo(filteredArray[videoIndex] || "");
-    setVideoInfo();
   }, [videoIndex]);
 
   useEffect(() => {
@@ -729,6 +728,13 @@ function Home() {
       [commentId]: !prev[commentId],
     }));
   };
+
+  useEffect(() => {
+    if (currentVideo) {
+      setVideoInfo();
+      displayComments(); // Ensure comments are fetched when the video changes
+    }
+  }, [currentVideo]);
 
   // Toggle comments function
   const toggleComments = () => {
