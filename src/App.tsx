@@ -15,6 +15,7 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
+import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
 
@@ -775,12 +776,20 @@ function Home() {
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
-                  color: showComments ? "blue" : "white",
+                  color: showComments ? "#f10372" : "white",
                 }}
               >
                 <i className="fa-solid fa-comment"></i> {showComments}
               </button>
-              <span className="desktop__text"> Comment</span>
+              <span
+                className="desktop__text"
+                style={{
+                  color: showComments ? "#f10372" : "white",
+                }}
+              >
+                {" "}
+                Comment
+              </span>
             </span>
 
             <div className="download-next">
