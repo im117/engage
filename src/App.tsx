@@ -835,7 +835,7 @@ function Home() {
                   color: showComments ? "#f10372" : "white",
                 }}
               >
-                {commentCount} Comments
+                {commentCount} {commentCount === 1 ? "Comment" : "Comments"}
               </span>
             </span>
 
