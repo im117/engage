@@ -805,7 +805,6 @@ function Home() {
                 }}
               >
                 <i className="fa-solid fa-comment"></i> {showComments}{" "}
-                {commentCount}
               </button>
               <span
                 className="desktop__text"
@@ -813,8 +812,7 @@ function Home() {
                   color: showComments ? "#f10372" : "white",
                 }}
               >
-                {" "}
-                Comment
+                {commentCount} Comment
               </span>
             </span>
 
