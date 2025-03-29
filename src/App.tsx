@@ -104,6 +104,7 @@ function Home() {
     comment: string;
     created_at: string;
     replies?: ReplyType[];
+    replyCount?: number; // Optional property for reply count
   }
   interface ReplyType {
     id: number;
@@ -657,6 +658,17 @@ function Home() {
   const handleVideoStart = () => {
     recordView();
   };
+  async function fetchReplyCount(commentId: number) {
+    try {
+      const response = await axios.get(
+        `${loginServer}/reply-count/${commentId}`
+      );
+      return response.data.replyCount;
+    } catch (error) {
+      console.error("Error fetching reply count:", error);
+      return 0;
+    }
+  }
 
   // Fetch comments along with their replies.
   async function displayComments() {
@@ -708,7 +720,17 @@ function Home() {
           };
         })
       );
-      setComments(commentsWithUsernames);
+      const commentsWithReplyCounts = await Promise.all(
+        commentsWithUsernames.map(async (comment) => {
+          const replyCount = await fetchReplyCount(comment.id);
+          return {
+            ...comment,
+            replyCount: replyCount,
+          };
+        })
+      );
+      setComments(commentsWithReplyCounts);
+      // setComments(commentsWithUsernames);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
@@ -942,8 +964,9 @@ function Home() {
                           {c.replies && c.replies.length > 0 && (
                             <div
                               style={{
-                                width: "24px",
-                                textAlign: "left",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
                                 color: "black",
                               }}
                             >
@@ -955,8 +978,6 @@ function Home() {
                                   cursor: "pointer",
                                 }}
                               >
-                                {" "}
-                                reply
                                 {repliesVisible[c.id] ? (
                                   <i
                                     className="fa-solid fa-chevron-up"
@@ -969,6 +990,10 @@ function Home() {
                                   ></i>
                                 )}
                               </button>
+                              <i className="reply-count">
+                                {c.replyCount}{" "}
+                                {c.replyCount === 1 ? "reply" : "replies"}
+                              </i>
                             </div>
                           )}
 
