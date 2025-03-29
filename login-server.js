@@ -654,6 +654,31 @@ app.get("/comment-count/:fileName", (req, res) => {
     });
 });
 
+// Get total reply count for a specific comment
+app.get("/reply-count/:commentId", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { commentId } = req.params;
+
+  if (!commentId) {
+    db.destroy();
+    return res.status(400).json({ message: "Comment ID is required" });
+  }
+
+  const replyCountQuery =
+    "SELECT COUNT(*) AS replyCount FROM reply WHERE comment_id = ?";
+
+  db.query(replyCountQuery, [commentId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ replyCount: results[0].replyCount });
+  });
+});
+
 app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
   const user_id = req.user ? req.user.userId : null;
   const { reply_id } = req.query;

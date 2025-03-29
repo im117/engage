@@ -954,6 +954,8 @@ function Home() {
                                   cursor: "pointer",
                                 }}
                               >
+                                {" "}
+                                reply
                                 {repliesVisible[c.id] ? (
                                   <i
                                     className="fa-solid fa-chevron-up"
