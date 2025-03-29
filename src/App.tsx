@@ -140,6 +140,7 @@ function Home() {
     [key: number]: number;
   }>({}); // Like counts are stored with replyId as keys
   const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
+  const [replyCount, setReplyCount] = useState(0);
 
   const [commentLikeCount, setCommentLikeCount] = useState<{
     [key: number]: number;
