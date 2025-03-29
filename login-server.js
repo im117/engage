@@ -752,6 +752,16 @@ app.get("/fetch-comment-liked", authenticateTokenGet, (req, res) => {
   });
 });
 
+async function fetchReplyCount(commentId) {
+  try {
+    const response = await axios.get(`${loginServer}/reply-count/${commentId}`);
+    return response.data.replyCount;
+  } catch (error) {
+    console.error("Error fetching reply count:", error);
+    return 0;
+  }
+}
+
 // Updated like-video endpoint
 app.post("/like-reply", authenticateTokenGet, (req, res) => {
   const { fileName, reply_id } = req.body;
