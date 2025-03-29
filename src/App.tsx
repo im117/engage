@@ -473,6 +473,23 @@ function Home() {
     }
   }
 
+  async function getCommentCount() {
+    try {
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        console.error("Error: fileName is missing.");
+        return;
+      }
+      const response = await axios.get(
+        `${loginServer}/comment-count/${fileName}`
+      );
+      setCommentCount(response.data.commentCount);
+    } catch (error) {
+      console.error("Error fetching view count:", error);
+      setCommentCount(0);
+    }
+  }
+
   async function recordView() {
     try {
       if (viewRecorded) return;
