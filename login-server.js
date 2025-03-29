@@ -627,6 +627,33 @@ app.get("/video-views/:fileName", (req, res) => {
     });
 });
 
+// Get total comment count for a specific video by fileName
+app.get("/comment-count/:fileName", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.params;
+
+  getVideoIdFromFileName(db, fileName)
+    .then((videoId) => {
+      const commentCountQuery =
+        "SELECT COUNT(*) AS commentCount FROM comments WHERE video_id = ?";
+      db.query(commentCountQuery, [videoId], (err, results) => {
+        if (err) {
+          console.error("Database error:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        db.destroy();
+        return res.status(200).json({ commentCount: results[0].commentCount });
+      });
+    })
+    .catch((error) => {
+      console.error("Error:", error.message);
+      db.destroy();
+      return res.status(400).json({ commentCount: 0, message: error.message });
+    });
+});
+
 app.get("/fetch-reply-liked", authenticateTokenGet, (req, res) => {
   const user_id = req.user ? req.user.userId : null;
   const { reply_id } = req.query;
