@@ -147,6 +147,7 @@ function Home() {
   const [commentLiked, setCommentLiked] = useState<{ [key: number]: boolean }>(
     {}
   );
+  const [commentCount, setCommentCount] = useState(0);
   // const getReplyLikeCount = async (replyId: number): Promise<number | string> => {
   //   try {
   //     const response = await axios.get(
