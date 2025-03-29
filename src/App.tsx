@@ -990,10 +990,10 @@ function Home() {
                                   ></i>
                                 )}
                               </button>
-                              <i className="reply-count">
+                              <span className="reply-count">
                                 {c.replyCount}{" "}
                                 {c.replyCount === 1 ? "reply" : "replies"}
-                              </i>
+                              </span>
                             </div>
                           )}
 
