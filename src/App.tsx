@@ -812,7 +812,7 @@ function Home() {
                   color: showComments ? "#f10372" : "white",
                 }}
               >
-                {commentCount} Comment
+                {commentCount} Comments
               </span>
             </span>
 
