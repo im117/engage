@@ -232,6 +232,7 @@ function Home() {
     if (currentVideo) {
       console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
+      getCommentCount();
       if (loggedIn && userID) {
         checkIfLiked();
       }
@@ -803,7 +804,8 @@ function Home() {
                   color: showComments ? "#f10372" : "white",
                 }}
               >
-                <i className="fa-solid fa-comment"></i> {showComments}
+                <i className="fa-solid fa-comment"></i> {showComments}{" "}
+                {commentCount}
               </button>
               <span
                 className="desktop__text"
