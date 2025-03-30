@@ -15,6 +15,7 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
+
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
@@ -649,7 +650,7 @@ function Home() {
         return;
       }
       const videoId = videoRes.data.id;
-      await axios.post(
+      const commentResponse = await axios.post(
         `${uploadServer}/post-comment`,
         { video_id: videoId, comment },
         { headers: { Authorization: token } }
@@ -657,12 +658,19 @@ function Home() {
       setComment("");
       setNotification("✅ Successfully commented!");
       setTimeout(() => setNotification(""), 3000);
+      if (commentResponse.data.commentId) {
+        // If comment was successfully posted, create a notification
+        await sendCommentNotification(
+          commentResponse.data.videoId,
+          commentResponse.data.commentId
+        );
+      }
     } catch (error) {
       console.error("Error posting comment:", error);
       setNotification("⚠️ Failed to post comment.");
       setTimeout(() => setNotification(""), 3000);
     }
-    displayComments();
+    await displayComments();
   };
 
   const handleVideoStart = () => {
@@ -679,6 +687,25 @@ function Home() {
       return 0;
     }
   }
+
+  // Add this function to your NotificationBell component
+  const sendCommentNotification = async (
+    videoId: string,
+    commentId: string
+  ) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      await axios.post(
+        `${loginServer}/comment-notification`,
+        { videoId, commentId },
+        { params: { auth: token } }
+      );
+    } catch (error) {
+      console.error("Error sending comment notification:", error);
+    }
+  };
 
   // Fetch comments along with their replies.
   async function displayComments() {
