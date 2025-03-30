@@ -96,6 +96,10 @@ function Home() {
   const [comment, setComment] = useState("");
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
