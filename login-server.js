@@ -891,6 +891,16 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
+        // Get comment creator
+      const getCreatorQuery = "SELECT creator_id FROM comments WHERE id = ?";
+      db.query(getCreatorQuery, [comment_id], (err, creatorResults) => {
+        if (err || creatorResults.length === 0) {
+          console.error("Error getting comment creator:", err);
+          db.destroy();
+          return res.status(500).json({ message: "Database error" });
+        }
+        
+        const creatorId = creatorResults[0].creator_id;
         db.destroy();
         return res.status(200).json({ message: "Comment liked successfully" });
       });
