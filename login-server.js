@@ -1144,14 +1144,36 @@ app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
     }
 
     db.destroy();
-    return res
-      .status(200)
-      .json({
-        message: "Notifications marked as read",
-        affected: result.affectedRows,
-      });
+    return res.status(200).json({
+      message: "Notifications marked as read",
+      affected: result.affectedRows,
+    });
   });
 });
+
+// Helper function to format notification message
+function formatNotificationMessage(notification) {
+  const { sender_username, action_type, content_type, content_preview } =
+    notification;
+
+  switch (action_type) {
+    case "like":
+      if (content_type === "video") {
+        return `${sender_username} liked your video "${content_preview}"`;
+      } else if (content_type === "comment") {
+        return `${sender_username} liked your comment "${content_preview}..."`;
+      } else if (content_type === "reply") {
+        return `${sender_username} liked your reply "${content_preview}..."`;
+      }
+      break;
+    case "comment":
+      return `${sender_username} commented on your video "${content_preview}"`;
+    case "reply":
+      return `${sender_username} replied to your comment "${content_preview}..."`;
+    default:
+      return `${sender_username} interacted with your content`;
+  }
+}
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
