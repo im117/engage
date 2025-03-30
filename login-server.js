@@ -1115,6 +1115,43 @@ app.get("/notifications/unread-count", authenticateTokenGet, (req, res) => {
     return res.status(200).json({ count: results[0].count });
   });
 });
+
+// Mark notifications as read
+app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const { notificationIds } = req.body; // Array of notification IDs to mark as read
+  const db = dbRequest(dbHost);
+
+  let query = "";
+  let queryParams = [];
+
+  if (notificationIds && notificationIds.length > 0) {
+    // Mark specific notifications as read
+    query =
+      "UPDATE notifications SET is_read = true WHERE id IN (?) AND recipient_id = ?";
+    queryParams = [notificationIds, userId];
+  } else {
+    // Mark all notifications as read
+    query = "UPDATE notifications SET is_read = true WHERE recipient_id = ?";
+    queryParams = [userId];
+  }
+
+  db.query(query, queryParams, (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res
+      .status(200)
+      .json({
+        message: "Notifications marked as read",
+        affected: result.affectedRows,
+      });
+  });
+});
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
