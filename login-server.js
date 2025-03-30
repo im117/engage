@@ -1095,6 +1095,26 @@ app.get("/notifications", authenticateTokenGet, (req, res) => {
     return res.status(200).json({ notifications: results });
   });
 });
+
+// Get unread notification count
+app.get("/notifications/unread-count", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query =
+    "SELECT COUNT(*) AS count FROM notifications WHERE recipient_id = ? AND is_read = false";
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ count: results[0].count });
+  });
+});
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
