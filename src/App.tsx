@@ -815,29 +815,21 @@ function Home() {
                 <i className="fa-solid fa-eye"></i> {viewCount}
                 <span className="desktop__text"> Views</span>
               </span>
+              <span
+                className={`comment-button ${
+                  showComments ? "clicked" : "not-clicked"
+                }`}
+              >
+                <button onClick={toggleComments} className="comment-btn">
+                  <i className="fa-solid fa-comment"></i>
+                  <span>{commentCount}</span>
+                  <span className="comment-text">
+                    {commentCount === 1 ? "Comment" : "Comments"}
+                  </span>
+                </button>
+              </span>
             </div>
             {/* Add comment icon button */}
-            <span className="comment-button">
-              <button
-                onClick={toggleComments}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  color: showComments ? "#f10372" : "white",
-                }}
-              >
-                <i className="fa-solid fa-comment"></i> {showComments}{" "}
-              </button>
-              <span
-                className="desktop__text"
-                style={{
-                  color: showComments ? "#f10372" : "white",
-                }}
-              >
-                {commentCount} {commentCount === 1 ? "Comment" : "Comments"}
-              </span>
-            </span>
 
             <div className="download-next">
               {filteredArray.length > 0 && (
