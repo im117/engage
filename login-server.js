@@ -840,17 +840,33 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
           return res.status(500).json({ message: "Database error" });
         }
         // Get reply creator
-      const getCreatorQuery = "SELECT creator_id FROM reply WHERE id = ?";
-      db.query(getCreatorQuery, [reply_id], (err, creatorResults) => {
-        if (err || creatorResults.length === 0) {
-          console.error("Error getting reply creator:", err);
+        const getCreatorQuery = "SELECT creator_id FROM reply WHERE id = ?";
+        db.query(getCreatorQuery, [reply_id], (err, creatorResults) => {
+          if (err || creatorResults.length === 0) {
+            console.error("Error getting reply creator:", err);
+            db.destroy();
+            return res.status(500).json({ message: "Database error" });
+          }
+
+          const creatorId = creatorResults[0].creator_id;
+          // Don't notify if user is liking their own content
+          if (creatorId !== userId) {
+            // Create notification
+            const createNotificationQuery =
+              "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'reply', 'like')";
+            db.query(
+              createNotificationQuery,
+              [creatorId, userId, reply_id],
+              (err) => {
+                if (err) {
+                  console.error("Error creating notification:", err);
+                }
+              }
+            );
+          }
           db.destroy();
-          return res.status(500).json({ message: "Database error" });
-        }
-        
-        const creatorId = creatorResults[0].creator_id;
-        db.destroy();
-        return res.status(200).json({ message: "Reply liked successfully" });
+          return res.status(200).json({ message: "Reply liked successfully" });
+        });
       });
     }
   });
