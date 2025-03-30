@@ -1064,6 +1064,37 @@ export const addReply = async (req, res) => {
   }
 };
 
+// Get user notifications
+app.get("/notifications", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query = `
+    SELECT n.*, 
+           u.username AS sender_username,
+           CASE 
+             WHEN n.content_type = 'video' THEN (SELECT title FROM videos WHERE id = n.content_id)
+             WHEN n.content_type = 'comment' THEN (SELECT SUBSTRING(content, 1, 30) FROM comments WHERE id = n.content_id)
+             WHEN n.content_type = 'reply' THEN (SELECT SUBSTRING(content, 1, 30) FROM reply WHERE id = n.content_id)
+           END AS content_preview
+    FROM notifications n
+    LEFT JOIN users u ON n.sender_id = u.id
+    WHERE n.recipient_id = ?
+    ORDER BY n.created_at DESC
+    LIMIT 50
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ notifications: results });
+  });
+});
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
