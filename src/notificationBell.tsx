@@ -1,15 +1,22 @@
-// src/notificationBell.tsx
 import { useState, useEffect } from "react";
 import axios from "axios";
-import "./styles/notification.scss"; // Create this file for styling
+import "./styles/notification.scss";
 
 // Get the login server URL from environment variables
-let loginServer = "http://localhost:8081";
-if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
-  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+const loginServer =
+  import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
+
+interface Notification {
+  id: string;
+  sender_username: string;
+  action_type: string;
+  content_type: string;
+  content_preview: string;
+  is_read: boolean;
+  created_at: string;
 }
 
-function formatNotificationMessage(notification: never) {
+function formatNotificationMessage(notification: Notification): string {
   const { sender_username, action_type, content_type, content_preview } =
     notification;
 
@@ -27,37 +34,27 @@ function formatNotificationMessage(notification: never) {
       return `${sender_username} commented on your video "${content_preview}"`;
     case "reply":
       return `${sender_username} replied to your comment "${content_preview}..."`;
-    default:
-      return `${sender_username} interacted with your content`;
   }
+
+  return `${sender_username} interacted with your content`;
 }
 
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
-
-  // Fetch notifications and unread count
-  useEffect(() => {
-    fetchNotifications();
-    fetchUnreadCount();
-
-    // Set up polling interval to check for new notifications
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 1000); // Check every 1 seconds
-
-    return () => clearInterval(interval);
-  }, []);
 
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return; // Don't fetch if not logged in
+      if (!token) return;
 
-      const response = await axios.get(`${loginServer}/notifications`, {
-        params: { auth: token },
-      });
+      const response = await axios.get<{ notifications: Notification[] }>(
+        `${loginServer}/notifications`,
+        {
+          params: { auth: token },
+        }
+      );
       setNotifications(response.data.notifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -67,9 +64,9 @@ export default function NotificationBell() {
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return; // Don't fetch if not logged in
+      if (!token) return;
 
-      const response = await axios.get(
+      const response = await axios.get<{ count: number }>(
         `${loginServer}/notifications/unread-count`,
         {
           params: { auth: token },
@@ -81,7 +78,7 @@ export default function NotificationBell() {
     }
   };
 
-  const markAsRead = async (notificationIds = null) => {
+  const markAsRead = async (notificationIds: string[] | null = null) => {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) return;
@@ -97,6 +94,15 @@ export default function NotificationBell() {
       console.error("Error marking notifications as read:", error);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+
+    const interval = setInterval(fetchUnreadCount, 1000); // Check every 1 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="notification-bell">
