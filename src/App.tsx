@@ -787,6 +787,21 @@ function Home() {
     setShowComments((prev) => !prev);
   };
 
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/notifications");
+      setNotifications(response.data.notifications);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch notifications");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="app">
       <div className="app-container">
