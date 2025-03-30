@@ -172,10 +172,12 @@ body {
       color: #f10372;
     }
   }
-
   &.clicked {
     .comment-btn {
-      color: #f10372;
+      background-color: #f10372;
+    }
+    .comment-btn:hover {
+      background-color: #ff75b6;
     }
   }
 }
