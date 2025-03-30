@@ -816,8 +816,18 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res.status(200).json({ message: "Reply unliked successfully" });
+        // Delete notification
+        const deleteNotificationQuery =
+          "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'reply' AND action_type = 'like'";
+        db.query(deleteNotificationQuery, [userId, reply_id], (err) => {
+          if (err) {
+            console.error("Error deleting notification:", err);
+          }
+          db.destroy();
+          return res
+            .status(200)
+            .json({ message: "Reply unliked successfully" });
+        });
       });
     } else {
       // User hasn't liked the comment -> Like it
