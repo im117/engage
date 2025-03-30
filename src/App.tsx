@@ -96,7 +96,13 @@ function Home() {
   const [comment, setComment] = useState("");
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  interface Notification {
+    id: number;
+    is_read: boolean;
+    [key: string]: any; // Adjust this based on the actual structure of your notifications
+  }
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -810,6 +816,47 @@ function Home() {
       console.error("Failed to fetch unread count:", err);
     }
   };
+
+  const markAsRead = async (notificationIds: number[] | null = null) => {
+    try {
+      const response = await axios.post("/notifications/mark-read", {
+        notificationIds,
+      });
+
+      if (notificationIds) {
+        // Mark specific notifications as read
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            notificationIds.includes(notification.id)
+              ? { ...notification, is_read: true }
+              : notification
+          )
+        );
+      } else {
+        // Mark all as read
+        setNotifications((prev) =>
+          prev.map((notification) => ({ ...notification, is_read: true }))
+        );
+      }
+
+      await fetchUnreadCount();
+      return response.data;
+    } catch (err) {
+      console.error("Failed to mark notifications as read:", err);
+      throw err;
+    }
+  };
+
+  // Handle notification
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+
+    // Set up interval to refresh notification count every minute
+    const interval = setInterval(fetchUnreadCount, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app">
