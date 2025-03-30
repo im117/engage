@@ -170,15 +170,15 @@ body {
   &.not-clicked {
     .comment-btn:hover {
       padding: 18px 35px;
-      color: #f10372;
+      color: #03a2f1;
     }
   }
   &.clicked {
     .comment-btn {
-      background-color: #f10372;
+      background-color: #2b71a1;
     }
     .comment-btn:hover {
-      background-color: #ff75b6;
+      background-color: #8bb3ef;
     }
   }
 }
