@@ -565,6 +565,14 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
               db.destroy();
               return res.status(500).json({ message: "Database error" });
             }
+            // Get video creator ID
+            const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+            db.query(getCreatorQuery, [videoId], (err, results) => {
+              if (err || results.length === 0) {
+                console.error("Error getting video creator:", err);
+                db.destroy();
+                return res.status(200).json({ message: "Video liked successfully" });
+              }
             db.destroy();
             return res
               .status(200)
