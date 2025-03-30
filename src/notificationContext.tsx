@@ -1,42 +1,39 @@
-// NotificationContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
+interface Notification {
+  id: string;
+  is_read: boolean;
+  // Add other notification properties as needed
+}
+
 interface NotificationContextType {
-  notifications: CustomNotification[];
+  notifications: Notification[];
   unreadCount: number;
   loading: boolean;
   error: string | null;
   fetchNotifications: () => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
-  markAsRead: (notificationIds: string[] | null) => Promise<void>;
+  markAsRead: (notificationIds?: string[] | null) => Promise<any>;
 }
 
-const NotificationContext = createContext<NotificationContextType>({
-  notifications: [],
-  unreadCount: 0,
-  loading: false,
-  error: null,
-  fetchNotifications: async () => {},
-  fetchUnreadCount: async () => {},
-  markAsRead: async () => {},
-});
+const NotificationContext = createContext<NotificationContextType | undefined>(
+  undefined
+);
 
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+interface NotificationProviderProps {
+  children: React.ReactNode;
+}
+
+export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
-  interface CustomNotification {
-    id: string;
-    is_read: boolean;
-    [key: string]: any; // Add other properties as needed
-  }
-
-  const [notifications, setNotifications] = useState<CustomNotification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (): Promise<void> => {
     try {
       setLoading(true);
       const response = await axios.get("/notifications");
@@ -50,7 +47,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = async (): Promise<void> => {
     try {
       const response = await axios.get("/notifications/unread-count");
       setUnreadCount(response.data.count);
@@ -59,7 +56,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const markAsRead = async (notificationIds: string[] | null = null) => {
+  const markAsRead = async (
+    notificationIds: string[] | null = null
+  ): Promise<any> => {
     try {
       const response = await axios.post("/notifications/mark-read", {
         notificationIds,
@@ -117,4 +116,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useNotifications = () => useContext(NotificationContext);
+export const useNotifications = (): NotificationContextType => {
+  const context = useContext(NotificationContext);
+  if (context === undefined) {
+    throw new Error(
+      "useNotifications must be used within a NotificationProvider"
+    );
+  }
+  return context;
+};

@@ -928,7 +928,7 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           return res.status(500).json({ message: "Database error" });
         }
         // Get comment creator
-        const getCreatorQuery = "SELECT creator_id FROM comments WHERE id = ?";
+        const getCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
         db.query(getCreatorQuery, [comment_id], (err, creatorResults) => {
           if (err || creatorResults.length === 0) {
             console.error("Error getting comment creator:", err);
@@ -1151,29 +1151,6 @@ app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
   });
 });
 
-// Helper function to format notification message
-function formatNotificationMessage(notification) {
-  const { sender_username, action_type, content_type, content_preview } =
-    notification;
-
-  switch (action_type) {
-    case "like":
-      if (content_type === "video") {
-        return `${sender_username} liked your video "${content_preview}"`;
-      } else if (content_type === "comment") {
-        return `${sender_username} liked your comment "${content_preview}..."`;
-      } else if (content_type === "reply") {
-        return `${sender_username} liked your reply "${content_preview}..."`;
-      }
-      break;
-    case "comment":
-      return `${sender_username} commented on your video "${content_preview}"`;
-    case "reply":
-      return `${sender_username} replied to your comment "${content_preview}..."`;
-    default:
-      return `${sender_username} interacted with your content`;
-  }
-}
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
