@@ -566,29 +566,37 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
               return res.status(500).json({ message: "Database error" });
             }
             // Get video creator ID
-            const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+            const getCreatorQuery =
+              "SELECT creator_id FROM videos WHERE id = ?";
             db.query(getCreatorQuery, [videoId], (err, results) => {
               if (err || results.length === 0) {
                 console.error("Error getting video creator:", err);
                 db.destroy();
-                return res.status(200).json({ message: "Video liked successfully" });
+                return res
+                  .status(200)
+                  .json({ message: "Video liked successfully" });
               }
               const creatorId = results[0].creator_id;
               // Don't notify if user is liking their own content
               if (creatorId !== userId) {
                 // Create notification
-                const createNotificationQuery = 
+                const createNotificationQuery =
                   "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'like')";
-                db.query(createNotificationQuery, [creatorId, userId, videoId], (err) => {
-                  if (err) {
-                    console.error("Error creating notification:", err);
+                db.query(
+                  createNotificationQuery,
+                  [creatorId, userId, videoId],
+                  (err) => {
+                    if (err) {
+                      console.error("Error creating notification:", err);
+                    }
                   }
-                });
+                );
               }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Video liked successfully" });
+              db.destroy();
+              return res
+                .status(200)
+                .json({ message: "Video liked successfully" });
+            });
           });
         }
       });
@@ -860,10 +868,18 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res
-          .status(200)
-          .json({ message: "Comment unliked successfully" });
+        // Delete notification
+        const deleteNotificationQuery =
+          "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'comment' AND action_type = 'like'";
+        db.query(deleteNotificationQuery, [userId, comment_id], (err) => {
+          if (err) {
+            console.error("Error deleting notification:", err);
+          }
+          db.destroy();
+          return res
+            .status(200)
+            .json({ message: "Comment unliked successfully" });
+        });
       });
     } else {
       // User hasn't liked the comment -> Like it
