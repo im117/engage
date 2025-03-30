@@ -802,6 +802,15 @@ function Home() {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await axios.get("/notifications/unread-count");
+      setUnreadCount(response.data.count);
+    } catch (err) {
+      console.error("Failed to fetch unread count:", err);
+    }
+  };
+
   return (
     <div className="app">
       <div className="app-container">
