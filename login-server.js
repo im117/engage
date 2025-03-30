@@ -542,10 +542,18 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
               db.destroy();
               return res.status(500).json({ message: "Database error" });
             }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Video unliked successfully" });
+            // Delete any related notification as well
+            const deleteNotificationQuery =
+              "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'video' AND action_type = 'like'";
+            db.query(deleteNotificationQuery, [userId, videoId], (err) => {
+              if (err) {
+                console.error("Error deleting notification:", err);
+              }
+              db.destroy();
+              return res
+                .status(200)
+                .json({ message: "Video unliked successfully" });
+            });
           });
         } else {
           // User hasn't liked the video -> Like it
