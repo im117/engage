@@ -1151,6 +1151,57 @@ app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
   });
 });
 
+app.post("/comment-notification", authenticateTokenGet, (req, res) => {
+  const { videoId, commentId } = req.body;
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  // First, get the video creator's ID
+  const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+  db.query(getVideoCreatorQuery, [videoId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    const videoCreatorId = results[0].creator_id;
+
+    // Don't create a notification if the commenter is the video creator
+    if (videoCreatorId === userId) {
+      db.destroy();
+      return res.status(200).json({ message: "No notification needed" });
+    }
+
+    // Create the notification
+    const createNotificationQuery =
+      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
+    db.query(
+      createNotificationQuery,
+      [videoCreatorId, userId, commentId],
+      (err) => {
+        if (err) {
+          console.error("Error creating notification:", err);
+          db.destroy();
+          return res
+            .status(500)
+            .json({ message: "Error creating notification" });
+        }
+
+        db.destroy();
+        return res
+          .status(200)
+          .json({ message: "Notification created successfully" });
+      }
+    );
+  });
+});
+
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
