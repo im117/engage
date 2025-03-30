@@ -573,6 +573,18 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
                 db.destroy();
                 return res.status(200).json({ message: "Video liked successfully" });
               }
+              const creatorId = results[0].creator_id;
+              // Don't notify if user is liking their own content
+              if (creatorId !== userId) {
+                // Create notification
+                const createNotificationQuery = 
+                  "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'like')";
+                db.query(createNotificationQuery, [creatorId, userId, videoId], (err) => {
+                  if (err) {
+                    console.error("Error creating notification:", err);
+                  }
+                });
+              }
             db.destroy();
             return res
               .status(200)
