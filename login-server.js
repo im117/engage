@@ -788,7 +788,7 @@ app.get("/fetch-comment-liked", authenticateTokenGet, (req, res) => {
   });
 });
 
-// Updated like-video endpoint
+// Updated like-reply endpoint
 app.post("/like-reply", authenticateTokenGet, (req, res) => {
   const { fileName, reply_id } = req.body;
   const userId = req.user.userId;
@@ -872,7 +872,7 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
   });
 });
 
-// Updated like-video endpoint
+// Updated like-comment endpoint
 app.post("/like-comment", authenticateTokenGet, (req, res) => {
   const { fileName, comment_id } = req.body;
   const userId = req.user.userId;
@@ -936,7 +936,7 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
             return res.status(500).json({ message: "Database error" });
           }
 
-          const creatorId = creatorResults[0].creator_id;
+          const creatorId = creatorResults[0].user_id;
           // Don't notify if user is liking their own content
           if (creatorId !== userId) {
             // Create notification
@@ -1148,6 +1148,85 @@ app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
       message: "Notifications marked as read",
       affected: result.affectedRows,
     });
+  });
+});
+
+app.post("/comment-notification", authenticateTokenGet, (req, res) => {
+  const { videoId, commentId } = req.body;
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  // First, get the video creator's ID
+  const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+  db.query(getVideoCreatorQuery, [videoId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    const videoCreatorId = results[0].creator_id;
+
+    // Don't create a notification if the commenter is the video creator
+    if (videoCreatorId === userId) {
+      db.destroy();
+      return res.status(200).json({ message: "No notification needed" });
+    }
+
+    // Create the notification
+    const createNotificationQuery =
+      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
+    db.query(
+      createNotificationQuery,
+      [videoCreatorId, userId, videoId],
+      (err) => {
+        if (err) {
+          console.error("Error creating notification:", err);
+          db.destroy();
+          return res
+            .status(500)
+            .json({ message: "Error creating notification", videoTitle });
+        }
+
+        db.destroy();
+        return res
+          .status(200)
+          .json({ message: "Notification created successfully" });
+      }
+    );
+  });
+});
+
+app.get("/comment-notification", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query = `
+    SELECT n.*, 
+           u.username AS sender_username, 
+           (SELECT title FROM videos WHERE id = n.content_id) AS content_preview
+    FROM notifications n
+    LEFT JOIN users u ON n.sender_id = u.id
+    WHERE n.recipient_id = ?
+      AND n.content_type = 'video'
+    ORDER BY n.created_at DESC
+    LIMIT 50
+`;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ notifications: results });
   });
 });
 

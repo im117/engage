@@ -99,7 +99,7 @@ export default function NotificationBell() {
     fetchNotifications();
     fetchUnreadCount();
 
-    const interval = setInterval(fetchUnreadCount, 1000); // Check every 1 seconds
+    const interval = setInterval(fetchUnreadCount, 6000); // Check every 6 seconds
 
     return () => clearInterval(interval);
   }, []);

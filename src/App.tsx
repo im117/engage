@@ -649,7 +649,7 @@ function Home() {
         return;
       }
       const videoId = videoRes.data.id;
-      await axios.post(
+      const commentResponse = await axios.post(
         `${uploadServer}/post-comment`,
         { video_id: videoId, comment },
         { headers: { Authorization: token } }
@@ -657,12 +657,33 @@ function Home() {
       setComment("");
       setNotification("✅ Successfully commented!");
       setTimeout(() => setNotification(""), 3000);
+      // Check if the comment was successfully posted
+      if (commentResponse.data && commentResponse.data.commentId) {
+        // Send notification with proper authorization
+        try {
+          await axios.post(
+            `${loginServer}/comment-notification`,
+            { videoId, commentId: commentResponse.data.commentId },
+            { params: { auth: token } }
+          );
+          console.log("Notification sent successfully");
+        } catch (notificationError) {
+          console.error("Error sending notification:", notificationError);
+        }
+      } else {
+        console.error(
+          "Comment posted but no commentId returned:",
+          commentResponse.data
+        );
+      }
+
+      // Refresh comments
+      await displayComments();
     } catch (error) {
       console.error("Error posting comment:", error);
       setNotification("⚠️ Failed to post comment.");
       setTimeout(() => setNotification(""), 3000);
     }
-    displayComments();
   };
 
   const handleVideoStart = () => {
