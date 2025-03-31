@@ -15,7 +15,7 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
-
+import { sendCommentNotification } from "./notificationBell";
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
@@ -658,19 +658,33 @@ function Home() {
       setComment("");
       setNotification("✅ Successfully commented!");
       setTimeout(() => setNotification(""), 3000);
-      if (commentResponse.data.commentId) {
-        // If comment was successfully posted, create a notification
-        await sendCommentNotification(
-          commentResponse.data.videoId,
-          commentResponse.data.commentId
+      // Check if the comment was successfully posted
+      if (commentResponse.data && commentResponse.data.commentId) {
+        // Send notification with proper authorization
+        try {
+          await axios.post(
+            `${loginServer}/comment-notification`,
+            { videoId, commentId: commentResponse.data.commentId },
+            { params: { auth: token } }
+          );
+          console.log("Notification sent successfully");
+        } catch (notificationError) {
+          console.error("Error sending notification:", notificationError);
+        }
+      } else {
+        console.error(
+          "Comment posted but no commentId returned:",
+          commentResponse.data
         );
       }
+
+      // Refresh comments
+      await displayComments();
     } catch (error) {
       console.error("Error posting comment:", error);
       setNotification("⚠️ Failed to post comment.");
       setTimeout(() => setNotification(""), 3000);
     }
-    await displayComments();
   };
 
   const handleVideoStart = () => {
@@ -687,25 +701,6 @@ function Home() {
       return 0;
     }
   }
-
-  // Add this function to your NotificationBell component
-  const sendCommentNotification = async (
-    videoId: string,
-    commentId: string
-  ) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      await axios.post(
-        `${loginServer}/comment-notification`,
-        { videoId, commentId },
-        { params: { auth: token } }
-      );
-    } catch (error) {
-      console.error("Error sending comment notification:", error);
-    }
-  };
 
   // Fetch comments along with their replies.
   async function displayComments() {

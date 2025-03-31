@@ -39,6 +39,27 @@ function formatNotificationMessage(notification: Notification): string {
   return `${sender_username} interacted with your content`;
 }
 
+export const sendCommentNotification = async (
+  videoId: string,
+  commentId: string
+) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+
+    const response = await axios.post(
+      `${loginServer}/comment-notification`,
+      { videoId, commentId },
+      { params: { auth: token } }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error sending comment notification:", error);
+    return null;
+  }
+};
+
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -51,6 +72,23 @@ export default function NotificationBell() {
 
       const response = await axios.get<{ notifications: Notification[] }>(
         `${loginServer}/notifications`,
+        {
+          params: { auth: token },
+        }
+      );
+      setNotifications(response.data.notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const fetchCommentNotifications = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      const response = await axios.get<{ notifications: Notification[] }>(
+        `${loginServer}/comment-notification`,
         {
           params: { auth: token },
         }
