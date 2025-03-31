@@ -1180,10 +1180,10 @@ app.post("/comment-notification", authenticateTokenGet, (req, res) => {
 
     // Create the notification
     const createNotificationQuery =
-      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'comment')";
+      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
     db.query(
       createNotificationQuery,
-      [videoCreatorId, userId, commentId],
+      [videoCreatorId, userId, videoId],
       (err) => {
         if (err) {
           console.error("Error creating notification:", err);
