@@ -1,3 +1,21 @@
+@keyframes unread{
+  0%{
+    background-color: rgb(196, 61, 61);
+  }
+  20%{
+    background-color: rgb(196, 61, 61);
+  }
+  50%{
+    background-color: rgb(251, 80, 80);
+  }
+  75%{
+    background-color: rgb(251, 80, 80);
+  }
+  100%{
+    background-color: rgb(196, 61, 61);
+  }
+}
+
 .notification-bell {
   position: relative;
 
@@ -91,7 +109,7 @@
       cursor: pointer;
 
       &:hover {
-        background-color: #7490b0;
+        background-color: #59789a;
         p{
           transition: white-space 0.3s ease;
           white-space: normal;
@@ -99,6 +117,7 @@
       }
 
       &.unread {
+        animation: unread 1s ease-in infinite;
         background-color: #d65076;
       }
 
