@@ -1,3 +1,21 @@
+@keyframes unread{
+  0%{
+    background-color: rgb(196, 61, 61);
+  }
+  20%{
+    background-color: rgb(196, 61, 61);
+  }
+  50%{
+    background-color: rgb(251, 80, 80);
+  }
+  75%{
+    background-color: rgb(251, 80, 80);
+  }
+  100%{
+    background-color: rgb(196, 61, 61);
+  }
+}
+
 .notification-bell {
   position: relative;
 
@@ -36,17 +54,18 @@
     position: absolute;
     right: 0;
     top: 100%;
-    width: 300px;
+    width: auto;
     max-height: 400px;
     overflow-y: auto;
-    background-color: white;
+    background-color: #0f4c81;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    color: #333;
+    color: #92a8d1;
 
     .notification-header {
+      background-color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -59,9 +78,9 @@
       }
 
       button {
-        background: none;
+        background: white;
         border: none;
-        color: #0066cc;
+        color: #92a8d1;
         cursor: pointer;
         font-size: 14px;
 
@@ -75,30 +94,47 @@
       p {
         padding: 15px;
         text-align: center;
-        color: #666;
+        color: white;
       }
     }
 
     .notification-item {
+      transition: all 0.3s ease;
       padding: 10px;
+      // Josh's changes
+      
+      // end josh changes
+
       border-bottom: 1px solid #eee;
       cursor: pointer;
 
       &:hover {
-        background-color: #f9f9f9;
+        background-color: #59789a;
+        p{
+          transition: white-space 0.3s ease;
+          white-space: normal;
+        }
       }
 
       &.unread {
-        background-color: #f0f7ff;
+        animation: unread 1s ease-in infinite;
+        background-color: #d65076;
       }
 
       p {
+        transition: white-space 0.3s ease;
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 300px;
+        text-overflow: ellipsis;
+
         margin: 0 0 5px 0;
       }
 
       .notification-time {
         font-size: 12px;
-        color: #777;
+        color: white;
         display: block;
       }
     }
