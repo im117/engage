@@ -1209,7 +1209,7 @@ app.get("/comment-notification", authenticateTokenGet, (req, res) => {
   const query = `
     SELECT n.*, 
            u.username AS sender_username, 
-           (SELECT title FROM videos WHERE id = n.content_id) AS content_preview
+           (SELECT SUBSTRING(title,1,30) FROM videos WHERE id = n.content_id) AS content_preview
     FROM notifications n
     LEFT JOIN users u ON n.sender_id = u.id
     WHERE n.recipient_id = ?
