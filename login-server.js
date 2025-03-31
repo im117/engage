@@ -1207,24 +1207,16 @@ app.get("/comment-notification", authenticateTokenGet, (req, res) => {
   const db = dbRequest(dbHost);
 
   const query = `
-    SELECT n.*,
-           u.username AS sender_username,
-           CASE
-             WHEN n.content_type = 'video' THEN (SELECT title FROM videos WHERE id = n.content_id)
-             WHEN n.content_type = 'comment' THEN (
-               SELECT v.title
-               FROM comments c
-               JOIN videos v ON c.video_id = v.id
-               WHERE c.id = n.content_id
-             )
-             WHEN n.content_type = 'reply' THEN (SELECT SUBSTRING(content, 1, 30) FROM reply WHERE id = n.content_id)
-           END AS content_preview
+    SELECT n.*, 
+           u.username AS sender_username, 
+           (SELECT title FROM videos WHERE id = n.content_id) AS content_preview
     FROM notifications n
     LEFT JOIN users u ON n.sender_id = u.id
     WHERE n.recipient_id = ?
+      AND n.content_type = 'video'
     ORDER BY n.created_at DESC
     LIMIT 50
-  `;
+`;
 
   db.query(query, [userId], (err, results) => {
     if (err) {
