@@ -1180,7 +1180,7 @@ app.post("/comment-notification", authenticateTokenGet, (req, res) => {
 
     // Create the notification
     const createNotificationQuery =
-      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
+      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'comment')";
     db.query(
       createNotificationQuery,
       [videoCreatorId, userId, commentId],
@@ -1190,7 +1190,7 @@ app.post("/comment-notification", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res
             .status(500)
-            .json({ message: "Error creating notification" });
+            .json({ message: "Error creating notification", videoTitle });
         }
 
         db.destroy();
@@ -1199,6 +1199,42 @@ app.post("/comment-notification", authenticateTokenGet, (req, res) => {
           .json({ message: "Notification created successfully" });
       }
     );
+  });
+});
+
+app.get("/comment-notification", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query = `
+    SELECT n.*,
+           u.username AS sender_username,
+           CASE
+             WHEN n.content_type = 'video' THEN (SELECT title FROM videos WHERE id = n.content_id)
+             WHEN n.content_type = 'comment' THEN (
+               SELECT v.title
+               FROM comments c
+               JOIN videos v ON c.video_id = v.id
+               WHERE c.id = n.content_id
+             )
+             WHEN n.content_type = 'reply' THEN (SELECT SUBSTRING(content, 1, 30) FROM reply WHERE id = n.content_id)
+           END AS content_preview
+    FROM notifications n
+    LEFT JOIN users u ON n.sender_id = u.id
+    WHERE n.recipient_id = ?
+    ORDER BY n.created_at DESC
+    LIMIT 50
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ notifications: results });
   });
 });
 
