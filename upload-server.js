@@ -54,7 +54,7 @@ const upload = multer({ storage: storage });
 // Middleware to authenticate JWT
 const authenticateToken = (req, res, next) => {
   const token = req.header("Authorization");
-  console.log("Token received:", token);
+  // console.log("Token received:", token);
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }

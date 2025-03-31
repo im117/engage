@@ -95,6 +95,9 @@ export default function TopBar(){
                 </div>
                 <div className="topbar__menu">
                     <ul className="link__items">
+                      <li>
+                        <a className="button" onClick={() => navigate('/about')}><i className="fa-solid fa-circle-info persist"></i> <span className="desktop__text">About</span></a>
+                      </li>
                         <li>
                           
                             <a className="button" onClick={() => navigate('/upload')}><i className="fa-solid fa-upload persist"></i> <span className="desktop__text">Upload</span></a>

@@ -271,7 +271,7 @@ app.get("/verify-email", (req, res) => {
 
 const authenticateTokenGet = (req, res, next) => {
   const { auth: token } = req.query;
-  console.log("Token received:", token);
+  // console.log("Token received:", token);
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
@@ -449,7 +449,7 @@ function getVideoIdFromFileName(db, fileName) {
       }
 
       const videoId = results[0].id;
-      console.log("Found videoId:", videoId);
+      // console.log("Found videoId:", videoId);
       resolve(videoId);
     });
   });
