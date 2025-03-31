@@ -96,6 +96,16 @@ function Home() {
   const [comment, setComment] = useState("");
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
+  interface Notification {
+    id: number;
+    is_read: boolean;
+    [key: string]: any; // Adjust this based on the actual structure of your notifications
+  }
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
@@ -973,12 +983,18 @@ function Home() {
                                 {repliesVisible[c.id] ? (
                                   <i
                                     className="fa-solid fa-chevron-up"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                    style={{
+                                      fontSize: "1.2em",
+                                      color: "#333",
+                                    }}
                                   ></i>
                                 ) : (
                                   <i
                                     className="fa-solid fa-chevron-down"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                    style={{
+                                      fontSize: "1.2em",
+                                      color: "#333",
+                                    }}
                                   ></i>
                                 )}
                               </button>

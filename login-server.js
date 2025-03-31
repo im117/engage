@@ -542,10 +542,18 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
               db.destroy();
               return res.status(500).json({ message: "Database error" });
             }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Video unliked successfully" });
+            // Delete any related notification as well
+            const deleteNotificationQuery =
+              "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'video' AND action_type = 'like'";
+            db.query(deleteNotificationQuery, [userId, videoId], (err) => {
+              if (err) {
+                console.error("Error deleting notification:", err);
+              }
+              db.destroy();
+              return res
+                .status(200)
+                .json({ message: "Video unliked successfully" });
+            });
           });
         } else {
           // User hasn't liked the video -> Like it
@@ -557,10 +565,38 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
               db.destroy();
               return res.status(500).json({ message: "Database error" });
             }
-            db.destroy();
-            return res
-              .status(200)
-              .json({ message: "Video liked successfully" });
+            // Get video creator ID
+            const getCreatorQuery =
+              "SELECT creator_id FROM videos WHERE id = ?";
+            db.query(getCreatorQuery, [videoId], (err, results) => {
+              if (err || results.length === 0) {
+                console.error("Error getting video creator:", err);
+                db.destroy();
+                return res
+                  .status(200)
+                  .json({ message: "Video liked successfully" });
+              }
+              const creatorId = results[0].creator_id;
+              // Don't notify if user is liking their own content
+              if (creatorId !== userId) {
+                // Create notification
+                const createNotificationQuery =
+                  "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'like')";
+                db.query(
+                  createNotificationQuery,
+                  [creatorId, userId, videoId],
+                  (err) => {
+                    if (err) {
+                      console.error("Error creating notification:", err);
+                    }
+                  }
+                );
+              }
+              db.destroy();
+              return res
+                .status(200)
+                .json({ message: "Video liked successfully" });
+            });
           });
         }
       });
@@ -780,8 +816,18 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res.status(200).json({ message: "Reply unliked successfully" });
+        // Delete notification
+        const deleteNotificationQuery =
+          "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'reply' AND action_type = 'like'";
+        db.query(deleteNotificationQuery, [userId, reply_id], (err) => {
+          if (err) {
+            console.error("Error deleting notification:", err);
+          }
+          db.destroy();
+          return res
+            .status(200)
+            .json({ message: "Reply unliked successfully" });
+        });
       });
     } else {
       // User hasn't liked the comment -> Like it
@@ -793,8 +839,34 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res.status(200).json({ message: "Reply liked successfully" });
+        // Get reply creator
+        const getCreatorQuery = "SELECT creator_id FROM reply WHERE id = ?";
+        db.query(getCreatorQuery, [reply_id], (err, creatorResults) => {
+          if (err || creatorResults.length === 0) {
+            console.error("Error getting reply creator:", err);
+            db.destroy();
+            return res.status(500).json({ message: "Database error" });
+          }
+
+          const creatorId = creatorResults[0].creator_id;
+          // Don't notify if user is liking their own content
+          if (creatorId !== userId) {
+            // Create notification
+            const createNotificationQuery =
+              "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'reply', 'like')";
+            db.query(
+              createNotificationQuery,
+              [creatorId, userId, reply_id],
+              (err) => {
+                if (err) {
+                  console.error("Error creating notification:", err);
+                }
+              }
+            );
+          }
+          db.destroy();
+          return res.status(200).json({ message: "Reply liked successfully" });
+        });
       });
     }
   });
@@ -832,10 +904,18 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res
-          .status(200)
-          .json({ message: "Comment unliked successfully" });
+        // Delete notification
+        const deleteNotificationQuery =
+          "DELETE FROM notifications WHERE sender_id = ? AND content_id = ? AND content_type = 'comment' AND action_type = 'like'";
+        db.query(deleteNotificationQuery, [userId, comment_id], (err) => {
+          if (err) {
+            console.error("Error deleting notification:", err);
+          }
+          db.destroy();
+          return res
+            .status(200)
+            .json({ message: "Comment unliked successfully" });
+        });
       });
     } else {
       // User hasn't liked the comment -> Like it
@@ -847,8 +927,36 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
           db.destroy();
           return res.status(500).json({ message: "Database error" });
         }
-        db.destroy();
-        return res.status(200).json({ message: "Comment liked successfully" });
+        // Get comment creator
+        const getCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
+        db.query(getCreatorQuery, [comment_id], (err, creatorResults) => {
+          if (err || creatorResults.length === 0) {
+            console.error("Error getting comment creator:", err);
+            db.destroy();
+            return res.status(500).json({ message: "Database error" });
+          }
+
+          const creatorId = creatorResults[0].creator_id;
+          // Don't notify if user is liking their own content
+          if (creatorId !== userId) {
+            // Create notification
+            const createNotificationQuery =
+              "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'like')";
+            db.query(
+              createNotificationQuery,
+              [creatorId, userId, comment_id],
+              (err) => {
+                if (err) {
+                  console.error("Error creating notification:", err);
+                }
+              }
+            );
+          }
+          db.destroy();
+          return res
+            .status(200)
+            .json({ message: "Comment liked successfully" });
+        });
       });
     }
   });
@@ -955,6 +1063,93 @@ export const addReply = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+
+// Get user notifications
+app.get("/notifications", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query = `
+    SELECT n.*, 
+           u.username AS sender_username,
+           CASE 
+             WHEN n.content_type = 'video' THEN (SELECT title FROM videos WHERE id = n.content_id)
+             WHEN n.content_type = 'comment' THEN (SELECT SUBSTRING(content, 1, 30) FROM comments WHERE id = n.content_id)
+             WHEN n.content_type = 'reply' THEN (SELECT SUBSTRING(content, 1, 30) FROM reply WHERE id = n.content_id)
+           END AS content_preview
+    FROM notifications n
+    LEFT JOIN users u ON n.sender_id = u.id
+    WHERE n.recipient_id = ?
+    ORDER BY n.created_at DESC
+    LIMIT 50
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ notifications: results });
+  });
+});
+
+// Get unread notification count
+app.get("/notifications/unread-count", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  const query =
+    "SELECT COUNT(*) AS count FROM notifications WHERE recipient_id = ? AND is_read = false";
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ count: results[0].count });
+  });
+});
+
+// Mark notifications as read
+app.post("/notifications/mark-read", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const { notificationIds } = req.body; // Array of notification IDs to mark as read
+  const db = dbRequest(dbHost);
+
+  let query = "";
+  let queryParams = [];
+
+  if (notificationIds && notificationIds.length > 0) {
+    // Mark specific notifications as read
+    query =
+      "UPDATE notifications SET is_read = true WHERE id IN (?) AND recipient_id = ?";
+    queryParams = [notificationIds, userId];
+  } else {
+    // Mark all notifications as read
+    query = "UPDATE notifications SET is_read = true WHERE recipient_id = ?";
+    queryParams = [userId];
+  }
+
+  db.query(query, queryParams, (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({
+      message: "Notifications marked as read",
+      affected: result.affectedRows,
+    });
+  });
+});
 
 // Register routes
 app.post("/signup", signup);
