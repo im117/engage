@@ -788,7 +788,7 @@ app.get("/fetch-comment-liked", authenticateTokenGet, (req, res) => {
   });
 });
 
-// Updated like-video endpoint
+// Updated like-reply endpoint
 app.post("/like-reply", authenticateTokenGet, (req, res) => {
   const { fileName, reply_id } = req.body;
   const userId = req.user.userId;
@@ -872,7 +872,7 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
   });
 });
 
-// Updated like-video endpoint
+// Updated like-comment endpoint
 app.post("/like-comment", authenticateTokenGet, (req, res) => {
   const { fileName, comment_id } = req.body;
   const userId = req.user.userId;
