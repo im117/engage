@@ -28,3 +28,7 @@ async function searchVideos(searchTerm: string) {
       if (titleLower === searchTermLower) {
         score += 100;
       }
+      // Title starts with search term
+      else if (titleLower.startsWith(searchTermLower)) {
+        score += 75;
+      }
