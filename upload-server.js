@@ -408,7 +408,9 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
   try {
     const insertQuery =
       "INSERT INTO reply (creator_id, content, comment_id) VALUES (?, ?, ?)";
-    await db.promise().query(insertQuery, [userId, reply, comment_id]);
+    const [result] = await db
+      .promise()
+      .query(insertQuery, [userId, reply, comment_id]);
     db.destroy();
     return res.status(200).json({ message: "Reply posted successfully!" });
   } catch (error) {
