@@ -16,6 +16,8 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
+import VideoSearch from "./searchVideo";
+
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
@@ -815,6 +817,21 @@ function Home() {
     setShowComments((prev) => !prev);
   };
 
+  const handleSearchResultSelect = (fileName: string) => {
+    // Find the video index in array
+    const index = filteredArray.findIndex(
+      (path) => path && path.includes(fileName)
+    );
+
+    if (index !== -1) {
+      setVideoIndex(index);
+      // If needed, navigate to home page showing the video
+      if (window.location.pathname !== "/") {
+        navigate("/");
+      }
+    }
+  };
+
   return (
     <div className="app">
       <div className="app-container">
@@ -899,6 +916,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         <div className="video-details">
           <div className="details-metadata">
             {filteredArray.length > 0 && (
@@ -1128,6 +1146,8 @@ function Home() {
               </>
             )}
             {/* )} */}
+            {/* Search container here */}
+            <VideoSearch onResultSelect={handleSearchResultSelect} />
 
             {notification && (
               <div

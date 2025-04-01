@@ -86,12 +86,17 @@ export default function TopBar() {
     }
   }
   assignUsername();
+
   return (
     <nav className="topbar">
       <div className="topbar__container">
         <div className="topbar__logo">
           <a onClick={() => navigate("/")}>
-            <img className="topbar__icon" src="/src/assets/icon.svg" alt="Engage Logo" />
+            <img
+              className="topbar__icon"
+              src="/src/assets/icon.svg"
+              alt="Engage Logo"
+            />
             <h1 className="desktop__text">Engage</h1>
           </a>
         </div>
