@@ -3,12 +3,12 @@ async function searchVideos(searchTerm: string) {
   if (!searchTerm.trim()) {
     return []; // Return empty array for empty search
   }
-  
+
   try {
     // Fetch all videos from the server
     const response = await axios.get(`${uploadServer}/video-list`);
     const allVideos = response.data;
-    
+
     if (!allVideos || !allVideos.length) {
       return [];
     }
@@ -21,9 +21,9 @@ async function searchVideos(searchTerm: string) {
       // Calculate basic match score - case insensitive
       const searchTermLower = searchTerm.toLowerCase();
       const titleLower = title.toLowerCase();
-      
+
       let score = 0;
-      
+
       // Exact match gets highest score
       if (titleLower === searchTermLower) {
         score += 100;
@@ -50,7 +50,8 @@ async function searchVideos(searchTerm: string) {
       const titleTokens = titleLower.split(/\s+/);
 
       for (const token of searchTokens) {
-        if (token.length > 2) { // Ignore very short tokens
+        if (token.length > 2) {
+          // Ignore very short tokens
           for (const titleToken of titleTokens) {
             if (titleToken.includes(token)) {
               score += 5;
@@ -58,9 +59,20 @@ async function searchVideos(searchTerm: string) {
           }
         }
       }
-      
+
       return {
         ...video,
-        score
+        score,
       };
     });
+    // Filter videos with any match score and sort by score (highest first)
+    const matchedVideos = scoredVideos
+      .filter((video: any) => video.score > 0)
+      .sort((a: any, b: any) => b.score - a.score);
+
+    return matchedVideos;
+  } catch (error) {
+    console.error("Error searching videos:", error);
+    return [];
+  }
+}
