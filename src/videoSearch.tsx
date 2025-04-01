@@ -32,3 +32,8 @@ async function searchVideos(searchTerm: string) {
       else if (titleLower.startsWith(searchTermLower)) {
         score += 75;
       }
+      // Title contains search term as a whole word
+      else if (new RegExp(`\\b${searchTermLower}\\b`).test(titleLower)) {
+        score += 50;
+      }
+      
