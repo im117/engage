@@ -44,3 +44,7 @@ async function searchVideos(searchTerm: string) {
       if (description.toLowerCase().includes(searchTermLower)) {
         score += 10;
       }
+
+      // Additional points based on number of tokens matched
+      const searchTokens = searchTermLower.split(/\s+/);
+      const titleTokens = titleLower.split(/\s+/);
