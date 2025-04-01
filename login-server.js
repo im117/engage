@@ -1202,57 +1202,6 @@ app.post("/comment-notification", authenticateTokenGet, (req, res) => {
   });
 });
 
-app.post("/reply-notification", authenticateTokenGet, (req, res) => {
-  const { commentId, replyId } = req.body;
-  const userId = req.user.userId;
-  const db = dbRequest(dbHost);
-
-  // First, get the comment creator's ID
-  const getCommentCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
-  db.query(getCommentCreatorQuery, [commentId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      db.destroy();
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    if (results.length === 0) {
-      db.destroy();
-      return res.status(404).json({ message: "Video not found" });
-    }
-
-    const commentCreatorId = results[0].user_id;
-
-    // Don't create a notification if the replier is the comment creator
-    if (commentCreatorId === userId) {
-      db.destroy();
-      return res.status(200).json({ message: "No notification needed" });
-    }
-
-    // Create the notification
-    const createNotificationQuery =
-      "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'reply')";
-    db.query(
-      createNotificationQuery,
-      [commentCreatorId, userId, commentId],
-      (err) => {
-        if (err) {
-          console.error("Error creating notification:", err);
-          db.destroy();
-          return res
-            .status(500)
-            .json({ message: "Error creating notification", videoTitle });
-        }
-
-        db.destroy();
-        return res
-          .status(200)
-          .json({ message: "Notification created successfully" });
-      }
-    );
-  });
-});
-
 app.get("/comment-notification", authenticateTokenGet, (req, res) => {
   const userId = req.user.userId;
   const db = dbRequest(dbHost);
@@ -1265,34 +1214,6 @@ app.get("/comment-notification", authenticateTokenGet, (req, res) => {
     LEFT JOIN users u ON n.sender_id = u.id
     WHERE n.recipient_id = ?
       AND n.content_type = 'video'
-    ORDER BY n.created_at DESC
-    LIMIT 50
-`;
-
-  db.query(query, [userId], (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      db.destroy();
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    db.destroy();
-    return res.status(200).json({ notifications: results });
-  });
-});
-
-app.get("/reply-notification", authenticateTokenGet, (req, res) => {
-  const userId = req.user.userId;
-  const db = dbRequest(dbHost);
-
-  const query = `
-    SELECT n.*, 
-           u.username AS sender_username, 
-           (SELECT content FROM comments WHERE id = n.content_id) AS content_preview
-    FROM notifications n
-    LEFT JOIN users u ON n.sender_id = u.id
-    WHERE n.recipient_id = ?
-      AND n.content_type = 'comment'
     ORDER BY n.created_at DESC
     LIMIT 50
 `;
