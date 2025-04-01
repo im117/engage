@@ -105,3 +105,9 @@ useEffect(() => {
 const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setSearchTerm(e.target.value);
 };
+
+const handleResultClick = (fileName: string) => {
+  onResultSelect(fileName);
+  setSearchTerm("");
+  setShowResults(false);
+};
