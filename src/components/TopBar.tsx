@@ -74,7 +74,6 @@ export default function TopBar() {
   //   return (
   //     <div className="login-button-section" dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
   //   )
-
   // }
 
   getLoggedInUserId();
@@ -92,7 +91,7 @@ export default function TopBar() {
       <div className="topbar__container">
         <div className="topbar__logo">
           <a onClick={() => navigate("/")}>
-            <img className="topbar__icon" src="/src/assets/icon.svg"></img>
+            <img className="topbar__icon" src="/src/assets/icon.svg" alt="Engage Logo" />
             <h1 className="desktop__text">Engage</h1>
           </a>
         </div>
@@ -102,6 +101,13 @@ export default function TopBar() {
               <a className="button" onClick={() => navigate("/upload")}>
                 <i className="fa-solid fa-upload persist"></i>{" "}
                 <span className="desktop__text">Upload</span>
+              </a>
+            </li>
+            {/* Added Search button */}
+            <li>
+              <a className="button" onClick={() => navigate("/search")}>
+                <i className="fa-solid fa-search persist"></i>{" "}
+                <span className="desktop__text">Search</span>
               </a>
             </li>
             <li>
