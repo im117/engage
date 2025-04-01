@@ -76,3 +76,10 @@ async function searchVideos(searchTerm: string) {
     return [];
   }
 }
+
+// Component for video search functionality
+const VideoSearch = ({ onResultSelect }: { onResultSelect: (video: string) => void }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
