@@ -40,3 +40,7 @@ async function searchVideos(searchTerm: string) {
       else if (titleLower.includes(searchTermLower)) {
         score += 25;
       }
+      // Secondary match in description
+      if (description.toLowerCase().includes(searchTermLower)) {
+        score += 10;
+      }
