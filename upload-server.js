@@ -412,6 +412,19 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
       .promise()
       .query(insertQuery, [userId, reply, comment_id]);
     const replyId = result.insertId;
+
+    // Get the comment creator's ID
+    const getCommentCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
+    const [commentResults] = await db
+      .promise()
+      .query(getCommentCreatorQuery, [comment_id]);
+
+    if (commentResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    const commentCreatorId = commentResults[0].user_id;
     db.destroy();
     return res.status(200).json({ message: "Reply posted successfully!" });
   } catch (error) {
