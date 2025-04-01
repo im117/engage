@@ -437,7 +437,9 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
         .query(createNotificationQuery, [commentCreatorId, userId, comment_id]);
     }
     db.destroy();
-    return res.status(200).json({ message: "Reply posted successfully!" });
+    return res
+      .status(200)
+      .json({ message: "Reply posted successfully!", replyId: replyId });
   } catch (error) {
     console.error("Error inserting reply:", error);
     db.destroy();
