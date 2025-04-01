@@ -111,3 +111,15 @@ const handleResultClick = (fileName: string) => {
   setSearchTerm("");
   setShowResults(false);
 };
+
+// Close search results when clicking outside
+useEffect(() => {
+  const handleClickOutside = () => {
+    setShowResults(false);
+  };
+  
+  document.addEventListener('click', handleClickOutside);
+  return () => {
+    document.removeEventListener('click', handleClickOutside);
+  };
+}, []);
