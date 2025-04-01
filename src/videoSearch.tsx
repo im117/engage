@@ -17,4 +17,14 @@ async function searchVideos(searchTerm: string) {
       // Calculate match score based on various factors
       const title = video.title || "";
       const description = video.description || "";
+
+      // Calculate basic match score - case insensitive
+      const searchTermLower = searchTerm.toLowerCase();
+      const titleLower = title.toLowerCase();
       
+      let score = 0;
+      
+      // Exact match gets highest score
+      if (titleLower === searchTermLower) {
+        score += 100;
+      }
