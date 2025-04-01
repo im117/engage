@@ -36,4 +36,7 @@ async function searchVideos(searchTerm: string) {
       else if (new RegExp(`\\b${searchTermLower}\\b`).test(titleLower)) {
         score += 50;
       }
-      
+      // Title contains search term
+      else if (titleLower.includes(searchTermLower)) {
+        score += 25;
+      }
