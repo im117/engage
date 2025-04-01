@@ -101,3 +101,7 @@ useEffect(() => {
   
   return () => clearTimeout(delayDebounceFn);
 }, [searchTerm]);
+
+const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setSearchTerm(e.target.value);
+};
