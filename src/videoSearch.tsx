@@ -83,3 +83,21 @@ const VideoSearch = ({ onResultSelect }: { onResultSelect: (video: string) => vo
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+
+// Debounce search to prevent too many requests
+useEffect(() => {
+  const delayDebounceFn = setTimeout(async () => {
+    if (searchTerm) {
+      setIsSearching(true);
+      const results = await searchVideos(searchTerm);
+      setSearchResults(results);
+      setIsSearching(false);
+      setShowResults(true);
+    } else {
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  }, 300);
+  
+  return () => clearTimeout(delayDebounceFn);
+}, [searchTerm]);
