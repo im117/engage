@@ -48,3 +48,19 @@ async function searchVideos(searchTerm: string) {
       // Additional points based on number of tokens matched
       const searchTokens = searchTermLower.split(/\s+/);
       const titleTokens = titleLower.split(/\s+/);
+
+      for (const token of searchTokens) {
+        if (token.length > 2) { // Ignore very short tokens
+          for (const titleToken of titleTokens) {
+            if (titleToken.includes(token)) {
+              score += 5;
+            }
+          }
+        }
+      }
+      
+      return {
+        ...video,
+        score
+      };
+    });
