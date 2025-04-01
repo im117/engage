@@ -425,6 +425,17 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
     }
 
     const commentCreatorId = commentResults[0].user_id;
+
+    // Don't create a notification if the replier is the comment creator
+    if (commentCreatorId !== userId) {
+      // Create the notification
+      const createNotificationQuery =
+        "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'reply')";
+
+      await db
+        .promise()
+        .query(createNotificationQuery, [commentCreatorId, userId, comment_id]);
+    }
     db.destroy();
     return res.status(200).json({ message: "Reply posted successfully!" });
   } catch (error) {
