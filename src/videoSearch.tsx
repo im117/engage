@@ -12,3 +12,9 @@ async function searchVideos(searchTerm: string) {
     if (!allVideos || !allVideos.length) {
       return [];
     }
+    // Score each video based on how well it matches the search term
+    const scoredVideos = allVideos.map((video: any) => {
+      // Calculate match score based on various factors
+      const title = video.title || "";
+      const description = video.description || "";
+      
