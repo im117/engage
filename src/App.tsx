@@ -1,6 +1,7 @@
 import "./styles/App.scss"; // Import global and App-specific styles
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Search from "./components/search.tsx";
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 import PrivateRoute from "./PrivateRoute";
