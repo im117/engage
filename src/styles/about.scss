@@ -1,0 +1,47 @@
+@use "global.scss" as *;
+
+.main__section{
+    color: white;
+    display: inline-block;
+    width: 100vw;
+    height: 80vh;
+    text-align: center;
+    padding-top: 20px;
+    img{
+        width: 500px;
+    }    
+    h1{
+        font-size: 3rem;
+    }
+    p{
+        text-align: left;
+        padding: 0px 100px;
+        text-indent: 30px;
+    }
+}
+.dev__section{
+    .container{
+        backdrop-filter: brightness(20%) blur(20px);
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    padding: 0px 100px;
+    height: 80vh;
+    width: 100vw;
+    align-items: center;
+    img{
+        max-width: 250px;
+    }
+    .text__container{
+        text-align: right;
+    }
+}
+}
+
+.josh{
+    background-image: url("/src/assets/josh.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+}
