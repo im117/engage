@@ -1,4 +1,4 @@
-<!---Explain your PR here --->
+<!---Explain your PR here: What it does, its functionality, etc. --->
 
 ---
 ### Merge Tasks:
@@ -8,9 +8,11 @@
 - [ ] This branch does not break any existing functionality from the base branch
 
 ---
-### Tasks:
+### PR Tasks:
+<!-- Explain your specific PR tasks here that need to be done, in order for your code to be considered ready for merge. -->
 - [ ] 
 
 ---
 ### Dependent Issues:
+<!-- Place any dependent issues/PBIs here -->
 - 
