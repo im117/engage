@@ -817,6 +817,7 @@ function Home() {
     setShowComments((prev) => !prev);
   };
 
+  // Function to handle search result selection
   const handleSearchResultSelect = (fileName: string) => {
     // Find the video index in array
     const index = filteredArray.findIndex(
@@ -834,6 +835,8 @@ function Home() {
 
   return (
     <div className="app">
+      {/* Search container here */}
+      <VideoSearch onResultSelect={handleSearchResultSelect} />
       <div className="app-container">
         <div className="video-player">
           <ReactPlayer
@@ -1146,8 +1149,6 @@ function Home() {
               </>
             )}
             {/* )} */}
-            {/* Search container here */}
-            <VideoSearch onResultSelect={handleSearchResultSelect} />
 
             {notification && (
               <div
