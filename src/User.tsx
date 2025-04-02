@@ -1,28 +1,19 @@
-// Import necessary dependencies
 import "./styles/User.scss"; // Import styles for component layout
-import { useState, useEffect } from "react"; // React hook for managing state
+import { useState, useEffect, useRef } from "react"; // Added useRef for file input
 import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import axios from "axios";
-
-// Define the props interface for the `User` component
-// interface UserProps {
-//   userVideos: string[]; // Array of video URLs for the user
-// }
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
-  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
 let loginServer = "http://localhost:8081";
-
 if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
-  // console.log(import.meta.env.VITE_UPLOAD_SERVER);
   loginServer = import.meta.env.VITE_LOGIN_SERVER;
 }
 
@@ -31,6 +22,14 @@ function User() {
   const [userVideos, setUserVideos] = useState<string[]>([]);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
+  // New state for date joined
+  const [dateJoined, setDateJoined] = useState("");
+
+  // New state for profile picture; using an online placeholder to ensure a visible image.
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>("https://via.placeholder.com/100");
+
+  // useRef for hidden file input
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   async function loadUserVideos() {
     const token = localStorage.getItem("authToken");
@@ -45,7 +44,6 @@ function User() {
         response.data.videos.forEach((element: { fileName: string }) => {
           userVideoArray.push("./media/" + element.fileName);
         });
-        // console.log(userVideoArray);
         setUserVideos(userVideoArray as string[]);
       } catch (error) {
         console.error("Error fetching user videos:", error);
@@ -69,10 +67,8 @@ function User() {
             },
           })
           .then((response) => {
-            // id = response.data.userId;
             setUserID(response.data.userId as number);
           });
-        // userChanged = true;
       } catch (error) {
         console.error("Error fetching user ID:", error);
         return null;
@@ -82,6 +78,7 @@ function User() {
     }
   }
 
+  // Modified getUsername to also set the profile picture URL and date joined if available
   async function getUsername(userid: number) {
     let username = "";
     await axios
@@ -92,6 +89,15 @@ function User() {
       })
       .then((response) => {
         username = response.data.username;
+        if (response.data.profilePictureUrl) {
+          setProfilePictureUrl(response.data.profilePictureUrl);
+        }
+        if (response.data.dateCreated) {
+          // Format date as day/month/year using en-GB locale
+          const joinDate = new Date(response.data.dateCreated);
+          const formattedDate = joinDate.toLocaleDateString('en-GB');
+          setDateJoined(formattedDate);
+        }
       });
     setUsername(username as string);
   }
@@ -186,6 +192,32 @@ function User() {
     startIndex + VIDEOS_PER_PAGE
   );
 
+  // ----- Profile Picture Handlers -----
+
+  // Opens the file dialog when the profile picture is clicked
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handles the file upload and updates profile picture
+  const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+      formData.append("userId", userID.toString());
+      try {
+        const response = await axios.post(`${uploadServer}/upload-profile-picture`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        // Assume the backend returns the new profile picture URL and updates the user record
+        setProfilePictureUrl(response.data.profilePictureUrl);
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+      }
+    }
+  };
+
   return (
     <div className="user-page-wrapper">
       {/* Main content container with swipe handlers */}
@@ -197,25 +229,46 @@ function User() {
       >
         {/* Logout button */}
         <div className="logout__section">
-        <a className="button warning" onClick={handleLogout}>
-            <i className="fas fa-door-open"></i><span className="desktop__text"> Logout</span>
-            </a>
+          <a className="button warning" onClick={handleLogout}>
+            <i className="fas fa-door-open"></i>
+            <span className="desktop__text"> Logout</span>
+          </a>
         </div>
         
         <div className="content-container">
-          {/* Section title */}
-          
+          {/* ----- Profile Picture Section with User Info ----- */}
+          <div className="profile-picture-wrapper">
+            <img
+              src={profilePictureUrl}
+              alt="Profile"
+              className="profile-picture"
+              onClick={handleProfilePictureClick}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={handleProfilePictureChange}
+            />
+            <div className="user-info">
+              <div className="username-display">{username}</div>
+              <div className="date-joined">Joined: {dateJoined}</div>
+            </div>
+          </div>
+
+          {/* Engagements Section */}
           <div className="my-videos-container">
             <div className="text">
-            <h2>Your engagements</h2>
-            <p style={{ fontSize: "1rem" }} className="mobile__text">
-              Swipe left and right to navigate.<br></br> Touch video to play. <br></br>Tap background to return.
-            </p>
-            <p className="desktop__text">
-              Click and drag left and right to navigate.
-              <br></br> Click video to play.
-              <br></br>Click background to return.
-            </p>
+              <h2>Your engagements</h2>
+              <p style={{ fontSize: "1rem" }} className="mobile__text">
+                Swipe left and right to navigate.<br></br> Touch video to play. <br></br>Tap background to return.
+              </p>
+              <p className="desktop__text">
+                Click and drag left and right to navigate.
+                <br></br> Click video to play.
+                <br></br>Click background to return.
+              </p>
             </div>
           </div>
 
@@ -252,14 +305,6 @@ function User() {
               )}
             </motion.div>
           </AnimatePresence>
-
-          {/* Home button for navigation */}
-          {/* <div className="user-buttons">
-            <button className="home-button" onClick={() => navigate("/")}>
-              Home
-            </button>
-            
-          </div> */}
         </div>
       </div>
 
