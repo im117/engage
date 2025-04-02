@@ -1,5 +1,6 @@
 <!-- Explain your PR here: What it does, its functionality, etc. -->
 
+<!-- This comment is here to prevent your text accidentally becoming an h1 in the PR description -->
 ---
 ### PR Tasks:
 <!-- Explain your specific PR tasks here that need to be done. -->
