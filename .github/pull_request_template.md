@@ -1,7 +1,5 @@
 <!---Explain your PR here: What it does, its functionality, etc. --->
 
-
-
 ---
 ### PR Tasks:
 <!-- Explain your specific PR tasks here that need to be done, in order for your code to be considered ready for merge. -->
