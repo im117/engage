@@ -109,12 +109,12 @@ export default function TopBar() {
               </a>
             </li>
             {/* Added Search button */}
-            <li>
+            {/* <li>
               <a className="button" onClick={() => navigate("/search")}>
                 <i className="fa-solid fa-search persist"></i>{" "}
                 <span className="desktop__text">Search</span>
               </a>
-            </li>
+            </li> */}
             <li>
               <a
                 className={loggedIn ? "button user" : "button"}
