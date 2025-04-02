@@ -1,3 +1,7 @@
+<!--  IMPORTANT: uncomment the following two lines if your code contains changes to /initdb/schema.sql -->
+<!-- > [!IMPORTANT]  
+> The following PR contains changes to `/initdb/schema.sql` -->
+
 <!-- Explain your PR here: What it does, its functionality, etc. -->
 
 <!-- This comment is here to prevent your text accidentally becoming an h1 in the PR description -->
