@@ -456,6 +456,68 @@ app.get("/get-replies", async (req, res) => {
   }
 });
 
+// ------------------------------
+// FOLLOW / UNFOLLOW ENDPOINTS
+// ------------------------------
+
+// Follow a user (requires authentication)
+app.post("/follow-user", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { userId } = req.body; // ID of the user to follow
+  const followerId = req.user.userId;
+  
+  if (!userId) {
+    db.destroy();
+    return res.status(400).json({ message: "User ID to follow is required" });
+  }
+  try {
+    // Check if already following
+    const checkQuery = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+    const [existing] = await db.promise().query(checkQuery, [followerId, userId]);
+    if (existing.length > 0) {
+      db.destroy();
+      return res.status(200).json({ message: "Already following" });
+    }
+    // Insert follow record
+    const insertQuery = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
+    await db.promise().query(insertQuery, [followerId, userId]);
+    // Optionally, create a notification for the followed user
+    const notifQuery = `
+      INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type)
+      VALUES (?, ?, ?, 'follow', 'follow')
+    `;
+    await db.promise().query(notifQuery, [userId, followerId, userId]);
+    db.destroy();
+    return res.status(200).json({ message: "Followed successfully" });
+  } catch (error) {
+    console.error("Error following user:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+// Unfollow a user (requires authentication)
+app.post("/unfollow-user", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { userId } = req.body; // ID of the user to unfollow
+  const followerId = req.user.userId;
+  
+  if (!userId) {
+    db.destroy();
+    return res.status(400).json({ message: "User ID to unfollow is required" });
+  }
+  try {
+    const deleteQuery = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?";
+    await db.promise().query(deleteQuery, [followerId, userId]);
+    db.destroy();
+    return res.status(200).json({ message: "Unfollowed successfully" });
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
 function deleteFile(filePath) {
   fs.unlink(filePath, (err) => {
     if (err) {
