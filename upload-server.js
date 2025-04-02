@@ -356,6 +356,26 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
       .query(insertQuery, [userId, video_id, comment]);
     const commentId = result.insertId;
     console.log("Comment successfully stored in database!");
+
+    // Get the video creator's ID
+    const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+    const [videoResults] = await db
+      .promise()
+      .query(getVideoCreatorQuery, [video_id]);
+
+    if (videoResults.length > 0) {
+      const videoCreatorId = videoResults[0].creator_id;
+      // Don't create a notification if the commenter is the video creator
+      if (videoCreatorId !== userId) {
+        // Create the notification
+        const createNotificationQuery =
+          "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
+
+        await db
+          .promise()
+          .query(createNotificationQuery, [videoCreatorId, userId, video_id]);
+      }
+    }
     db.destroy();
     return res
       .status(200)
@@ -408,9 +428,38 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
   try {
     const insertQuery =
       "INSERT INTO reply (creator_id, content, comment_id) VALUES (?, ?, ?)";
-    await db.promise().query(insertQuery, [userId, reply, comment_id]);
+    const [result] = await db
+      .promise()
+      .query(insertQuery, [userId, reply, comment_id]);
+    const replyId = result.insertId;
+
+    // Get the comment creator's ID
+    const getCommentCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
+    const [commentResults] = await db
+      .promise()
+      .query(getCommentCreatorQuery, [comment_id]);
+
+    if (commentResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    const commentCreatorId = commentResults[0].user_id;
+
+    // Don't create a notification if the replier is the comment creator
+    if (commentCreatorId !== userId) {
+      // Create the notification
+      const createNotificationQuery =
+        "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'reply')";
+
+      await db
+        .promise()
+        .query(createNotificationQuery, [commentCreatorId, userId, comment_id]);
+    }
     db.destroy();
-    return res.status(200).json({ message: "Reply posted successfully!" });
+    return res
+      .status(200)
+      .json({ message: "Reply posted successfully!", replyId: replyId });
   } catch (error) {
     console.error("Error inserting reply:", error);
     db.destroy();
