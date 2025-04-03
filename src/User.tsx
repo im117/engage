@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"; // Hook for programmatic navigat
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import axios from "axios";
+import { join } from "path";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
@@ -24,6 +25,7 @@ function User() {
   const [userID, setUserID] = useState(0);
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
+  const [role, setRole] = useState("User"); // Default role is "User"
 
   // New state for profile picture; using an online placeholder to ensure a visible image.
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
@@ -79,6 +81,14 @@ function User() {
       return null;
     }
   }
+  const formatDate = (dateString: string | number | Date) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   // Modified getUsername to also set the profile picture URL and date joined if available
   async function getUsername(userid: number) {
@@ -98,10 +108,11 @@ function User() {
           // Format date as day/month/year using en-GB locale
           const joinDate = new Date(response.data.dateCreated);
           const formattedDate = joinDate.toLocaleDateString("en-GB");
-          setDateJoined(formattedDate);
+          setDateJoined(formatDate(joinDate));
         }
       });
     setUsername(username as string);
+    setRole("User"); // Set default role to "User"
   }
 
   useEffect(() => {
@@ -261,6 +272,7 @@ function User() {
             />
             <div className="user-info">
               <div className="username-display">{username}</div>
+              <div className="user-role">Role: {role}</div>
               <div className="date-joined">Joined: {dateJoined}</div>
             </div>
           </div>

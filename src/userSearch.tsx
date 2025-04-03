@@ -9,12 +9,16 @@ const UserSearch = () => {
     id: string;
     username: string;
     role: string;
+    profilePictureUrl: string;
   }
 
   const [results, setResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
+    "https://via.placeholder.com/100"
+  );
 
   // Get API base URL from environment
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
@@ -34,6 +38,9 @@ const UserSearch = () => {
       });
 
       setResults(response.data.users);
+      if (response.data.users.profilePictureUrl) {
+        setProfilePictureUrl(response.data.user.profilePictureUrl);
+      }
     } catch (err) {
       console.error("Error searching users:", err);
       setError("Failed to search users. Please try again.");
@@ -89,7 +96,14 @@ const UserSearch = () => {
                 onClick={() => viewUserProfile(user.id)}
               >
                 <div className="avatar">
-                  {user.username.charAt(0).toUpperCase()}
+                  <img
+                    src={
+                      user.profilePictureUrl ||
+                      "https://via.placeholder.com/100"
+                    }
+                    alt="Profile"
+                    className="profile-picture"
+                  />
                 </div>
                 <div className="user-info">
                   <p className="username">{user.username}</p>

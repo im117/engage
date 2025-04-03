@@ -1241,7 +1241,7 @@ app.get("/search-users", (req, res) => {
   }
   // Use LIKE operator for partial matching with wildcards
   const searchQuery = `
-SELECT id, username, email, role, dateCreated
+SELECT id, username, email, role,profilePictureUrl, dateCreated
 FROM users
 WHERE username LIKE ?
 ORDER BY username
