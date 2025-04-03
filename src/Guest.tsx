@@ -7,9 +7,6 @@ import { motion, AnimatePresence } from "framer-motion"; // Animation library fo
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import "./styles/User.scss";
 
-// Set the number of videos displayed per page
-const VIDEOS_PER_PAGE = 6;
-
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
@@ -20,6 +17,9 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 }
 
 const UserProfile = () => {
+  // Set the number of videos displayed per page
+  const VIDEOS_PER_PAGE = 6;
+
   const { userId } = useParams();
   const [userVideos, setUserVideos] = useState<string[]>([]);
   // New state for date joined
@@ -209,7 +209,7 @@ const UserProfile = () => {
             />
             <div className="user-info">
               <div className="username-display">{profile.username}</div>
-              <div className="user-role">Role:{profile.role}</div>
+              <div className="user-role">Role: {profile.role}</div>
               <div className="date-joined">
                 Joined: {formatDate(profile.dateCreated)}
               </div>
