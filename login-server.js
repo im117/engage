@@ -1260,6 +1260,36 @@ LIMIT 20
   });
 });
 
+// Get user by username endpoint
+app.get("/user-by-username/:username", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { username } = req.params;
+
+  if (!username) {
+    db.destroy();
+    return res.status(400).json({ message: "Username is required" });
+  }
+
+  const userQuery =
+    "SELECT id, username, role, createdAt FROM users WHERE username = ?";
+
+  db.query(userQuery, [username], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ user: results[0] });
+  });
+});
+
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
