@@ -1230,6 +1230,16 @@ app.get("/comment-notification", authenticateTokenGet, (req, res) => {
   });
 });
 
+// User search endpoint
+app.get("/search-users", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { query } = req.query;
+  
+  if (!query || query.trim() === "") {
+    db.destroy();
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);
