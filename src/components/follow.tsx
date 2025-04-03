@@ -11,17 +11,27 @@ const Follow: React.FC<FollowProps> = ({ userId, initialFollowing }) => {
   const [loading, setLoading] = useState(false);
 
   const handleFollow = async () => {
+    
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      await axios.post(
+      // console.log("Auth Token:", token);
+      // console.log("User ID:", userId);
+      
+      const response = await axios.post(
         "http://localhost:3001/follow-user",
         { userId },
         { headers: { Authorization: token || "" } }
       );
       setFollowing(true);
+      console.log("Follow response:", response.data);
+    
     } catch (error) {
-      console.error("Error following user:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error following user:", error.response?.data || error.message);
+      } else {
+        console.error("Error following user:", error);
+      }
     }
     setLoading(false);
   };

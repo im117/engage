@@ -84,7 +84,7 @@ CREATE TABLE notifications (
     recipient_id INT NOT NULL,
     sender_id INT,
     content_id INT NOT NULL,
-    content_type ENUM('video', 'comment', 'reply') NOT NULL,
+    content_type ENUM('video', 'comment', 'reply', 'follow') NOT NULL,
     action_type ENUM('like', 'comment', 'reply', 'follow') NOT NULL,
     is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

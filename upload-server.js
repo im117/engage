@@ -462,6 +462,7 @@ app.get("/get-replies", async (req, res) => {
 
 // Follow a user (requires authentication)
 app.post("/follow-user", authenticateToken, async (req, res) => {
+  // console.log("Follow user endpoint hit");
   const db = dbRequest(dbHost);
   const { userId } = req.body; // ID of the user to follow
   const followerId = req.user.userId;
@@ -498,6 +499,7 @@ app.post("/follow-user", authenticateToken, async (req, res) => {
 
 // Unfollow a user (requires authentication)
 app.post("/unfollow-user", authenticateToken, async (req, res) => {
+  // alert("unfollow-user endpoint hit");
   const db = dbRequest(dbHost);
   const { userId } = req.body; // ID of the user to unfollow
   const followerId = req.user.userId;
