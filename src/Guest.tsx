@@ -26,17 +26,11 @@ const UserProfile = () => {
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
 
-  // New state for profile picture; using an online placeholder to ensure a visible image.
-  const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
-    "https://via.placeholder.com/100"
-  );
-  // useRef for hidden file input
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   interface UserProfile {
     username: string;
     role: string;
-    createdAt: string | number | Date;
+    dateCreated: string | number | Date;
+    profilePictureUrl: string;
     videoCount: number;
     commentCount: number;
     replyCount: number;
@@ -59,6 +53,12 @@ const UserProfile = () => {
   const [currentPage, setCurrentPage] = useState(0); // Tracks the current page number in the video list
   const [isJittering, setIsJittering] = useState(false); // Triggers a "jitter" effect if the user reaches the last/first page
   const [direction, setDirection] = useState(0); // Tracks swipe direction: -1 (left) or 1 (right) for smooth transitions
+  // New state for profile picture; using an online placeholder to ensure a visible image.
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
+    "https://via.placeholder.com/100"
+  );
+  // useRef for hidden file input
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Calculate the total number of pages based on the number of videos
   const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
@@ -140,6 +140,9 @@ const UserProfile = () => {
           `${API_BASE_URL}/user-profile/${userId}`
         );
         setProfile(response.data.profile);
+        if (response.data.profile.profilePictureUrl) {
+          setProfilePictureUrl(response.data.profile.profilePictureUrl);
+        }
         setError("");
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -200,11 +203,18 @@ const UserProfile = () => {
       >
         <div className="content-container">
           <div className="profile-picture-wrapper">
+            <img
+              src={
+                profile.profilePictureUrl || "https://via.placeholder.com/100"
+              }
+              alt="Profile"
+              className="profile-picture"
+            />
             <div className="user-info">
               <div className="username-display">{profile.username}</div>
-              <p>Role: {profile.role}</p>
+              <div className="user-role">Role:{profile.role}</div>
               <div className="date-joined">
-                Joined: {formatDate(profile.createdAt)}
+                Joined: {formatDate(profile.dateCreated)}
               </div>
             </div>
           </div>

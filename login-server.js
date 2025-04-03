@@ -1271,7 +1271,7 @@ app.get("/user-profile/:userId", (req, res) => {
   }
 
   const userQuery = `
-    SELECT u.id, u.username, u.role, u.dateCreated,
+    SELECT u.id, u.username, u.role, u.dateCreated, u.profilePictureUrl,
       (SELECT COUNT(*) FROM videos WHERE creator_id = u.id) AS videoCount,
       (SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS commentCount,
       (SELECT COUNT(*) FROM reply WHERE creator_id = u.id) AS replyCount
@@ -1329,7 +1329,7 @@ app.get("/user-by-username/:username", (req, res) => {
   }
 
   const userQuery =
-    "SELECT id, username, role, createdAt FROM users WHERE username = ?";
+    "SELECT id, username, role, dateCreated FROM users WHERE username = ?";
 
   db.query(userQuery, [username], (err, results) => {
     if (err) {
