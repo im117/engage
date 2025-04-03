@@ -86,12 +86,17 @@ export default function TopBar() {
     }
   }
   assignUsername();
+
   return (
     <nav className="topbar">
       <div className="topbar__container">
         <div className="topbar__logo">
           <a onClick={() => navigate("/")}>
-            <img className="topbar__icon" src="/src/assets/icon.svg" alt="Engage Logo" />
+            <img
+              className="topbar__icon"
+              src="/src/assets/icon.svg"
+              alt="Engage Logo"
+            />
             <h1 className="desktop__text">Engage</h1>
           </a>
         </div>
@@ -104,12 +109,12 @@ export default function TopBar() {
               </a>
             </li>
             {/* Added Search button */}
-            <li>
+            {/* <li>
               <a className="button" onClick={() => navigate("/search")}>
                 <i className="fa-solid fa-search persist"></i>{" "}
                 <span className="desktop__text">Search</span>
               </a>
-            </li>
+            </li> */}
             <li>
               <a
                 className={loggedIn ? "button user" : "button"}
