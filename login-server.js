@@ -1241,7 +1241,7 @@ app.get("/search-users", (req, res) => {
   }
   // Use LIKE operator for partial matching with wildcards
   const searchQuery = `
-SELECT id, username, email, role, createdAt
+SELECT id, username, email, role, dateCreated
 FROM users
 WHERE username LIKE ?
 ORDER BY username
@@ -1271,7 +1271,7 @@ app.get("/user-profile/:userId", (req, res) => {
   }
 
   const userQuery = `
-    SELECT u.id, u.username, u.role, u.createdAt,
+    SELECT u.id, u.username, u.role, u.dateCreated,
       (SELECT COUNT(*) FROM videos WHERE creator_id = u.id) AS videoCount,
       (SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS commentCount,
       (SELECT COUNT(*) FROM reply WHERE creator_id = u.id) AS replyCount
@@ -1293,10 +1293,10 @@ app.get("/user-profile/:userId", (req, res) => {
 
     // Get user's videos
     const videosQuery = `
-      SELECT id, title, fileName, description, createdAt
+      SELECT id, title, fileName, description, created_at
       FROM videos
       WHERE creator_id = ?
-      ORDER BY createdAt DESC
+      ORDER BY created_at DESC
       LIMIT 10
     `;
 

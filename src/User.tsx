@@ -26,7 +26,9 @@ function User() {
   const [dateJoined, setDateJoined] = useState("");
 
   // New state for profile picture; using an online placeholder to ensure a visible image.
-  const [profilePictureUrl, setProfilePictureUrl] = useState<string>("https://via.placeholder.com/100");
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
+    "https://via.placeholder.com/100"
+  );
 
   // useRef for hidden file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -95,7 +97,7 @@ function User() {
         if (response.data.dateCreated) {
           // Format date as day/month/year using en-GB locale
           const joinDate = new Date(response.data.dateCreated);
-          const formattedDate = joinDate.toLocaleDateString('en-GB');
+          const formattedDate = joinDate.toLocaleDateString("en-GB");
           setDateJoined(formattedDate);
         }
       });
@@ -200,16 +202,22 @@ function User() {
   };
 
   // Handles the file upload and updates profile picture
-  const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const formData = new FormData();
       formData.append("profilePicture", file);
       formData.append("userId", userID.toString());
       try {
-        const response = await axios.post(`${uploadServer}/upload-profile-picture`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const response = await axios.post(
+          `${uploadServer}/upload-profile-picture`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         // Assume the backend returns the new profile picture URL and updates the user record
         setProfilePictureUrl(response.data.profilePictureUrl);
       } catch (error) {
@@ -234,7 +242,7 @@ function User() {
             <span className="desktop__text"> Logout</span>
           </a>
         </div>
-        
+
         <div className="content-container">
           {/* ----- Profile Picture Section with User Info ----- */}
           <div className="profile-picture-wrapper">
@@ -262,7 +270,8 @@ function User() {
             <div className="text">
               <h2>Your engagements</h2>
               <p style={{ fontSize: "1rem" }} className="mobile__text">
-                Swipe left and right to navigate.<br></br> Touch video to play. <br></br>Tap background to return.
+                Swipe left and right to navigate.<br></br> Touch video to play.{" "}
+                <br></br>Tap background to return.
               </p>
               <p className="desktop__text">
                 Click and drag left and right to navigate.
