@@ -8,6 +8,11 @@ if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
 
+let loginServer = "http://localhost:8081";
+if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
+  loginServer = import.meta.env.VITE_LOGIN_SERVER;
+}
+
 // Function to search for videos based on title
 async function searchVideos(searchTerm: string) {
   if (!searchTerm.trim()) {
