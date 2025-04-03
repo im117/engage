@@ -264,10 +264,10 @@ const UserProfile = () => {
                   <div
                     key={video.id}
                     className="video-thumbnail"
-                    onClick={() => handleOpenVideo(video.fileName)} // Click to open fullscreen view
+                    onClick={() => handleOpenVideo(`/media/${video.fileName}`)} // Click to open fullscreen view
                   >
                     <motion.video
-                      src={`${uploadServer}/media/${video.fileName}`}
+                      src={`/media/${video.fileName}`}
                       className="thumbnail-video"
                       autoPlay
                       muted
