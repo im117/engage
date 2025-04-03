@@ -1239,6 +1239,14 @@ app.get("/search-users", (req, res) => {
     db.destroy();
     return res.status(400).json({ message: "Search query is required" });
   }
+// Use LIKE operator for partial matching with wildcards
+const searchQuery = `
+SELECT id, username, email, role, createdAt
+FROM users
+WHERE username LIKE ?
+ORDER BY username
+LIMIT 20
+`;
 
 // Register routes
 app.post("/signup", signup);
