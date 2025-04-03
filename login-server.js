@@ -1234,19 +1234,31 @@ app.get("/comment-notification", authenticateTokenGet, (req, res) => {
 app.get("/search-users", (req, res) => {
   const db = dbRequest(dbHost);
   const { query } = req.query;
-  
+
   if (!query || query.trim() === "") {
     db.destroy();
     return res.status(400).json({ message: "Search query is required" });
   }
-// Use LIKE operator for partial matching with wildcards
-const searchQuery = `
+  // Use LIKE operator for partial matching with wildcards
+  const searchQuery = `
 SELECT id, username, email, role, createdAt
 FROM users
 WHERE username LIKE ?
 ORDER BY username
 LIMIT 20
 `;
+  // Add wildcards to search for partial matches
+  db.query(searchQuery, [`%${query}%`], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    db.destroy();
+    return res.status(200).json({ users: results });
+  });
+});
 
 // Register routes
 app.post("/signup", signup);
