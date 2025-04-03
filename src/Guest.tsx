@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-//import "./styles/UserProfile.scss"; // Import SCSS styles
 import { useRef } from "react"; // Added useRef for file input
 import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
@@ -57,8 +56,6 @@ const UserProfile = () => {
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
     "https://via.placeholder.com/100"
   );
-  // useRef for hidden file input
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Calculate the total number of pages based on the number of videos
   const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
