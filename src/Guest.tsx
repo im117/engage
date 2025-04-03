@@ -45,7 +45,7 @@ const UserProfile = () => {
       fileName: string;
       thumbnail?: string;
       title: string;
-      createdAt: string | number | Date;
+      created_at: string | number | Date;
     }[];
   }
 
@@ -269,15 +269,15 @@ const UserProfile = () => {
                   exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
                   transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
                 >
-                  {profile.videos.length > 0 ? (
+                  {profile.videos && profile.videos.length > 0 ? (
                     profile.videos.map((video) => (
                       <div
                         key={video.id}
                         className="video-thumbnail"
-                        onClick={() => handleOpenVideo(video.title)} // Click to open fullscreen view
+                        onClick={() => handleOpenVideo(video.fileName)} // Click to open fullscreen view
                       >
                         <motion.video
-                          src={video.fileName}
+                          src={`${uploadServer}/media/${video.fileName}`}
                           className="thumbnail-video"
                           autoPlay
                           muted
