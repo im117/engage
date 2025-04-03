@@ -131,25 +131,6 @@ const UserProfile = () => {
   );
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
-  async function loadUserVideos() {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      const userVideoArray: string[] = [];
-      try {
-        const response = await axios.get(`${loginServer}/get-user-videos`, {
-          params: {
-            auth: token ? token : "",
-          },
-        });
-        response.data.videos.forEach((element: { fileName: string }) => {
-          userVideoArray.push("./media/" + element.fileName);
-        });
-        setUserVideos(userVideoArray as string[]);
-      } catch (error) {
-        console.error("Error fetching user videos:", error);
-      }
-    }
-  }
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -209,118 +190,116 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="user-profile">
-      <div className="user-profile__header">
-        <div className="user-profile__avatar">
-          {profile.username.charAt(0).toUpperCase()}
-        </div>
-        <div className="user-profile__info">
-          <h1>{profile.username}</h1>
-          <p>Role: {profile.role}</p>
-          <p>Joined: {formatDate(profile.createdAt)}</p>
-        </div>
-
-        <div className="user-profile__stats">
-          <div>
-            <span>{profile.videoCount}</span>
-            <p>Videos</p>
-          </div>
-          <div>
-            <span>{profile.commentCount}</span>
-            <p>Comments</p>
-          </div>
-          <div>
-            <span>{profile.replyCount}</span>
-            <p>Replies</p>
-          </div>
-        </div>
-        <div className="user-page-wrapper">
-          {/* Main content container with swipe handlers */}
-          <div
-            className={`user-container ${selectedVideo ? "blur" : ""} ${
-              isJittering ? "jitter" : ""
-            }`}
-            {...handlers}
-          >
-            <div className="content-container">
-              {/* Engagements Section */}
-              <div className="my-videos-container">
-                <div className="text">
-                  <h2>Your engagements</h2>
-                  <p style={{ fontSize: "1rem" }} className="mobile__text">
-                    Swipe left and right to navigate.<br></br> Touch video to
-                    play. <br></br>Tap background to return.
-                  </p>
-                  <p className="desktop__text">
-                    Click and drag left and right to navigate.
-                    <br></br> Click video to play.
-                    <br></br>Click background to return.
-                  </p>
-                </div>
+    <div className="user-page-wrapper">
+      {/* Main content container with swipe handlers */}
+      <div
+        className={`user-container ${selectedVideo ? "blur" : ""} ${
+          isJittering ? "jitter" : ""
+        }`}
+        {...handlers}
+      >
+        <div className="content-container">
+          <div className="profile-picture-wrapper">
+            <div className="user-info">
+              <div className="username-display">{profile.username}</div>
+              <p>Role: {profile.role}</p>
+              <div className="date-joined">
+                Joined: {formatDate(profile.createdAt)}
               </div>
-
-              {/* AnimatePresence ensures smooth transition between pages */}
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  //key={currentPage} // Changes key on each page update to trigger animation
-                  className="video-grid"
-                  initial={{ x: direction * 100, opacity: 0 }} // Start position
-                  animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
-                  exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
-                  transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
-                >
-                  {profile.videos && profile.videos.length > 0 ? (
-                    profile.videos.map((video) => (
-                      <div
-                        key={video.id}
-                        className="video-thumbnail"
-                        onClick={() => handleOpenVideo(video.fileName)} // Click to open fullscreen view
-                      >
-                        <motion.video
-                          src={`${uploadServer}/media/${video.fileName}`}
-                          className="thumbnail-video"
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          whileHover={{ scale: 1.05 }} // Slight scaling effect on hover
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="no-videos-text">No Videos Added</div> // Show text when no videos exist
-                  )}
-                </motion.div>
-              </AnimatePresence>
             </div>
           </div>
-          {/* Fullscreen video overlay (shown when a video is clicked) */}
-          <AnimatePresence>
-            {selectedVideo && (
-              <motion.div
-                className="fullscreen-overlay"
-                initial={{ opacity: 0 }} // Start with opacity 0
-                animate={{ opacity: 1 }} // Fade in smoothly
-                exit={{ opacity: 0 }} // Fade out when closed
-                onClick={handleCloseVideo} // Clicking outside the video closes it
-              >
-                <motion.video
-                  src={selectedVideo}
-                  className="fullscreen-video"
-                  initial={{ scale: 0.8 }} // Start smaller
-                  animate={{ scale: 1 }} // Expand to full size
-                  exit={{ scale: 0.8 }} // Shrink when closing
-                  autoPlay
-                  playsInline
-                  controls
-                  loop
-                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
-                />
-              </motion.div>
-            )}
+
+          {/* <div className="user-profile__stats">
+            <div>
+              <span>{profile.videoCount}</span>
+              <p>Videos</p>
+            </div>
+            <div>
+              <span>{profile.commentCount}</span>
+              <p>Comments</p>
+            </div>
+            <div>
+              <span>{profile.replyCount}</span>
+              <p>Replies</p>
+            </div>
+          </div> */}
+          {/* Engagements Section */}
+          <div className="my-videos-container">
+            <div className="text">
+              <h2>Your engagements</h2>
+              <p style={{ fontSize: "1rem" }} className="mobile__text">
+                Swipe left and right to navigate.<br></br> Touch video to play.{" "}
+                <br></br>Tap background to return.
+              </p>
+              <p className="desktop__text">
+                Click and drag left and right to navigate.
+                <br></br> Click video to play.
+                <br></br>Click background to return.
+              </p>
+            </div>
+          </div>
+
+          {/* AnimatePresence ensures smooth transition between pages */}
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              //key={currentPage} // Changes key on each page update to trigger animation
+              className="video-grid"
+              initial={{ x: direction * 100, opacity: 0 }} // Start position
+              animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
+              exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
+              transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
+            >
+              {profile.videos && profile.videos.length > 0 ? (
+                profile.videos.map((video) => (
+                  <div
+                    key={video.id}
+                    className="video-thumbnail"
+                    onClick={() => handleOpenVideo(video.fileName)} // Click to open fullscreen view
+                  >
+                    <motion.video
+                      src={`${uploadServer}/media/${video.fileName}`}
+                      className="thumbnail-video"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      whileHover={{ scale: 1.05 }} // Slight scaling effect on hover
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="no-videos-text">No Videos Added</div> // Show text when no videos exist
+              )}
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Fullscreen video overlay (shown when a video is clicked) */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div
+            className="fullscreen-overlay"
+            initial={{ opacity: 0 }} // Start with opacity 0
+            animate={{ opacity: 1 }} // Fade in smoothly
+            exit={{ opacity: 0 }} // Fade out when closed
+            onClick={handleCloseVideo} // Clicking outside the video closes it
+          >
+            <motion.video
+              src={selectedVideo}
+              className="fullscreen-video"
+              initial={{ scale: 0.8 }} // Start smaller
+              animate={{ scale: 1 }} // Expand to full size
+              exit={{ scale: 0.8 }} // Shrink when closing
+              autoPlay
+              playsInline
+              controls
+              loop
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
