@@ -230,7 +230,7 @@ const UserProfile = () => {
             </div>
           </div> */}
           {/* Engagements Section */}
-          <div className="my-videos-container">
+          {/* <div className="my-videos-container">
             <div className="text">
               <h2>Your engagements</h2>
               <p style={{ fontSize: "1rem" }} className="mobile__text">
@@ -243,7 +243,7 @@ const UserProfile = () => {
                 <br></br>Click background to return.
               </p>
             </div>
-          </div>
+          </div> */}
 
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
