@@ -17,7 +17,7 @@ import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
 import VideoSearch from "./searchVideo";
-import UserProfile from "./Guest.tsx";
+import UserProfile from "./userProfile.tsx";
 import UserSearch from "./userSearch.tsx";
 
 import { color } from "framer-motion";
