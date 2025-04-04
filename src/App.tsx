@@ -89,6 +89,8 @@ if (token && isTokenExpired(token)) {
 }
 
 function Home() {
+  const authToken = localStorage.getItem("authToken") || ""; // Retrieve the token from localStorage
+
   const initState = filteredArray.length < 2 ? 0 : 1;
   const [videoIndex, setVideoIndex] = useState(initState);
   const [currentVideo, setCurrentVideo] = useState("");
@@ -153,12 +155,15 @@ function Home() {
   // New state for storing the creator ID (for the Follow button)
   const [currentVideoCreatorId, setCurrentVideoCreatorId] = useState(0);
 
+  // Extract fileName from currentVideo
+  const fileName = currentVideo.split("/").pop() || "";
+
   // Function to grab video information from API
   async function setVideoInfo() {
     try {
       const response = await axios.get(`${uploadServer}/video`, {
         params: {
-          fileName: currentVideo.substring(currentVideo.lastIndexOf("/") + 1),
+          fileName: fileName, // Use extracted fileName
         },
       });
       // Set creator id for Follow button
@@ -681,8 +686,8 @@ function Home() {
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
-                {/* Follow button inserted above the video title */}
-                <Follow userId={currentVideoCreatorId} initialFollowing={false} />
+                {/* Pass the authToken to the Follow component */}
+                <Follow fileName={currentVideo.split("/").pop() || ""} />
                 <h1>{currentVideoTitle}</h1>
                 <h2>Engager: {currentVideoCreatorName}</h2>
                 <h3>Uploaded: {currentVideoDate}</h3>
