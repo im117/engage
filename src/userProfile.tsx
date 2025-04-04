@@ -56,7 +56,9 @@ const UserProfile = () => {
   );
 
   // Calculate the total number of pages based on the number of videos
-  const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
+  const totalPages = Math.ceil(
+    (profile?.videos?.length || 0) / VIDEOS_PER_PAGE
+  );
 
   /**
    * Opens a fullscreen overlay with the selected video.
