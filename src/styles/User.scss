@@ -28,6 +28,26 @@
   cursor: pointer;
 }
 
+.user-profile__stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  //border-bottom: 1px solid #ddd;
+  color: #ffffff;
+  div {
+    text-align: center;
+
+    span {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
 /* New user info styling next to the profile picture */
 .user-info {
   margin-left: 15px; // Space between image and text

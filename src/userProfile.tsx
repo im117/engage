@@ -214,7 +214,7 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* <div className="user-profile__stats">
+          <div className="user-profile__stats">
             <div>
               <span>{profile.videoCount}</span>
               <p>Videos</p>
@@ -227,7 +227,7 @@ const UserProfile = () => {
               <span>{profile.replyCount}</span>
               <p>Replies</p>
             </div>
-          </div> */}
+          </div>
           {/* Engagements Section */}
           {/* <div className="my-videos-container">
             <div className="text">
