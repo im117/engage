@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"; // Animation library fo
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import "./styles/User.scss";
 
+// Set the number of videos displayed per page
+const VIDEOS_PER_PAGE = 6;
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
@@ -16,9 +18,6 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 }
 
 const UserProfile = () => {
-  // Set the number of videos displayed per page
-  const VIDEOS_PER_PAGE = 6;
-
   const { userId } = useParams();
   const [userVideos, setUserVideos] = useState<string[]>([]);
   // New state for date joined
@@ -121,7 +120,7 @@ const UserProfile = () => {
 
   // Calculate the index range of videos for the current page
   const startIndex = currentPage * VIDEOS_PER_PAGE;
-  const currentVideos = userVideos.slice(
+  const currentVideos = profile?.videos.slice(
     startIndex,
     startIndex + VIDEOS_PER_PAGE
   );
@@ -255,8 +254,8 @@ const UserProfile = () => {
               exit={{ x: direction * 100, opacity: 0 }} // Exit animation (smooth slide-out effect)
               transition={{ type: "spring", stiffness: 120, damping: 20 }} // Animation style
             >
-              {profile.videos && profile.videos.length > 0 ? (
-                profile.videos.map((video) => (
+              {currentVideos && currentVideos.length > 0 ? (
+                currentVideos.map((video) => (
                   <div
                     key={video.id}
                     className="video-thumbnail"
