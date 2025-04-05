@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSwipeable } from "react-swipeable";
 import axios from "axios";
-import { join } from "path";
 
 const VIDEOS_PER_PAGE = 6;
 
@@ -18,6 +17,7 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 }
 
 function User() {
+  // --- Existing state ---
   const [userVideos, setUserVideos] = useState<string[]>([]);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
@@ -34,26 +34,36 @@ function User() {
   const [direction, setDirection] = useState(0);
   const [selectedTab, setSelectedTab] = useState<"videos" | "likes">("videos");
 
+  // --- NEW state for liked videos + pagination ---
+  const [likedVideos, setLikedVideos] = useState<string[]>([]);
+  const [currentLikesPage, setCurrentLikesPage] = useState(0);
+
+  // Pagination for user videos
   const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
   const startIndex = currentPage * VIDEOS_PER_PAGE;
-  const currentVideos = userVideos.slice(
-    startIndex,
-    startIndex + VIDEOS_PER_PAGE
+  const currentVideos = userVideos.slice(startIndex, startIndex + VIDEOS_PER_PAGE);
+
+  // Pagination for liked videos
+  const totalLikesPages = Math.ceil(likedVideos.length / VIDEOS_PER_PAGE);
+  const startLikesIndex = currentLikesPage * VIDEOS_PER_PAGE;
+  const currentLikedVideos = likedVideos.slice(
+    startLikesIndex,
+    startLikesIndex + VIDEOS_PER_PAGE
   );
 
   const navigate = useNavigate();
 
+  // -- Fetch user's own videos --
   async function loadUserVideos() {
     const token = localStorage.getItem("authToken");
     if (token) {
-      const userVideoArray: string[] = [];
       try {
         const response = await axios.get(`${loginServer}/get-user-videos`, {
           params: { auth: token },
         });
-        response.data.videos.forEach((element: { fileName: string }) => {
-          userVideoArray.push("./media/" + element.fileName);
-        });
+        const userVideoArray: string[] = response.data.videos.map(
+          (v: { fileName: string }) => `./media/${v.fileName}`
+        );
         setUserVideos(userVideoArray);
       } catch (error) {
         console.error("Error fetching user videos:", error);
@@ -61,9 +71,24 @@ function User() {
     }
   }
 
-  useEffect(() => {
-    loadUserVideos();
-  }, []);
+  // -- Fetch user's liked videos --
+  async function loadUserLikedVideos() {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await axios.get(`${loginServer}/get-user-liked-videos`, {
+          params: { auth: token },
+        });
+        // This assumes your backend returns { videos: [{ fileName: 'xxx' }, ...] }
+        const likedVideoArray: string[] = response.data.videos.map(
+          (v: { fileName: string }) => `./media/${v.fileName}`
+        );
+        setLikedVideos(likedVideoArray);
+      } catch (error) {
+        console.error("Error fetching user liked videos:", error);
+      }
+    }
+  }
 
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
@@ -89,30 +114,49 @@ function User() {
   };
 
   async function getUsername(userid: number) {
-    let username = "";
-    const response = await axios.get(`${uploadServer}/user`, {
-      params: { userID: userid },
-    });
-    username = response.data.username;
-    if (response.data.profilePictureUrl) {
-      setProfilePictureUrl(response.data.profilePictureUrl);
+    try {
+      const response = await axios.get(`${uploadServer}/user`, {
+        params: { userID: userid },
+      });
+      setUsername(response.data.username);
+      if (response.data.profilePictureUrl) {
+        setProfilePictureUrl(response.data.profilePictureUrl);
+      }
+      if (response.data.dateCreated) {
+        const joinDate = new Date(response.data.dateCreated);
+        setDateJoined(formatDate(joinDate));
+      }
+      setRole("User");
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
-    if (response.data.dateCreated) {
-      const joinDate = new Date(response.data.dateCreated);
-      setDateJoined(formatDate(joinDate));
-    }
-    setUsername(username);
-    setRole("User");
   }
 
+  // Load user ID and user’s own videos on mount
   useEffect(() => {
     getLoggedInUserId();
-    getUsername(userID);
-  });
+    loadUserVideos();
+  }, []);
 
+  // Load username every time userID changes
+  useEffect(() => {
+    if (userID) {
+      getUsername(userID);
+    }
+  }, [userID]);
+
+  // Load liked videos whenever the user switches to the "likes" tab (or do it on mount if preferred)
+  useEffect(() => {
+    if (selectedTab === "likes") {
+      loadUserLikedVideos();
+    }
+  }, [selectedTab]);
+
+  // Basic handlers for opening/closing video modals
   const handleOpenVideo = (videoSrc: string) => setSelectedVideo(videoSrc);
   const handleCloseVideo = () => setSelectedVideo(null);
 
+  // Paging for user videos
   const handleNextPage = () => {
     if (currentPage < totalPages - 1) {
       setDirection(1);
@@ -121,11 +165,28 @@ function User() {
       triggerJitter();
     }
   };
-
   const handlePrevPage = () => {
     if (currentPage > 0) {
       setDirection(-1);
       setCurrentPage((prevPage) => prevPage - 1);
+    } else {
+      triggerJitter();
+    }
+  };
+
+  // Paging for liked videos
+  const handleNextLikesPage = () => {
+    if (currentLikesPage < totalLikesPages - 1) {
+      setDirection(1);
+      setCurrentLikesPage((prevPage) => prevPage + 1);
+    } else {
+      triggerJitter();
+    }
+  };
+  const handlePrevLikesPage = () => {
+    if (currentLikesPage > 0) {
+      setDirection(-1);
+      setCurrentLikesPage((prevPage) => prevPage - 1);
     } else {
       triggerJitter();
     }
@@ -137,8 +198,14 @@ function User() {
   };
 
   const handlers = useSwipeable({
-    onSwipedLeft: handleNextPage,
-    onSwipedRight: handlePrevPage,
+    onSwipedLeft: () => {
+      if (selectedTab === "videos") handleNextPage();
+      else handleNextLikesPage();
+    },
+    onSwipedRight: () => {
+      if (selectedTab === "videos") handlePrevPage();
+      else handlePrevLikesPage();
+    },
     preventScrollOnSwipe: true,
     trackMouse: true,
   });
@@ -228,6 +295,7 @@ function User() {
             </div>
           </div>
 
+          {/* My Videos Tab */}
           {selectedTab === "videos" && (
             <AnimatePresence mode="popLayout">
               <motion.div
@@ -260,17 +328,85 @@ function User() {
                   <div className="no-videos-text">No Videos Added</div>
                 )}
               </motion.div>
+              {/* Pagination Buttons for "My Videos" */}
+              {userVideos.length > VIDEOS_PER_PAGE && (
+                <div className="pagination-controls">
+                  <button onClick={handlePrevPage} disabled={currentPage === 0}>
+                    Prev
+                  </button>
+                  <span>
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages - 1}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </AnimatePresence>
           )}
 
+          {/* My Likes Tab */}
           {selectedTab === "likes" && (
-            <div className="likes-placeholder">
-              <p>No liked videos yet.</p>
-            </div>
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={currentLikesPage}
+                className="video-grid"
+                initial={{ x: direction * 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: direction * 100, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              >
+                {currentLikedVideos.length > 0 ? (
+                  currentLikedVideos.map((video, index) => (
+                    <div
+                      key={index}
+                      className="video-thumbnail"
+                      onClick={() => handleOpenVideo(video)}
+                    >
+                      <motion.video
+                        src={video}
+                        className="thumbnail-video"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        whileHover={{ scale: 1.05 }}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-videos-text">No liked videos yet.</div>
+                )}
+              </motion.div>
+              {/* Pagination Buttons for "My Likes" */}
+              {likedVideos.length > VIDEOS_PER_PAGE && (
+                <div className="pagination-controls">
+                  <button
+                    onClick={handlePrevLikesPage}
+                    disabled={currentLikesPage === 0}
+                  >
+                    Prev
+                  </button>
+                  <span>
+                    Page {currentLikesPage + 1} of {totalLikesPages}
+                  </span>
+                  <button
+                    onClick={handleNextLikesPage}
+                    disabled={currentLikesPage === totalLikesPages - 1}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </AnimatePresence>
           )}
         </div>
       </div>
 
+      {/* Fullscreen Video Overlay */}
       <AnimatePresence>
         {selectedVideo && (
           <motion.div
