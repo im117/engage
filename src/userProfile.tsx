@@ -8,14 +8,6 @@ import "./styles/User.scss";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
-let uploadServer = "http://localhost:3001";
-if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
-  uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
-}
-let loginServer = "http://localhost:8081";
-if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
-  loginServer = import.meta.env.VITE_LOGIN_SERVER;
-}
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -127,7 +119,7 @@ const UserProfile = () => {
     startIndex + VIDEOS_PER_PAGE
   );
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081";
+  const API_BASE_URL = import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
 
   useEffect(() => {
     const fetchUserProfile = async () => {
