@@ -9,7 +9,7 @@ CREATE TABLE users (
     isVerified BOOLEAN DEFAULT FALSE,
     verificationToken VARCHAR(255),  -- This column stores the verification token
     recoveryToken VARCHAR(255),        -- This column stores the password recovery token
-    profilePictureUrl VARCHAR(255) DEFAULT '/default-profile.png',
+    profilePictureUrl VARCHAR(255) DEFAULT '/src/assets/engage default pfp.png',
     dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
