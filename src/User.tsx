@@ -112,7 +112,7 @@ function User() {
         }
       });
     setUsername(username as string);
-    setRole("User"); // Set default role to "User"
+    
   }
 
   useEffect(() => {
@@ -236,6 +236,24 @@ function User() {
       }
     }
   };
+
+  // set role
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const response = await axios.get(
+          `${loginServer}/user-profile/${userID}`
+        );
+        setRole(response.data.profile.role);
+      } catch (err) {
+        console.error("Error fetching role:", err);
+      }
+    };
+
+    if (userID) {
+      fetchRole();
+    }
+  }, [userID]);
 
   return (
     <div className="user-page-wrapper">
