@@ -16,7 +16,6 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
-import VideoSearch from "./searchVideo";
 import UserProfile from "./userProfile.tsx";
 import UserSearch from "./userSearch.tsx";
 import CombinedSearch from "./combinedSearch.tsx";

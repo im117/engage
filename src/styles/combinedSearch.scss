@@ -153,3 +153,79 @@
     }
   }
 }
+@media screen and (max-width: 767px) {
+  .combined-search-container {
+    max-width: 100%;
+    padding: 0 10px;
+
+    .search-input-wrapper {
+      .search-input {
+        padding: 8px 35px 8px 12px;
+        font-size: 0.95rem;
+      }
+
+      .fa-search,
+      .fa-spinner {
+        right: 12px;
+        font-size: 0.9rem;
+      }
+
+      .clear-btn {
+        right: 35px;
+        font-size: 0.9rem;
+      }
+    }
+
+    .search-error {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+    }
+
+    .search-results {
+      max-height: 350px;
+      border-radius: 6px;
+
+      .search-result-item {
+        padding: 10px 12px;
+
+        .result-icon {
+          font-size: 1rem;
+          margin-right: 10px;
+          width: 20px;
+        }
+
+        .avatar {
+          width: 32px;
+          height: 32px;
+          margin-right: 10px;
+        }
+
+        .search-result-title {
+          font-size: 0.95rem;
+          margin-bottom: 2px;
+        }
+
+        .search-result-description {
+          font-size: 0.8rem;
+          // For very small screens, limit description to one line
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 180px;
+        }
+
+        .arrow {
+          font-size: 1rem;
+        }
+      }
+
+      &.no-results {
+        padding: 15px;
+
+        .no-results-message {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
