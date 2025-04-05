@@ -265,7 +265,7 @@ app.post("/upload-profile-picture", upload.single("profilePicture"), (req, res) 
     return res.status(400).json({ message: "User ID is required" });
   }
   // Construct the full URL for the uploaded file
-  const fileUrl = `http://localhost:${port}/media/${req.file.filename}`;
+  const fileUrl = `/media/${req.file.filename}`;
   
   const db = dbRequest(dbHost);
   const updateQuery = "UPDATE users SET profilePictureUrl = ? WHERE id = ?";
