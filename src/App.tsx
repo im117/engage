@@ -19,6 +19,7 @@ import RecoverAccount from "./recoverAccount.tsx";
 import VideoSearch from "./searchVideo";
 import UserProfile from "./userProfile.tsx";
 import UserSearch from "./userSearch.tsx";
+import CombinedSearch from "./combinedSearch.tsx";
 
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
@@ -818,7 +819,8 @@ function Home() {
   return (
     <div className="app">
       {/* Search container here */}
-      <VideoSearch onResultSelect={handleSearchResultSelect} />
+      {/* <VideoSearch onResultSelect={handleSearchResultSelect} /> */}
+      <CombinedSearch onVideoSelect={handleSearchResultSelect} />
       <div className="app-container">
         <div className="video-player">
           <ReactPlayer
