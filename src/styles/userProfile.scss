@@ -314,6 +314,34 @@
     width: 40vw;
     height: 13vh;
   }
+  .profile-picture-wrapper {
+    margin: 10px 0 10px 10px; // Adjust margins for smaller screens
+  }
+  .profile-picture {
+    width: 80px; // Adjust size as needed
+    height: 80px;
+  }
+  .user-profile__stats {
+    padding: 5px;
+    div {
+      span {
+        font-size: 15px; // Adjust font size for smaller screens
+      }
+      p {
+        font-size: 12px; // Adjust font size for smaller screens
+      }
+    }
+  }
+  .user-info {
+    margin-left: 10px; // Adjust space between image and text
+    .username-display {
+      font-size: 1rem; // Adjust font size for smaller screens
+    }
+    .date-joined,
+    .user-role {
+      font-size: 0.8rem; // Adjust font size for smaller screens
+    }
+  }
 }
 
 @media (max-width: 670px) {
