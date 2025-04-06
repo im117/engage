@@ -25,7 +25,12 @@
   border-radius: 50%;
   border: 2px solid #ffffff;
   object-fit: cover;
-  cursor: pointer;
+}
+
+.pfp-own-user{
+  &:hover{
+    cursor: pointer;
+  }
 }
 
 .user-profile__stats {
