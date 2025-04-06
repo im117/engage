@@ -155,7 +155,7 @@ const UserProfile = () => {
     return (
       <div className="user-profile__error">
         <p>{error}</p>
-        <Link to="/search" className="user-profile__back-link">
+        <Link to="/" className="user-profile__back-link">
           &larr; Back to search
         </Link>
       </div>
@@ -166,7 +166,7 @@ const UserProfile = () => {
     return (
       <div className="user-profile__not-found">
         <p>User not found</p>
-        <Link to="/search" className="user-profile__back-link">
+        <Link to="/" className="user-profile__back-link">
           &larr; Back to search
         </Link>
       </div>
