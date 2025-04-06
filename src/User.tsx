@@ -237,6 +237,30 @@ function User() {
     }
   };
 
+
+  const revertPFP = async () => {
+    if (!userID) {
+      console.error("Error: User ID is not set.");
+      return;
+    }
+
+    // const formData = new FormData();
+    // formData.append("userId", userID.toString());
+    try {
+      const response = await axios.post(
+        `${uploadServer}/revert-profile-picture`,
+        {userId: userID.toString()}
+      );
+      if (response.data) {
+        setProfilePictureUrl("/src/assets/engage default pfp.png");
+      } else {
+        console.error("Error reverting profile picture: Backend did not confirm success.");
+      }
+    } catch (error) {
+      console.error("Error reverting profile picture:", error);
+    }
+  };
+
   // set role
   useEffect(() => {
     const fetchRole = async () => {
@@ -275,6 +299,10 @@ function User() {
         <div className="content-container">
           {/* ----- Profile Picture Section with User Info ----- */}
           <div className="profile-picture-wrapper">
+            <div className="pfp__container">
+              {/* <div className="edit">
+              <i class="fa-solid fa-pencil"></i>
+              </div> */}
             <img
               src={profilePictureUrl}
               alt="Profile"
@@ -288,6 +316,8 @@ function User() {
               ref={fileInputRef}
               onChange={handleProfilePictureChange}
             />
+            {(profilePictureUrl != "/src/assets/engage default pfp.png") && <a className="button" onClick={revertPFP}>Revert</a>}
+            </div>
             <div className="user-info">
               <div className="username-display">{username}</div>
                 {role !== "User" && <div className={`${role}-flair`}>{role}</div>}

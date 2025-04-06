@@ -19,6 +19,14 @@
   margin: 20px 0 20px 20px; // Top, right, bottom, left margins
 }
 
+.pfp__container{
+  display: flex;
+  flex-direction: column;
+  .button{
+    padding: 5px;
+    text-align: center;
+  }
+}
 .profile-picture {
   width: 100px; // Adjust size as needed
   height: 100px;
