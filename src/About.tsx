@@ -18,7 +18,7 @@ function About(){
             name="Joshua Randall" 
             title="Team Lead, Head of Frontend" 
             profileUrl="/src/assets/josh.jpg" 
-            bio="Hi! I'm Josh, a 22 year old Computer Science - Curriculum Major. Switched from Electrical and Computer Engineering / Comp Engineering Technology in 2022, and will be graduating Fall 2025. Some of my hobbies relating to Computer Science include web development, programming, trying esoteric/difficult linux distributions + optimizing and customizing operating systems, and self-hosting applications/server administration."
+            bio="Hi! I'm Josh, a 22 year old Computer Science - Curriculum Major. Switched from Electrical and Computer Engineering / Comp Engineering Technology in 2022, and will be graduating Fall 2025. Some of my hobbies relating to Computer Science include web development, programming, trying esoteric/difficult linux distributions + optimizing and customizing operating systems, and self-hosting applications/server administration. I currently work two jobs for EMU: I work as a Teacher's Assistant/Grader for two professors, and I work for EMU IT's Classroom Support."
             website="https://joshrandall.net"
         />
         <DevInfo
