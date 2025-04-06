@@ -119,7 +119,8 @@ const UserProfile = () => {
     startIndex + VIDEOS_PER_PAGE
   );
 
-  const API_BASE_URL = import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
+  const API_BASE_URL =
+    import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
 
   useEffect(() => {
     const fetchUserProfile = async () => {

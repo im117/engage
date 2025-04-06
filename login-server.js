@@ -1181,7 +1181,7 @@ LIMIT 20
   });
 });
 
-// Get user profile by ID
+// Get user profile by userId
 app.get("/user-profile/:userId", (req, res) => {
   const db = dbRequest(dbHost);
   const { userId } = req.params;
