@@ -202,7 +202,7 @@ const UserProfile = () => {
             />
             <div className="user-info">
               <div className="username-display">{profile.username}</div>
-              <div className="user-role">Role: {profile.role}</div>
+              {profile.role !== "User" && <div className={`${profile.role}-flair`}>{profile.role}</div>}
               <div className="date-joined">
                 Joined: {formatDate(profile.dateCreated)}
               </div>

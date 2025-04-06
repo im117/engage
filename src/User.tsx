@@ -290,7 +290,7 @@ function User() {
             />
             <div className="user-info">
               <div className="username-display">{username}</div>
-              <div className="user-role">Role: {role}</div>
+                {role !== "User" && <div className={`${role}-flair`}>{role}</div>}
               <div className="date-joined">Joined: {dateJoined}</div>
             </div>
           </div>

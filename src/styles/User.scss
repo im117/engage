@@ -67,9 +67,18 @@
   color: #dddddd;
 }
 
-.user-role {
+.Developer-flair {
   font-size: 0.9rem;
-  color: #dddddd;
+  text-align: center;
+  color: #e6e4e4;
+  background-color: rgba(79, 255, 79, 0.685);
+  border-radius: 25px;
+  padding: 2px 0px;
+  box-shadow: 0 0 10px 2px rgba(136, 255, 136, 0.8); // Adds a glowing border effect
+}
+
+.flair-search{
+  width: max-content;
 }
 
 //  Main container with smooth transition effects
