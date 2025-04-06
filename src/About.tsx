@@ -14,8 +14,36 @@ function About(){
         <DevInfo
             reverse={false}
             name="Joshua Randall" 
-            title="Title" 
+            title="Team Lead, Head of Frontend" 
             profileUrl="/src/assets/josh.jpg" 
+            bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rhoncus nulla vitae nisl sagittis, ac ornare arcu ultricies. Curabitur aliquam lacus ut enim tristique, at lobortis mi condimentum. Pellentesque viverra tincidunt arcu, vel faucibus leo sagittis vitae. Mauris commodo dictum sapien in ullamcorper. Etiam fringilla ultricies euismod. Nulla vitae rhoncus nibh."
+        />
+        <DevInfo
+            reverse={true}
+            name="Johnny Zheng" 
+            title="Co-Lead, Chief Officer, Head of Databases" 
+            profileUrl="/src/assets/johnny.jpg" 
+            bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rhoncus nulla vitae nisl sagittis, ac ornare arcu ultricies. Curabitur aliquam lacus ut enim tristique, at lobortis mi condimentum. Pellentesque viverra tincidunt arcu, vel faucibus leo sagittis vitae. Mauris commodo dictum sapien in ullamcorper. Etiam fringilla ultricies euismod. Nulla vitae rhoncus nibh."
+        />
+        <DevInfo
+            reverse={false}
+            name="Long (Jackson) Le" 
+            title="Officer, Head of Backend" 
+            profileUrl="/src/assets/long.JPG" 
+            bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rhoncus nulla vitae nisl sagittis, ac ornare arcu ultricies. Curabitur aliquam lacus ut enim tristique, at lobortis mi condimentum. Pellentesque viverra tincidunt arcu, vel faucibus leo sagittis vitae. Mauris commodo dictum sapien in ullamcorper. Etiam fringilla ultricies euismod. Nulla vitae rhoncus nibh."
+        />
+        <DevInfo
+            reverse={true}
+            name="Maksim Spitsyn" 
+            title="" 
+            profileUrl="" 
+            bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rhoncus nulla vitae nisl sagittis, ac ornare arcu ultricies. Curabitur aliquam lacus ut enim tristique, at lobortis mi condimentum. Pellentesque viverra tincidunt arcu, vel faucibus leo sagittis vitae. Mauris commodo dictum sapien in ullamcorper. Etiam fringilla ultricies euismod. Nulla vitae rhoncus nibh."
+        />
+        <DevInfo
+            reverse={false}
+            name="Riyat Leiyate" 
+            title="" 
+            profileUrl="/src/assets/riyat.jpg" 
             bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas rhoncus nulla vitae nisl sagittis, ac ornare arcu ultricies. Curabitur aliquam lacus ut enim tristique, at lobortis mi condimentum. Pellentesque viverra tincidunt arcu, vel faucibus leo sagittis vitae. Mauris commodo dictum sapien in ullamcorper. Etiam fringilla ultricies euismod. Nulla vitae rhoncus nibh."
         />
     </div>)

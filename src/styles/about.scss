@@ -1,47 +1,46 @@
 @use "global.scss" as *;
 
-.main__section{
-    color: white;
-    display: inline-block;
-    width: 100vw;
-    height: 80vh;
-    text-align: center;
-    padding-top: 20px;
-    img{
-        width: 500px;
-    }    
-    h1{
-        font-size: 3rem;
-    }
-    p{
-        text-align: left;
-        padding: 0px 100px;
-        text-indent: 30px;
-    }
-}
-.dev__section{
-    .container{
-        backdrop-filter: brightness(20%) blur(20px);
-    z-index: 2;
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+.main__section {
+  color: white;
+  display: inline-block;
+  width: 100vw;
+  height: 100vh;
+  text-align: center;
+  padding-top: 20px;
+  img {
+    width: 500px;
+  }
+  h1 {
+    font-size: 3rem;
+  }
+  p {
+    text-align: left;
     padding: 0px 100px;
-    height: 80vh;
-    width: 100vw;
-    align-items: center;
-    img{
-        max-width: 250px;
-    }
-    .text__container{
-        text-align: right;
-    }
+    text-indent: 30px;
+  }
 }
-}
-
-
-.dev__section__reverse{
-    .container{
+.dev__section {
+    .container {
         backdrop-filter: brightness(20%) blur(20px);
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        padding: 0px 70px;
+        height: 80vh;
+        width: 100vw;
+        align-items: center;
+        img {
+            max-width: 250px;
+        }
+        .text__container {
+            text-align: right;
+        }
+    }
+}
+
+.dev__section__reverse {
+  .container {
+    backdrop-filter: brightness(20%) blur(20px);
     z-index: 2;
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -49,12 +48,44 @@
     height: 80vh;
     width: 100vw;
     align-items: center;
-    img{
-        max-width: 250px;
-        margin-left: auto;
+    img {
+      max-width: 250px;
+      margin-left: auto;
     }
-    .text__container{
-        text-align: left;
+    .text__container {
+      text-align: left;
     }
+  }
 }
+
+@media screen and (max-width: 1200px) {
+  .dev__section {
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      padding: 20px;
+      align-items: center;
+      .text__container {
+        text-align: center;
+      }
+    }
+  }
+  .dev__section__reverse {
+    .container {
+      display: flex;
+      flex-direction: column-reverse;
+      height: 100%;
+      width: 100%;
+      padding: 20px;
+      align-items: center;
+      img{
+        margin-right: auto;
+      }
+      .text__container {
+        text-align: center;
+      }
+    }
+  }
 }
