@@ -5,9 +5,10 @@ interface DevInfoProps {
     name: string;
     title: string;
     bio: string;
+    website: string;
 }
 
-const DevInfo: React.FC<DevInfoProps> = ({ reverse, profileUrl, name, title, bio }) => {
+const DevInfo: React.FC<DevInfoProps> = ({ reverse, profileUrl, name, title, bio, website }) => {
     if(reverse){
         return(
             <section className="dev__section__reverse" style={{ backgroundImage: `url(${profileUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }} >
@@ -31,6 +32,7 @@ const DevInfo: React.FC<DevInfoProps> = ({ reverse, profileUrl, name, title, bio
                     <h1>{name}</h1>
                     <h2>{title}</h2>
                     <p>{bio}</p>
+                    {website && <a className="dev__link" href={website}>{name.split(" ")[0]}'s website</a>}
                 </div>
             </div>
         </section>
