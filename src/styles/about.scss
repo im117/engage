@@ -38,10 +38,23 @@
 }
 }
 
-.josh{
-    background-image: url("/src/assets/josh.jpg");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
 
+.dev__section__reverse{
+    .container{
+        backdrop-filter: brightness(20%) blur(20px);
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    padding: 0px 100px;
+    height: 80vh;
+    width: 100vw;
+    align-items: center;
+    img{
+        max-width: 250px;
+        margin-left: auto;
+    }
+    .text__container{
+        text-align: left;
+    }
+}
 }
