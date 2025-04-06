@@ -242,7 +242,7 @@ const UserProfile = () => {
           {/* AnimatePresence ensures smooth transition between pages */}
           <AnimatePresence mode="popLayout">
             <motion.div
-              //key={currentPage} // Changes key on each page update to trigger animation
+              key={currentPage} // Changes key on each page update to trigger animation
               className="video-grid"
               initial={{ x: direction * 100, opacity: 0 }} // Start position
               animate={{ x: 0, opacity: 1 }} // Target position (smooth slide-in effect)
