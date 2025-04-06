@@ -50,8 +50,11 @@
 
 .user{
     position: relative;
-    top: -7px;
+    
     // margin: 0;
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 .topbar__logo {
@@ -99,7 +102,37 @@
     }
 }
 
+.profile-picture-bar{
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px $text-color solid;
+    object-fit: cover;
+    top: -25px;
+    transition: all ease 0.3s;
+    &:hover{
+        transition: all ease 0.3s;
+        width: 90px;
+        height: 90px;
+        top: -37px;
+    }
+}
+
 @media screen and (max-width: 1250px) {
+    .profile-picture-bar{
+        position: relative;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        top: -13px;
+        &:hover{
+            transition: all ease 0.3s;
+            width: 60px;
+            height: 60px;
+            top: -20px;
+        }
+    }
     .topbar__container{
         max-width: 90vw;
         width: 90vw;
