@@ -20,6 +20,7 @@ export default function TopBar() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
+  const [profilePicture, setProfilePicture] = useState("");
   const navigate = useNavigate();
 
   async function getUsername(userid: number) {
@@ -78,25 +79,52 @@ export default function TopBar() {
 
   getLoggedInUserId();
 
-  async function assignUsername() {
-    if (loggedIn) {
-      const username = await getUsername(userID);
-      setUsername(username);
-      // console.log(username);
-    }
+async function assignUsername() {
+  if (loggedIn) {
+    const username = await getUsername(userID);
+    setUsername(username);
   }
-  assignUsername();
+}
+assignUsername();
+useEffect(() => {
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get(
+        `${loginServer}/user-profile-by-username/${username}`
+      );
+      if (response.data.profile.profilePictureUrl) {
+        setProfilePicture(response.data.profile.profilePictureUrl);
+      }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    }
+  };
+
+  if (username) {
+    fetchUserProfile();
+  }
+}, [username]);
+
   return (
     <nav className="topbar">
       <div className="topbar__container">
         <div className="topbar__logo">
           <a onClick={() => navigate("/")}>
-            <img className="topbar__icon" src="/src/assets/icon.svg" alt="Engage Logo" />
+            <img
+              className="topbar__icon"
+              src="/src/assets/icon.svg"
+              alt="Engage Logo"
+            />
             <h1 className="desktop__text">Engage</h1>
           </a>
         </div>
         <div className="topbar__menu">
           <ul className="link__items">
+          <li>
+                <a className="button" onClick={() => navigate('/about')}>
+                  <i className="fa-solid fa-circle-info persist"></i>{" "} 
+                  <span className="desktop__text">About</span></a>
+              </li>
             <li>
               <a className="button" onClick={() => navigate("/upload")}>
                 <i className="fa-solid fa-upload persist"></i>{" "}
@@ -104,23 +132,28 @@ export default function TopBar() {
               </a>
             </li>
             {/* Added Search button */}
-            <li>
+            {/* <li>
               <a className="button" onClick={() => navigate("/search")}>
                 <i className="fa-solid fa-search persist"></i>{" "}
                 <span className="desktop__text">Search</span>
               </a>
-            </li>
+            </li> */}
             <li>
               <a
-                className={loggedIn ? "button user" : "button"}
+                className={loggedIn ? "user" : "button"}
                 onClick={
                   loggedIn ? () => navigate("/user") : () => navigate("/login")
                 }
               >
                 {loggedIn ? (
                   <>
-                    <i className="fa-solid fa-user persist"></i>{" "}
-                    <span className="username">{username}</span>
+                  <img
+              src={
+                profilePicture
+              }
+              alt="Profile"
+              className="profile-picture-bar"
+            />
                   </>
                 ) : (
                   <>

@@ -16,6 +16,10 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
+import UserProfile from "./userProfile.tsx";
+import CombinedSearch from "./combinedSearch.tsx";
+
+import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
 import { color } from "framer-motion";
 
@@ -608,8 +612,27 @@ function Home() {
     setShowComments((prev) => !prev);
   };
 
+  // Function to handle search result selection
+  const handleSearchResultSelect = (fileName: string) => {
+    // Find the video index in array
+    const index = filteredArray.findIndex(
+      (path) => path && path.includes(fileName)
+    );
+
+    if (index !== -1) {
+      setVideoIndex(index);
+      // If needed, navigate to home page showing the video
+      if (window.location.pathname !== "/") {
+        navigate("/");
+      }
+    }
+  };
+
   return (
     <div className="app">
+      {/* Search container here */}
+      {/* <VideoSearch onResultSelect={handleSearchResultSelect} /> */}
+      <CombinedSearch onVideoSelect={handleSearchResultSelect} />
       <div className="app-container">
         <div className="video-player">
           <ReactPlayer
@@ -682,6 +705,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         <div className="video-details">
           <div className="details-metadata">
             {filteredArray.length > 0 && (
@@ -860,6 +884,11 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/recover-account/:token" element={<RecoverAccount />} />
+        <Route path="/profile/:userName" element={<UserProfile />} />
+        <Route path="/about" element={<About />} />
+        {/* User Page Route */}
+
+        {/* Protected Route for Dashboard and Video Player */}
         <Route element={<PrivateRoute />}>
           <Route path="/user" element={<User />} />
           <Route path="/upload" element={<Upload />} />
