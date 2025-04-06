@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
-import "./styles/User.scss";
+import "./styles/userProfile.scss";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;

@@ -1,0 +1,323 @@
+@use "global" as *; // Import global styles (e.g., colors, fonts, resets, etc.)
+
+//  Outer wrapper for the entire user page (full viewport)
+.user-page-wrapper {
+  position: relative;
+  // width: 100vw;
+  // min-width: 100vw;
+  height: 70vh;
+  display: block;
+  justify-content: center; // Centers content horizontally
+  align-items: center; // Centers content vertically
+}
+
+// ----- Profile Picture Styles & User Info -----
+// Display the profile picture and user info in one row
+.profile-picture-wrapper {
+  display: flex;
+  align-items: center; // Vertically center the items
+  margin: 20px 0 20px 20px; // Top, right, bottom, left margins
+}
+
+.profile-picture {
+  width: 100px; // Adjust size as needed
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  object-fit: cover;
+  cursor: default;
+}
+
+.user-profile__stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  //border-bottom: 1px solid #ddd;
+  color: #ffffff;
+  div {
+    text-align: center;
+
+    span {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
+/* New user info styling next to the profile picture */
+.user-info {
+  margin-left: 15px; // Space between image and text
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.username-display {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.date-joined {
+  font-size: 0.9rem;
+  color: #dddddd;
+}
+
+.user-role {
+  font-size: 0.9rem;
+  color: #dddddd;
+}
+
+//  Main container with smooth transition effects
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Centers children horizontally
+  transition: filter 0.3s ease, transform 0.2s ease-in-out;
+  margin: 0 auto;
+  max-width: 80vw;
+
+  //  Blur effect when a video is opened in fullscreen
+  &.blur {
+    filter: blur(8px);
+  }
+
+  //  Jitter effect when trying to swipe past available pages
+  &.jitter {
+    animation: jitter-animation 0.4s ease-in-out;
+  }
+}
+
+//  Jitter animation (slight shaking effect)
+@keyframes jitter-animation {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+}
+
+//  Content box with elevation and rounded corners
+.content-container {
+  // display: flex;
+  // min-width: 1000px;
+  flex-direction: column;
+  align-items: center;
+  // background-color: white;
+  border: 2px solid white;
+  // margin: auto;
+  // padding: 20px;
+  height: 70vh;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logout__section {
+  width: 90vw;
+  height: 60px;
+  margin: 10px 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+//  "My Videos" section title
+.my-videos-container {
+  display: flex;
+
+  padding: 0px 10px;
+  // background-color: darkgreen;
+  // display: flex;
+  justify-content: space-between;
+  color: white;
+  // padding: 10px 20px;
+  border-radius: 5px;
+  // gap: 50vw; // Adds space between elements
+  // margin-bottom: 10px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  .button {
+    font-size: 1.5rem;
+    height: 40px;
+    width: 80px;
+    // padding: 2px 15px;
+    text-align: center;
+    padding: auto;
+  }
+}
+
+//  Video grid container with smooth page transition effect
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3-column layout
+  gap: 2%;
+  // background-color: #3b7543af;
+  backdrop-filter: blur(5px); // Adds a subtle background blur effect
+  width: 90vw;
+  // height: 73vh;
+  // min-height: 73vh;
+  max-height: 40vh;
+  padding: 5px;
+  border-radius: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  align-content: center;
+  position: relative;
+  overflow: hidden;
+
+  // 📝 When empty, keep the container height and display the text properly
+  &:empty {
+    display: flex; // Flexbox to center text
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 📝 Empty state message when no videos exist
+  .no-videos-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    color: rgba(0, 0, 0, 0.5); // Semi-transparent effect
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  // Adding animation for smooth page transitions
+  &.slide-enter {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  &.slide-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.5s ease-out, opacity 0.3s ease-out;
+  }
+
+  &.slide-exit {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  &.slide-exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.5s ease-in, opacity 0.3s ease-in;
+  }
+}
+
+// Individual video thumbnail container
+.video-thumbnail {
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 15px;
+  width: 28.5vw;
+  height: 18vh;
+  // width: 40vw;
+  // height: 10vh;
+  // display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease;
+  // margin-top: 18px;
+
+  // Hover effect for a slight zoom-in
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  //  Styling for the actual video thumbnail inside the container
+  .thumbnail-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+  }
+}
+
+//  Home button styling with hover effects
+.home-button {
+  margin-top: 2px;
+  background-color: #065527;
+  color: white;
+  padding: 6px 18px;
+  border: none;
+  border-radius: 19px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: "Courier New", Courier, monospace;
+  text-shadow: 0px 0px 13px #283966;
+  border: 2px solid #4e6096;
+  transition: transform 0.2s ease, background 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #004488;
+    transform: scale(1.05);
+  }
+}
+
+// Fullscreen video overlay when a video is clicked
+.fullscreen-overlay {
+  position: fixed; // Keeps it on top of everything
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8); // Dark semi-transparent background
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; // Ensures it's above everything else
+}
+
+//  Fullscreen video styling
+.fullscreen-video {
+  max-width: 90%; // Prevents excessive stretching
+  max-height: 90%; // Ensures it fits the screen
+  border-radius: 8px; // Soft edges
+}
+
+//  Mobile Responsiveness Adjustments
+@media (max-width: 768px) {
+  .my-videos-container {
+    font-size: 1.2rem; // Adjust font size for smaller screens
+    display: block;
+  }
+  .video-grid {
+    height: 45vh;
+    max-height: 45vh;
+    grid-template-columns: 1fr 1fr; // Adjust to 2 columns for tablets
+    grid-auto-rows: auto; // Automatically create new rows for video thumbnails
+    display: -webkit-box; // Safari compatibility for grid fallback
+    display: -ms-grid; // IE compatibility
+    display: grid;
+  }
+  .video-thumbnail {
+    width: 40vw;
+    height: 13vh;
+  }
+}
+
+@media (max-width: 670px) {
+  .user-container {
+    padding: 10px; // Reduce padding to better fit small screens
+  }
+}
