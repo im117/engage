@@ -122,7 +122,7 @@ useEffect(() => {
           <ul className="link__items">
           <li>
                 <a className="button" onClick={() => navigate('/about')}>
-                  <i className="fa-solid fa-circle-info persist"></i> 
+                  <i className="fa-solid fa-circle-info persist"></i>{" "} 
                   <span className="desktop__text">About</span></a>
               </li>
             <li>
