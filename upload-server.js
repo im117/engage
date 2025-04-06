@@ -1,4 +1,4 @@
-import express from "express";
+import express from "express"; 
 import mysql from "mysql2";
 import multer from "multer";
 import path from "path";
@@ -38,6 +38,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// **** ADDED LINE: Serve static files from the media folder ****
+app.use('/media', express.static(path.join(process.cwd(), 'media')));
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
@@ -217,7 +220,6 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
         const db = dbRequest(dbHost);
         const insertQuery =
           "INSERT INTO videos (creator_id, title, description, fileName) VALUES (?, ?, ?, ?)";
-
         db.query(
           insertQuery,
           [creatorId, title, description, outputFile],
@@ -253,15 +255,31 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   });
 });
 
-function deleteFile(filePath) {
-  fs.unlink(filePath, (err) => {
+// **** ADDED ENDPOINT: Upload Profile Picture ****
+app.post("/upload-profile-picture", upload.single("profilePicture"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+  // Construct the full URL for the uploaded file
+  const fileUrl = `/media/${req.file.filename}`;
+  
+  const db = dbRequest(dbHost);
+  const updateQuery = "UPDATE users SET profilePictureUrl = ? WHERE id = ?";
+  db.query(updateQuery, [fileUrl, userId], (err, result) => {
+    db.destroy();
     if (err) {
-      console.error(`Error deleting file ${filePath}: `, err);
-    } else {
-      console.log(`File ${filePath} deleted successfully`);
+      console.error("Error updating user with profile picture: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
     }
+    return res
+      .status(200)
+      .json({ message: "Profile picture uploaded successfully", profilePictureUrl: fileUrl });
   });
-}
+});
 
 // Get user info
 app.get("/user", (req, res) => {
@@ -313,7 +331,7 @@ app.get("/video", (req, res) => {
 // Get video list
 app.get("/video-list", (req, res) => {
   const db = dbRequest(dbHost);
-  const selectQuery = "SELECT fileName FROM videos";
+  const selectQuery = "SELECT id, title, description, fileName FROM videos";
   db.query(selectQuery, (err, results) => {
     if (err) {
       console.error("Error fetching video from database: ", err);
@@ -344,14 +362,42 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
   console.log("Comment:", comment);
   if (!video_id || !comment) {
     db.destroy();
-    return res.status(400).json({ message: "Video ID and comment are required" });
+    return res
+      .status(400)
+      .json({ message: "Video ID and comment are required" });
   }
   try {
-    const insertQuery = "INSERT INTO comments (user_id, video_id, content) VALUES (?, ?, ?)";
-    await db.promise().query(insertQuery, [userId, video_id, comment]);
+    const insertQuery =
+      "INSERT INTO comments (user_id, video_id, content) VALUES (?, ?, ?)";
+    const [result] = await db
+      .promise()
+      .query(insertQuery, [userId, video_id, comment]);
+    const commentId = result.insertId;
     console.log("Comment successfully stored in database!");
+
+    // Get the video creator's ID
+    const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+    const [videoResults] = await db
+      .promise()
+      .query(getVideoCreatorQuery, [video_id]);
+
+    if (videoResults.length > 0) {
+      const videoCreatorId = videoResults[0].creator_id;
+      // Don't create a notification if the commenter is the video creator
+      if (videoCreatorId !== userId) {
+        // Create the notification
+        const createNotificationQuery =
+          "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'video', 'comment')";
+
+        await db
+          .promise()
+          .query(createNotificationQuery, [videoCreatorId, userId, video_id]);
+      }
+    }
     db.destroy();
-    return res.status(200).json({ message: "Comment posted successfully!" });
+    return res
+      .status(200)
+      .json({ message: "Comment posted successfully!", commentId: commentId });
   } catch (error) {
     console.error("Error inserting comment:", error);
     db.destroy();
@@ -393,13 +439,45 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
   const userId = req.user.userId;
   if (!comment_id || !reply) {
     db.destroy();
-    return res.status(400).json({ message: "Comment ID and reply content are required" });
+    return res
+      .status(400)
+      .json({ message: "Comment ID and reply content are required" });
   }
   try {
-    const insertQuery = "INSERT INTO reply (creator_id, content, comment_id) VALUES (?, ?, ?)";
-    await db.promise().query(insertQuery, [userId, reply, comment_id]);
+    const insertQuery =
+      "INSERT INTO reply (creator_id, content, comment_id) VALUES (?, ?, ?)";
+    const [result] = await db
+      .promise()
+      .query(insertQuery, [userId, reply, comment_id]);
+    const replyId = result.insertId;
+
+    // Get the comment creator's ID
+    const getCommentCreatorQuery = "SELECT user_id FROM comments WHERE id = ?";
+    const [commentResults] = await db
+      .promise()
+      .query(getCommentCreatorQuery, [comment_id]);
+
+    if (commentResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    const commentCreatorId = commentResults[0].user_id;
+
+    // Don't create a notification if the replier is the comment creator
+    if (commentCreatorId !== userId) {
+      // Create the notification
+      const createNotificationQuery =
+        "INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type) VALUES (?, ?, ?, 'comment', 'reply')";
+
+      await db
+        .promise()
+        .query(createNotificationQuery, [commentCreatorId, userId, comment_id]);
+    }
     db.destroy();
-    return res.status(200).json({ message: "Reply posted successfully!" });
+    return res
+      .status(200)
+      .json({ message: "Reply posted successfully!", replyId: replyId });
   } catch (error) {
     console.error("Error inserting reply:", error);
     db.destroy();
@@ -426,6 +504,16 @@ app.get("/get-replies", async (req, res) => {
     return res.status(500).json({ message: "Database error", error });
   }
 });
+
+function deleteFile(filePath) {
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      console.error(`Error deleting file ${filePath}: `, err);
+    } else {
+      console.log(`File ${filePath} deleted successfully`);
+    }
+  });
+}
 
 // Use server.listen instead of app.listen to enable socket.io
 server.listen(port, () => {

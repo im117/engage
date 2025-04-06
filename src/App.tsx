@@ -1,6 +1,7 @@
 import "./styles/App.scss"; // Import global and App-specific styles
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Search from "./components/search.tsx";
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 import PrivateRoute from "./PrivateRoute";
@@ -15,6 +16,9 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
+import UserProfile from "./userProfile.tsx";
+import CombinedSearch from "./combinedSearch.tsx";
+
 import About from "./About.tsx";
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
@@ -97,6 +101,16 @@ function Home() {
   const [comment, setComment] = useState("");
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
+  interface Notification {
+    id: number;
+    is_read: boolean;
+    [key: string]: any; // Adjust this based on the actual structure of your notifications
+  }
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
@@ -648,12 +662,13 @@ function Home() {
       setComment("");
       setNotification("✅ Successfully commented!");
       setTimeout(() => setNotification(""), 3000);
+
+      displayComments();
     } catch (error) {
       console.error("Error posting comment:", error);
       setNotification("⚠️ Failed to post comment.");
       setTimeout(() => setNotification(""), 3000);
     }
-    displayComments();
   };
 
   const handleVideoStart = () => {
@@ -784,8 +799,27 @@ function Home() {
     setShowComments((prev) => !prev);
   };
 
+  // Function to handle search result selection
+  const handleSearchResultSelect = (fileName: string) => {
+    // Find the video index in array
+    const index = filteredArray.findIndex(
+      (path) => path && path.includes(fileName)
+    );
+
+    if (index !== -1) {
+      setVideoIndex(index);
+      // If needed, navigate to home page showing the video
+      if (window.location.pathname !== "/") {
+        navigate("/");
+      }
+    }
+  };
+
   return (
     <div className="app">
+      {/* Search container here */}
+      {/* <VideoSearch onResultSelect={handleSearchResultSelect} /> */}
+      <CombinedSearch onVideoSelect={handleSearchResultSelect} />
       <div className="app-container">
         <div className="video-player">
           <ReactPlayer
@@ -868,6 +902,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         <div className="video-details">
           <div className="details-metadata">
             {filteredArray.length > 0 && (
@@ -974,12 +1009,18 @@ function Home() {
                                 {repliesVisible[c.id] ? (
                                   <i
                                     className="fa-solid fa-chevron-up"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                    style={{
+                                      fontSize: "1.2em",
+                                      color: "#333",
+                                    }}
                                   ></i>
                                 ) : (
                                   <i
                                     className="fa-solid fa-chevron-down"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                    style={{
+                                      fontSize: "1.2em",
+                                      color: "#333",
+                                    }}
                                   ></i>
                                 )}
                               </button>
@@ -1127,6 +1168,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/recover-account/:token" element={<RecoverAccount />} />
+        <Route path="/profile/:userName" element={<UserProfile />} />
         <Route path="/about" element={<About />} />
         {/* User Page Route */}
 

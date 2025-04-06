@@ -426,6 +426,11 @@ body {
     grid-template-columns: 1fr; // Stack items vertically
     // justify-content: center;
   }
+  .comment-btn {
+    &:hover {
+      padding: 10px !important; // Ensure padding remains fixed
+    }
+  }
 
   .video-player {
     height: 70vh; // Adjust height for smaller screens
