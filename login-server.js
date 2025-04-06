@@ -1239,6 +1239,66 @@ app.get("/user-profile/:userId", (req, res) => {
   });
 });
 
+// Get user profile by userName
+app.get("/user-profile-by-username/:userName", (req, res) => {
+  const db = dbRequest(dbHost);
+  const { userName } = req.params;
+
+  if (!userName) {
+    db.destroy();
+    return res.status(400).json({ message: "UserName is required" });
+  }
+
+  const userQuery = `
+    SELECT u.id, u.username, u.role, u.dateCreated, u.profilePictureUrl,
+      (SELECT COUNT(*) FROM videos WHERE creator_id = u.id) AS videoCount,
+      (SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS commentCount,
+      (SELECT COUNT(*) FROM reply WHERE creator_id = u.id) AS replyCount
+    FROM users u
+    WHERE u.username = ?
+  `;
+
+  db.query(userQuery, [userName], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userId = results[0].id;
+
+    // Get user's videos
+    const videosQuery = `
+      SELECT id, title, fileName, description, created_at
+      FROM videos
+      WHERE creator_id = ?
+      ORDER BY created_at DESC
+      LIMIT 10
+    `;
+
+    db.query(videosQuery, [userId], (videoErr, videos) => {
+      if (videoErr) {
+        console.error("Database error:", videoErr);
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const userProfile = {
+        ...results[0],
+        videos: videos,
+      };
+
+      db.destroy();
+      return res.status(200).json({ profile: userProfile });
+    });
+  });
+});
+
 // Get user by username endpoint
 app.get("/user-by-username/:username", (req, res) => {
   const db = dbRequest(dbHost);

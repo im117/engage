@@ -10,7 +10,7 @@ import "./styles/User.scss";
 const VIDEOS_PER_PAGE = 6;
 
 const UserProfile = () => {
-  const { userId } = useParams();
+  const { userName } = useParams();
   const [userVideos, setUserVideos] = useState<string[]>([]);
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
@@ -127,7 +127,7 @@ const UserProfile = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/user-profile/${userId}`
+          `${API_BASE_URL}/user-profile-by-username/${userName}`
         );
         setProfile(response.data.profile);
         if (response.data.profile.profilePictureUrl) {
@@ -142,10 +142,10 @@ const UserProfile = () => {
       }
     };
 
-    if (userId) {
+    if (userName) {
       fetchUserProfile();
     }
-  }, [userId]);
+  }, [userName]);
 
   if (loading) {
     return <div className="user-profile__loading">Loading profile...</div>;

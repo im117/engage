@@ -1167,7 +1167,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/recover-account/:token" element={<RecoverAccount />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/profile/:userName" element={<UserProfile />} />
         {/* User Page Route */}
 
         {/* Protected Route for Dashboard and Video Player */}

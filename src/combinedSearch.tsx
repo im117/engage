@@ -209,7 +209,7 @@ const CombinedSearch = ({
       setSearchTerm("");
       setShowResults(false);
     } else if (result.type === "user") {
-      navigate(`/profile/${(result.data as User).id}`);
+      navigate(`/profile/${(result.data as User).username}`);
       setSearchTerm("");
       setShowResults(false);
     }
