@@ -348,4 +348,32 @@
   .user-container {
     padding: 10px; // Reduce padding to better fit small screens
   }
+  .profile-picture-wrapper {
+    margin: 8px 0 8px 8px; // Adjust margins for smaller screens
+  }
+  .profile-picture {
+    width: 60px; // Adjust size as needed
+    height: 60px;
+  }
+  .user-profile__stats {
+    padding: 5px;
+    div {
+      span {
+        font-size: 15px; // Adjust font size for smaller screens
+      }
+      p {
+        font-size: 12px; // Adjust font size for smaller screens
+      }
+    }
+  }
+  .user-info {
+    margin-left: 8px; // Adjust space between image and text
+    .username-display {
+      font-size: 0.8rem; // Adjust font size for smaller screens
+    }
+    .date-joined,
+    .user-role {
+      font-size: 0.6rem; // Adjust font size for smaller screens
+    }
+  }
 }
