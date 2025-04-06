@@ -278,7 +278,7 @@ function User() {
             <img
               src={profilePictureUrl}
               alt="Profile"
-              className="profile-picture"
+              className="profile-picture pfp-own-user"
               onClick={handleProfilePictureClick}
             />
             <input

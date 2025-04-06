@@ -271,7 +271,7 @@ app.get("/verify-email", (req, res) => {
 
 const authenticateTokenGet = (req, res, next) => {
   const { auth: token } = req.query;
-  console.log("Token received:", token);
+  // console.log("Token received:", token);
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
@@ -449,7 +449,7 @@ function getVideoIdFromFileName(db, fileName) {
       }
 
       const videoId = results[0].id;
-      console.log("Found videoId:", videoId);
+      // console.log("Found videoId:", videoId);
       resolve(videoId);
     });
   });
@@ -517,8 +517,8 @@ app.post("/like-video", authenticateTokenGet, (req, res) => {
   const userId = req.user.userId;
   const db = dbRequest(dbHost);
 
-  console.log("User ID:", userId);
-  console.log("Video Name:", fileName);
+  // console.log("User ID:", userId);
+  // console.log("Video Name:", fileName);
 
   getVideoIdFromFileName(db, fileName)
     .then((videoId) => {
@@ -794,7 +794,7 @@ app.post("/like-reply", authenticateTokenGet, (req, res) => {
   const userId = req.user.userId;
   const db = dbRequest(dbHost);
 
-  console.log("User ID:", userId);
+  // console.log("User ID:", userId);
 
   // Check if user already liked the reply
   const checkLikeQuery =
@@ -878,7 +878,7 @@ app.post("/like-comment", authenticateTokenGet, (req, res) => {
   const userId = req.user.userId;
   const db = dbRequest(dbHost);
 
-  console.log("User ID:", userId);
+  // console.log("User ID:", userId);
   if (!comment_id) {
     db.destroy();
     return res.status(400).json({ message: "Comment ID is required" });
