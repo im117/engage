@@ -73,10 +73,10 @@ const authenticateToken = (req, res, next) => {
 
 // Socket connection handler
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
+  // console.log("Client connected:", socket.id);
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
+    // console.log("Client disconnected:", socket.id);
   });
 });
 
@@ -125,12 +125,12 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
   let duration = 0;
   ffprobe.stdout.on("data", (data) => {
     duration = parseFloat(data.toString().trim());
-    console.log(`Video duration: ${duration} seconds`);
+    // console.log(`Video duration: ${duration} seconds`);
   });
 
   ffprobe.on("close", (code) => {
     if (code !== 0) {
-      console.log("Could not determine video duration");
+      // console.log("Could not determine video duration");
       // Continue with transcoding anyway
     }
 
@@ -173,7 +173,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
             sessionId: sessionId,
             progress: progressPercent,
           });
-          console.log(`Transcoding progress: ${progressPercent}%`);
+          // console.log(`Transcoding progress: ${progressPercent}%`);
         }
       }
     });
@@ -237,7 +237,7 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
                 .json({ message: "Database error", error: err });
             }
 
-            console.log("Insert result:", result);
+            // console.log("Insert result:", result);
             db.destroy();
             return res.status(200).json({
               message: "File uploaded and transcoded successfully!",
@@ -356,10 +356,10 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { video_id, comment } = req.body;
   const userId = req.user.userId;
-  console.log("Received Comment Request:");
-  console.log("User ID:", userId);
-  console.log("Video ID:", video_id);
-  console.log("Comment:", comment);
+  // console.log("Received Comment Request:");
+  // console.log("User ID:", userId);
+  // console.log("Video ID:", video_id);
+  // console.log("Comment:", comment);
   if (!video_id || !comment) {
     db.destroy();
     return res
@@ -373,7 +373,7 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
       .promise()
       .query(insertQuery, [userId, video_id, comment]);
     const commentId = result.insertId;
-    console.log("Comment successfully stored in database!");
+    // console.log("Comment successfully stored in database!");
 
     // Get the video creator's ID
     const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
