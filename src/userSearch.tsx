@@ -21,7 +21,8 @@ const UserSearch = () => {
   );
 
   // Get API base URL from environment
-  const API_BASE_URL = import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
+  const API_BASE_URL =
+    import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
 
   const handleSearch = async () => {
     if (!query.trim()) {

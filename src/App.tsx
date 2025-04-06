@@ -16,9 +16,8 @@ import Terms from "./terms.tsx";
 import LikeButton from "./components/likeButton.tsx";
 import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
-import VideoSearch from "./searchVideo";
 import UserProfile from "./userProfile.tsx";
-import UserSearch from "./userSearch.tsx";
+import CombinedSearch from "./combinedSearch.tsx";
 
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
@@ -818,7 +817,8 @@ function Home() {
   return (
     <div className="app">
       {/* Search container here */}
-      <VideoSearch onResultSelect={handleSearchResultSelect} />
+      {/* <VideoSearch onResultSelect={handleSearchResultSelect} /> */}
+      <CombinedSearch onVideoSelect={handleSearchResultSelect} />
       <div className="app-container">
         <div className="video-player">
           <ReactPlayer
@@ -1167,8 +1167,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/recover-account/:token" element={<RecoverAccount />} />
-        <Route path="/search" element={<UserSearch />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/profile/:userName" element={<UserProfile />} />
         {/* User Page Route */}
 
         {/* Protected Route for Dashboard and Video Player */}

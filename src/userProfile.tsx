@@ -4,13 +4,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
-import "./styles/User.scss";
+import "./styles/userProfile.scss";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
 
 const UserProfile = () => {
-  const { userId } = useParams();
+  const { userName } = useParams();
   const [userVideos, setUserVideos] = useState<string[]>([]);
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
@@ -119,14 +119,15 @@ const UserProfile = () => {
     startIndex + VIDEOS_PER_PAGE
   );
 
-  const API_BASE_URL = import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
+  const API_BASE_URL =
+    import.meta.env.VITE_LOGIN_SERVER || "http://localhost:8081";
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/user-profile/${userId}`
+          `${API_BASE_URL}/user-profile-by-username/${userName}`
         );
         setProfile(response.data.profile);
         if (response.data.profile.profilePictureUrl) {
@@ -141,10 +142,10 @@ const UserProfile = () => {
       }
     };
 
-    if (userId) {
+    if (userName) {
       fetchUserProfile();
     }
-  }, [userId]);
+  }, [userName]);
 
   if (loading) {
     return <div className="user-profile__loading">Loading profile...</div>;
@@ -154,7 +155,7 @@ const UserProfile = () => {
     return (
       <div className="user-profile__error">
         <p>{error}</p>
-        <Link to="/search" className="user-profile__back-link">
+        <Link to="/" className="user-profile__back-link">
           &larr; Back to search
         </Link>
       </div>
@@ -165,7 +166,7 @@ const UserProfile = () => {
     return (
       <div className="user-profile__not-found">
         <p>User not found</p>
-        <Link to="/search" className="user-profile__back-link">
+        <Link to="/" className="user-profile__back-link">
           &larr; Back to search
         </Link>
       </div>
