@@ -75,6 +75,7 @@ useEffect(() => {
         </div>
         <div className="uploader">
         <FileUploader />
+        <p>Uploaded by: <a href={`/profile/${username}`} className="username-link">{username}</a></p>
         </div>  
     </div>
     </div>
