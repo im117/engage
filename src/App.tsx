@@ -945,7 +945,7 @@ function Home() {
                                 <div
                                   style={{
                                     display: "flex",
-                                    flexDirection: "column",
+                                    flexDirection: "row",
                                     width: "100%",
                                     gap: "8px",
                                   }}
@@ -962,7 +962,7 @@ function Home() {
                                     placeholder="Write a reply..."
                                     style={{
                                       padding: "8px",
-                                      width: "100%",
+                                      width: "80%",
                                       boxSizing: "border-box",
                                     }}
                                   />
