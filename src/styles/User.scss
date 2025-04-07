@@ -19,6 +19,15 @@
   margin: 20px 0 20px 20px; // Top, right, bottom, left margins
 }
 
+.pfp__container{
+  display: flex;
+  flex-direction: column;
+  .button{
+    padding: 2px;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+}
 .profile-picture {
   width: 100px; // Adjust size as needed
   height: 100px;
@@ -28,8 +37,11 @@
 }
 
 .pfp-own-user{
+  transition: all 0.3s ease;
   &:hover{
+    transition: all 0.3s ease;
     cursor: pointer;
+    border: 2px solid #8afa74;
   }
 }
 
