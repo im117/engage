@@ -396,9 +396,13 @@ body {
 .username-link {
   text-decoration: underline;
   color: rgb(85, 86, 97); /* General color for usernames */
-  &:hover{
+  &:hover {
     cursor: pointer;
   }
+}
+.comment-date {
+  color: #000;
+  font-size: 12px;
 }
 
 .engager-link {
@@ -489,5 +493,4 @@ body {
     margin: 10px 0;
     text-align: center;
   }
-  
 }
