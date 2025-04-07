@@ -711,7 +711,7 @@ function Home() {
             {filteredArray.length > 0 && (
               <>
                 {/* Pass the authToken to the Follow component */}
-                <Follow fileName={currentVideo.split("/").pop() || ""} />
+                <Follow fileName={currentVideo.split("/").pop() || ""} loggedIn={loggedIn}/>
                 <h1>{currentVideoTitle}</h1>
                 <h2>Engager: {currentVideoCreatorName}</h2>
                 <h3>Uploaded: {currentVideoDate}</h3>

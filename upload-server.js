@@ -647,8 +647,7 @@ app.get("/get-follow-status", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.query;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
-  console.log("filename ........ " + fileName);
-  // console.log("FILENAMW" + fileName);
+
   if (!fileName){
     db.destroy();
     return res.status(400).json({ message: "File name is required" });
@@ -692,7 +691,6 @@ app.get("/get-is-self", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.query;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
-  console.log("filename ........ " + fileName);
   // console.log("FILENAMW" + fileName);
   if (!fileName){
     db.destroy();
@@ -727,25 +725,45 @@ app.get("/get-is-self", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/get-follower-count", async (req, res) => {
+app.get("/get-follow-count", async (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.query;
 
   if (!fileName) {
     db.destroy();
-    return res.status(400).json({ message: "User ID is required" });
+    return res.status(400).json({ message: "fileName is required" });
   }
 
   try {
-    const selectQuery = `
-      SELECT * FROM notifications WHERE recipient_id = ?
-    `;
-    const [notificationResults] = await db.promise().query(selectQuery, [userId]);
+    // Step 1: Get the videoId from the fileName
+    const videoId = await getVideoIdFromFileName(db, fileName);
+    if (!videoId) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
 
+    // Step 2: Get the creator_id (userId of the video creator)
+    const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+    const [creatorResults] = await db.promise().query(getCreatorQuery, [videoId]);
+
+    if (creatorResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video creator not found" });
+    }
+
+    const userID = creatorResults[0].creator_id; // The userId of the video creator
+
+    const selectQuery = `
+      SELECT COUNT(*) AS follow_count FROM follows WHERE follower_id = ?
+    `;
+    const [result] = await db.promise().query(selectQuery, [userID]);
+
+    console.log("Follows fetched: ", result[0].follow_count);
+    
     db.destroy();
-    return res.status(200).json(notificationResults);
+    return res.status(200).json({ follow_count: result[0].follow_count }); // Return the count
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Error displaying follower count:", error);
     db.destroy();
     return res.status(500).json({ message: "Database error", error });
   }
