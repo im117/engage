@@ -42,7 +42,7 @@ function About(){
         <DevInfo
             reverse={true}
             name="Maksim Spitsyn" 
-            title="" 
+            title="Frontend Developer"
             profileUrl="/src/assets/maksim.jpg" 
             bio="Computer Science major and Management minor. Taking 481 and a lot of other 400 level cs classes. Planning to create the greatest platform ever existed on the planet earth with my cool friend(teammates)."
             website=""
