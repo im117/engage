@@ -35,6 +35,29 @@ function User() {
   // useRef for hidden file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [isJittering, setIsJittering] = useState(false);
+    const [direction, setDirection] = useState(0);
+    const [selectedTab, setSelectedTab] = useState<"videos" | "likes">("videos");
+  
+    // --- NEW state for liked videos + pagination ---
+    const [likedVideos, setLikedVideos] = useState<string[]>([]);
+    const [currentLikesPage, setCurrentLikesPage] = useState(0);
+  
+    // Pagination for user videos
+    const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
+    const startIndex = currentPage * VIDEOS_PER_PAGE;
+    const currentVideos = userVideos.slice(startIndex, startIndex + VIDEOS_PER_PAGE);
+  
+    // Pagination for liked videos
+    const totalLikesPages = Math.ceil(likedVideos.length / VIDEOS_PER_PAGE);
+    const startLikesIndex = currentLikesPage * VIDEOS_PER_PAGE;
+    const currentLikedVideos = likedVideos.slice(
+      startLikesIndex,
+      startLikesIndex + VIDEOS_PER_PAGE
+    );
+
   async function loadUserVideos() {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -59,6 +82,23 @@ function User() {
     loadUserVideos();
   }, []);
 
+  // -- Fetch user's liked videos --
+  async function loadUserLikedVideos() {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await axios.get(`${loginServer}/get-user-liked-videos`, {
+          params: { auth: token },
+        });
+        const likedVideoArray: string[] = response.data.videos.map(
+          (v: { fileName: string }) => `./media/${v.fileName}`
+        );
+        setLikedVideos(likedVideoArray);
+      } catch (error) {
+        console.error("Error fetching user liked videos:", error);
+      }
+    }
+  }
   // Get logged in user ID
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
@@ -122,14 +162,6 @@ function User() {
 
   const navigate = useNavigate(); // Hook for navigating between routes
 
-  // State variables to manage video selection, page navigation, and animations
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null); // Stores the currently selected video for fullscreen view
-  const [currentPage, setCurrentPage] = useState(0); // Tracks the current page number in the video list
-  const [isJittering, setIsJittering] = useState(false); // Triggers a "jitter" effect if the user reaches the last/first page
-  const [direction, setDirection] = useState(0); // Tracks swipe direction: -1 (left) or 1 (right) for smooth transitions
-
-  // Calculate the total number of pages based on the number of videos
-  const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
 
   /**
    * Opens a fullscreen overlay with the selected video.
@@ -179,6 +211,32 @@ function User() {
     }
   };
 
+  // Load liked videos whenever the user switches to the "likes" tab
+  useEffect(() => {
+    if (selectedTab === "likes") {
+      loadUserLikedVideos();
+    }
+  }, [selectedTab]);
+
+  // Paging for liked videos
+  const handleNextLikesPage = () => {
+    if (currentLikesPage < totalLikesPages - 1) {
+      setDirection(1);
+      setCurrentLikesPage((prevPage) => prevPage + 1);
+    } else {
+      triggerJitter();
+    }
+  };
+  const handlePrevLikesPage = () => {
+    if (currentLikesPage > 0) {
+      setDirection(-1);
+      setCurrentLikesPage((prevPage) => prevPage - 1);
+    } else {
+      triggerJitter();
+    }
+  };
+
+
   /**
    * Triggers a short "jitter" animation when the user tries to go beyond available pages.
    * This gives feedback to indicate there is no more content.
@@ -192,18 +250,24 @@ function User() {
    * Handles swipe gestures (both touch and mouse) for navigation.
    */
   const handlers = useSwipeable({
-    onSwipedLeft: () => handleNextPage(), // Swipe left → Go to the next page
-    onSwipedRight: () => handlePrevPage(), // Swipe right → Go to the previous page
+    onSwipedLeft: () => {
+      if (selectedTab === "videos") handleNextPage();
+      else handleNextLikesPage();
+    },
+    onSwipedRight: () => {
+      if (selectedTab === "videos") handlePrevPage();
+      else handlePrevLikesPage();
+    },
     preventScrollOnSwipe: true, // Prevents the page from scrolling when swiping
     trackMouse: true, // Enables swipe gestures using the mouse
   });
 
-  // Calculate the index range of videos for the current page
-  const startIndex = currentPage * VIDEOS_PER_PAGE;
-  const currentVideos = userVideos.slice(
-    startIndex,
-    startIndex + VIDEOS_PER_PAGE
-  );
+  // // Calculate the index range of videos for the current page
+  // const startIndex = currentPage * VIDEOS_PER_PAGE;
+  // const currentVideos = userVideos.slice(
+  //   startIndex,
+  //   startIndex + VIDEOS_PER_PAGE
+  // );
 
   // ----- Profile Picture Handlers -----
 
@@ -323,23 +387,99 @@ function User() {
             </div>
           </div>
 
-          {/* Engagements Section */}
-          <div className="my-videos-container">
-            <div className="text">
-              <h2>Your engagements</h2>
-              <p style={{ fontSize: "1rem" }} className="mobile__text">
-                Swipe left and right to navigate.<br></br> Touch video to play.{" "}
-                <br></br>Tap background to return.
-              </p>
-              <p className="desktop__text">
-                Click and drag left and right to navigate.
-                <br></br> Click video to play.
-                <br></br>Click background to return.
-              </p>
-            </div>
-          </div>
 
-          {/* AnimatePresence ensures smooth transition between pages */}
+          {/* Tab Navigation Section */}
+<div className="my-videos-container tab-toggle">
+  <div
+    className={`tab-item ${selectedTab === "videos" ? "active" : ""}`}
+    onClick={() => setSelectedTab("videos")}
+  >
+    My Videos
+  </div>
+  <div
+    className={`tab-item ${selectedTab === "likes" ? "active" : ""}`}
+    onClick={() => setSelectedTab("likes")}
+  >
+    My Likes
+  </div>
+</div>
+
+
+          {/* My Videos Tab */}
+                    {selectedTab === "videos" && (
+                      <AnimatePresence mode="popLayout">
+                        <motion.div
+                          key={currentPage}
+                          className="video-grid"
+                          initial={{ x: direction * 100, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          exit={{ x: direction * 100, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                        >
+                          {currentVideos.length > 0 ? (
+                            currentVideos.map((video, index) => (
+                              <div
+                                key={index}
+                                className="video-thumbnail"
+                                onClick={() => handleOpenVideo(video)}
+                              >
+                                <motion.video
+                                  src={video}
+                                  className="thumbnail-video"
+                                  autoPlay
+                                  muted
+                                  loop
+                                  playsInline
+                                  whileHover={{ scale: 1.05 }}
+                                />
+                              </div>
+                            ))
+                          ) : (
+                            <div className="no-videos-text">No Videos Added</div>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    )}
+          
+                    {/* My Likes Tab */}
+                    {selectedTab === "likes" && (
+                      <AnimatePresence mode="popLayout">
+                        <motion.div
+                          key={currentLikesPage}
+                          className="video-grid"
+                          initial={{ x: direction * 100, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          exit={{ x: direction * 100, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                        >
+                          {currentLikedVideos.length > 0 ? (
+                            currentLikedVideos.map((video, index) => (
+                              <div
+                                key={index}
+                                className="video-thumbnail"
+                                onClick={() => handleOpenVideo(video)}
+                              >
+                                <motion.video
+                                  src={video}
+                                  className="thumbnail-video"
+                                  autoPlay
+                                  muted
+                                  loop
+                                  playsInline
+                                  whileHover={{ scale: 1.05 }}
+                                />
+                              </div>
+                            ))
+                          ) : (
+                            <div className="no-videos-text">No liked videos yet.</div>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    )}
+                  </div>
+                </div>
+
+          {/* AnimatePresence ensures smooth transition between pages
           <AnimatePresence mode="popLayout">
             <motion.div
               key={currentPage} // Changes key on each page update to trigger animation
@@ -371,35 +511,8 @@ function User() {
                 <div className="no-videos-text">No Videos Added</div> // Show text when no videos exist
               )}
             </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+          </AnimatePresence> */}
 
-      {/* Fullscreen video overlay (shown when a video is clicked) */}
-      <AnimatePresence>
-        {selectedVideo && (
-          <motion.div
-            className="fullscreen-overlay"
-            initial={{ opacity: 0 }} // Start with opacity 0
-            animate={{ opacity: 1 }} // Fade in smoothly
-            exit={{ opacity: 0 }} // Fade out when closed
-            onClick={handleCloseVideo} // Clicking outside the video closes it
-          >
-            <motion.video
-              src={selectedVideo}
-              className="fullscreen-video"
-              initial={{ scale: 0.8 }} // Start smaller
-              animate={{ scale: 1 }} // Expand to full size
-              exit={{ scale: 0.8 }} // Shrink when closing
-              autoPlay
-              playsInline
-              controls
-              loop
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
