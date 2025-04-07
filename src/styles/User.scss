@@ -134,29 +134,14 @@
   align-items: flex-end;
 }
 //  "My Videos" section title
-.my-videos-container {
+.my-videos-container.tab-toggle {
   display: flex;
-
-  padding: 0px 10px;
-  // background-color: darkgreen;
-  // display: flex;
-  justify-content: space-between;
-  color: white;
-  // padding: 10px 20px;
-  border-radius: 5px;
-  // gap: 50vw; // Adds space between elements
-  // margin-bottom: 10px;
-  font-size: 1.4rem;
-  font-weight: bold;
-  .button {
-    font-size: 1.5rem;
-    height: 40px;
-    width: 80px;
-    // padding: 2px 15px;
-    text-align: center;
-    padding: auto;
-  }
+  justify-content: center;  // Center horizontally
+  align-items: center;      // Center vertically if needed
+  gap: 3rem;                // Space between "My Videos" and "My Likes"
+  margin: 1rem auto;        // Center the container within its parent
 }
+
 
 //  Video grid container with smooth page transition effect
 .video-grid {
