@@ -277,7 +277,7 @@ function getVideoIdFromFileName(db, fileName) {
       }
 
       const videoId = results[0].id;
-      console.log("Found videoId:", videoId);
+      // console.log("Found videoId:", videoId);
       resolve(videoId);
     });
   });
@@ -778,7 +778,7 @@ app.get("/get-follow-count", async (req, res) => {
     `;
     const [result] = await db.promise().query(selectQuery, [userID]);
 
-    console.log("Follows fetched: ", result[0].follow_count);
+    // console.log("Follows fetched: ", result[0].follow_count);
     
     db.destroy();
     return res.status(200).json({ follow_count: result[0].follow_count }); // Return the count
