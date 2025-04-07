@@ -735,13 +735,6 @@ function Home() {
             )}
             {showComments && (
               <>
-                <div className="comment-notice">
-                  <u>
-                    Experimental feature:
-                    <br />
-                  </u>
-                  <i>Comment functionality may be broken</i>
-                </div>
                 <div className="comment-section">
                   <div className="comments-list">
                     {comments.map((c) => (
