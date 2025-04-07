@@ -678,7 +678,7 @@ function Home() {
                   <span className="desktop__text"> DOWNLOAD</span>
                 </a>
               )}
-              {filteredArray.length == 0 && (
+              {filteredArray.length === 0 && (
                 <a className="button greyed">
                   <i className="fa-solid fa-download"></i>
                   <span className="desktop__text"> DOWNLOAD</span>
@@ -705,13 +705,12 @@ function Home() {
             </div>
           </div>
         </div>
-
+  
         <div className="video-details">
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
-                {/* Pass the authToken to the Follow component */}
-                <Follow fileName={currentVideo.split("/").pop() || ""} loggedIn={loggedIn}/>
+                <Follow fileName={currentVideo.split("/").pop() || ""} loggedIn={loggedIn} />
                 <h1>{currentVideoTitle}</h1>
                 <h2>
                   Engager:{" "}
@@ -728,7 +727,7 @@ function Home() {
                 </p>
               </>
             )}
-            {filteredArray.length == 0 && (
+            {filteredArray.length === 0 && (
               <>
                 <h2>There are no videos available</h2>
                 <h3>Upload one to kick things off.</h3>
@@ -748,8 +747,15 @@ function Home() {
                     {comments.map((c) => (
                       <div key={c.id} className="comment-box" style={{ color: "black", textAlign: "left" }}>
                         <p>
-                          <strong><a onClick={() => navigate(`/profile/${c.username}`)} className="username-link">{c.username}</a></strong>:{" "}
-                          {c.comment}
+                          <strong>
+                            <a
+                              onClick={() => navigate(`/profile/${c.username}`)}
+                              className="username-link"
+                            >
+                              {c.username}
+                            </a>
+                          </strong>
+                          : {c.comment}
                         </p>
                         <div className="comment-like-section" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                           <button
@@ -810,49 +816,6 @@ function Home() {
                             </div>
                           )}
                         </div>
-                        {repliesVisible[c.id] && c.replies && c.replies.length > 0 && (
-                          <div style={{ marginLeft: "20px" }}>
-                            {c.replies.map((r) => (
-                              <div key={r.id}>
-                                <div>
-                                  <div>
-                                    <p key={r.id}>
-                                      <strong><a onClick={() => navigate(`/profile/${r.username}`)} className="username-link">{r.username}</a></strong>: {r.reply}
-                                    </p>
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: "3px",
-                                      position: "relative",
-                                      top: "-10px",
-                                      marginBottom: "-10px",
-                                    }}
-                                  >
-                                    <button
-                                      onClick={() => handleReplyLike(r.id)}
-                                      style={{
-                                        backgroundColor: "transparent",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        color: replyLiked[r.id]
-                                          ? "red"
-                                          : "black",
-                                      }}
-                                    >
-                                      <i className="fa-regular fa-thumbs-up"></i>
-                                    </button>
-                                    <div id={`like-count-${r.id}`}>
-                                      {replyLikeCount[r.id] !== undefined
-                                        ? replyLikeCount[r.id]
-                                        : ""}
-                                    </div>{" "}
-                                    {/* Unique ID for like count */}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
                       </div>
                     ))}
                   </div>
@@ -894,7 +857,6 @@ function Home() {
     </div>
   );
 }
-
 function App() {
   return (
     <BrowserRouter>
@@ -922,3 +884,4 @@ function App() {
 }
 
 export default App;
+
