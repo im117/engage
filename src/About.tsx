@@ -7,8 +7,10 @@ function About(){
     return(
     <div className="about__container">
         <section className="main__section">
+            <div className="logo">
             <img src="/src/assets/icon.svg"></img>
             <h1>Engage</h1>
+            </div>
             <p>Engage is a short video sharing platform optimized for both desktop and mobile, which is built from the ground up using technologies like React, Typescript, and Vite. Users can upload, comment, like, and much more to engage with our community. You can also fully download all videos on our platform.</p>
             <p>Engage was created by the development team listed below as a senior capstone project (COSC 481W Winter 2025). Their drive to make a new original, unique, and <i>engaging</i> platform is represented in the expansive and interactive work you see on this website.</p>
             <h3>Sign up with Engage today!</h3>
@@ -41,7 +43,7 @@ function About(){
             reverse={true}
             name="Maksim Spitsyn" 
             title="" 
-            profileUrl="" 
+            profileUrl="/src/assets/maksim.jpg" 
             bio="Computer Science major and Management minor. Taking 481 and a lot of other 400 level cs classes. Planning to create the greatest platform ever existed on the planet earth with my cool friend(teammates)."
             website=""
         />
