@@ -860,21 +860,19 @@ function Home() {
                         className="comment-box"
                         style={{ color: "black", textAlign: "left" }}
                       >
-                        <p>
-                          <strong>
-                            <a
-                              onClick={() => navigate(`/profile/${c.username}`)}
-                              className="username-link"
-                            >
-                              {c.username}
-                            </a>
-                          </strong>
-                          : <span>{c.comment}</span>
-                          <br />
-                          <span className="comment-date">
-                            ({formatDate(c.created_at)})
-                          </span>
-                        </p>
+                        <strong>
+                          <a
+                            onClick={() => navigate(`/profile/${c.username}`)}
+                            className="username-link"
+                          >
+                            {c.username}
+                          </a>
+                        </strong>
+                        : <span>{c.comment}</span>
+                        <br />
+                        <span className="comment-date">
+                          ({formatDate(c.created_at)})
+                        </span>
                         <div
                           className="comment-like-section"
                           style={{
@@ -998,7 +996,6 @@ function Home() {
                             </div>
                           )}
                         </div>
-
                         {repliesVisible[c.id] &&
                           c.replies &&
                           c.replies.length > 0 && (
