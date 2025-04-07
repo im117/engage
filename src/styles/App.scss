@@ -396,6 +396,9 @@ body {
 .username-link {
   text-decoration: underline;
   color: rgb(85, 86, 97); /* General color for usernames */
+  &:hover{
+    cursor: pointer;
+  }
 }
 
 .engager-link {
@@ -404,6 +407,7 @@ body {
   transition: transform 0.3s ease, color 0.3s ease;
 
   &:hover {
+    cursor: pointer;
     transform: scale(2); /* Enlarge the text */
     color: orange; /* Change color on hover */
   }
