@@ -17,6 +17,7 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 const Follow: React.FC<FollowProps> = ({ fileName }) => {
   const [following, setFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSelf, setIsSelf] = useState(false); // New state to track if the user is trying to follow themselves
 
   // alert(fileName);
 
@@ -25,6 +26,38 @@ const Follow: React.FC<FollowProps> = ({ fileName }) => {
   // }, [fileName]);
 
   // Fetch follow status when the component mounts or when userId/fileName changes
+
+  useEffect(() => {
+    if (!fileName) {
+      console.error("fileName is missing or empty in Follow component.");
+      return;
+    }
+
+    const fetchIsSelfStatus = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("No token found for useEffect.");
+        setFollowing(false);
+        return;
+      }
+      try {
+        const response = await axios.get(`${uploadServer}/get-is-self`, {
+          params: { fileName },
+          headers: { Authorization: token },
+        });
+        setIsSelf(response.data.isSelf);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error("Error fetching isSelf status:", error.response?.data || error.message);
+        } else {
+          console.error("Error fetching isSelf status:", error);
+        }
+      }
+    };
+
+    fetchIsSelfStatus();
+  }, [fileName]);
+    
   useEffect(() => {
     if (!fileName) {
       console.error("fileName is missing or empty in Follow component.");
@@ -113,16 +146,32 @@ const Follow: React.FC<FollowProps> = ({ fileName }) => {
   return (
     <button
       onClick={following ? handleUnfollow : handleFollow}
-      disabled={loading}
+      className={following ? "button following" : "button not-following"}
+      disabled={loading || isSelf}
       style={{
-        backgroundColor: following ? "#4CAF50" : "#008CBA",
-        color: "white",
-        border: "none",
-        padding: "8px 16px",
-        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        cursor: loading || isSelf ? "default" : "pointer",
+        color: following ? "green" : "white",
+        textDecoration: "none",
+        width: "fit-content",
+        margin: "0 auto"
       }}
     >
-      {loading ? "Processing..." : following ? "Followed" : "Follow"}
+      <i
+        className={`fa-solid ${following ? "fa-user-check" : "fa-user-plus"}`}
+        style={{ fontSize: "1.2em" }}
+      ></i>
+      <span>
+      {isSelf
+          ? "You"
+          : loading
+          ? "Processing..."
+          : following
+          ? "Unfollow"
+          : "Follow"}
+      </span>
     </button>
   );
 };

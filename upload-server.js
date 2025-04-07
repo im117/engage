@@ -688,6 +688,69 @@ app.get("/get-follow-status", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/get-is-self", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.query;
+  const userId = req.user.userId; // Get the logged-in user's ID from the token
+  console.log("filename ........ " + fileName);
+  // console.log("FILENAMW" + fileName);
+  if (!fileName){
+    db.destroy();
+    return res.status(400).json({ message: "File name is required" });
+  }
+
+  try {
+    // Step 1: Get the videoId from the fileName
+    const videoId = await getVideoIdFromFileName(db, fileName);
+    if (!videoId) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Step 2: Get the creator_id (userId of the video creator)
+    const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+    const [creatorResults] = await db.promise().query(getCreatorQuery, [videoId]);
+
+    if (creatorResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video creator not found" });
+    }
+
+    const otherUserId = creatorResults[0].creator_id; // The userId of the video creator
+
+    db.destroy();
+    return res.status(200).json({ isSelf: userId === otherUserId });
+  } catch (error) {
+    console.error("Error fetching follow status:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+app.get("/get-follower-count", async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.query;
+
+  if (!fileName) {
+    db.destroy();
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  try {
+    const selectQuery = `
+      SELECT * FROM notifications WHERE recipient_id = ?
+    `;
+    const [notificationResults] = await db.promise().query(selectQuery, [userId]);
+
+    db.destroy();
+    return res.status(200).json(notificationResults);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
 function deleteFile(filePath) {
   fs.unlink(filePath, (err) => {
     if (err) {
