@@ -19,6 +19,8 @@ import RecoverAccount from "./recoverAccount.tsx";
 import UserProfile from "./userProfile.tsx";
 import CombinedSearch from "./combinedSearch.tsx";
 import UsernameLink from "./components/UsernameLink";
+import About from "./About.tsx";
+
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
@@ -1175,6 +1177,7 @@ function App() {
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/recover-account/:token" element={<RecoverAccount />} />
         <Route path="/profile/:userName" element={<UserProfile />} />
+        <Route path="/about" element={<About />} />
         {/* User Page Route */}
 
         {/* Protected Route for Dashboard and Video Player */}
