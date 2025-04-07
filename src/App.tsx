@@ -1054,16 +1054,37 @@ function Home() {
                     ))}
                   </div>
                   {loggedIn && (
-                    <div className="comment-input-div">
-                      <textarea
-                        id="comment-input"
+                    <div
+                      //className="comment-input-div"
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        width: "100%",
+                        gap: "8px",
+                      }}
+                    >
+                      <input
+                        //id="comment-input"
+                        type="text"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Write a comment..."
-                      ></textarea>
-                      <button onClick={postComment}>
-                        <i className="fa-solid fa-paper-plane"></i>
-                      </button>
+                        style={{
+                          padding: "5px",
+                          width: "100%",
+                          boxSizing: "border-box",
+                        }}
+                      ></input>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <button onClick={postComment}>
+                          <i className="fa-solid fa-paper-plane"></i>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
