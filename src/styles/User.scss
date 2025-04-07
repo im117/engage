@@ -23,7 +23,8 @@
   display: flex;
   flex-direction: column;
   .button{
-    padding: 5px;
+    padding: 2px;
+    font-size: 0.9rem;
     text-align: center;
   }
 }
@@ -36,8 +37,11 @@
 }
 
 .pfp-own-user{
+  transition: all 0.3s ease;
   &:hover{
+    transition: all 0.3s ease;
     cursor: pointer;
+    border: 2px solid #8afa74;
   }
 }
 

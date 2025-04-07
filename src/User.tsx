@@ -297,12 +297,10 @@ function User() {
         </div>
 
         <div className="content-container">
-          {/* ----- Profile Picture Section with User Info ----- */}
           <div className="profile-picture-wrapper">
+            
             <div className="pfp__container">
-              {/* <div className="edit">
-              <i class="fa-solid fa-pencil"></i>
-              </div> */}
+              
             <img
               src={profilePictureUrl}
               alt="Profile"
