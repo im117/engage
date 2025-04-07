@@ -936,7 +936,7 @@ function Home() {
                             <div style={{ width: "100%" }}>
                               <div style={{ marginBottom: "8px" }}>
                                 <button onClick={() => toggleReplyInput(c.id)}>
-                                  <i className="fa-regular fa-comments"></i>
+                                  <i className="fa-regular fa-comment-dots"></i>
                                 </button>
                               </div>
 
