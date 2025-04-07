@@ -774,7 +774,7 @@ app.get("/get-follow-count", async (req, res) => {
     const userID = creatorResults[0].creator_id; // The userId of the video creator
 
     const selectQuery = `
-      SELECT COUNT(*) AS follow_count FROM follows WHERE follower_id = ?
+      SELECT COUNT(*) AS follow_count FROM follows WHERE following_id = ?
     `;
     const [result] = await db.promise().query(selectQuery, [userID]);
 
