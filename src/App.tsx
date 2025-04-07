@@ -717,6 +717,18 @@ function Home() {
       }
     }
   };
+  const formatDate = (dateString: string | number | Date) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "numeric",
+      hour: "numeric",
+      day: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZoneName: "short",
+    });
+  };
 
   return (
     <div className="app">
@@ -857,7 +869,11 @@ function Home() {
                               {c.username}
                             </a>
                           </strong>
-                          : {c.comment}
+                          : <span>{c.comment}</span>
+                          <br />
+                          <span className="comment-date">
+                            ({formatDate(c.created_at)})
+                          </span>
                         </p>
                         <div
                           className="comment-like-section"
@@ -945,7 +961,7 @@ function Home() {
                                 <div
                                   style={{
                                     display: "flex",
-                                    flexDirection: "column",
+                                    flexDirection: "row",
                                     width: "100%",
                                     gap: "8px",
                                   }}
@@ -962,7 +978,7 @@ function Home() {
                                     placeholder="Write a reply..."
                                     style={{
                                       padding: "8px",
-                                      width: "100%",
+                                      width: "80%",
                                       boxSizing: "border-box",
                                     }}
                                   />
