@@ -130,8 +130,12 @@ function Home() {
   }
   const [comments, setComments] = useState<CommentType[]>([]);
   const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
-  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
-  const [repliesVisible, setRepliesVisible] = useState<{ [key: number]: boolean }>({});
+  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>(
+    {}
+  );
+  const [repliesVisible, setRepliesVisible] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -141,12 +145,18 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
-  const [replyLikeCount, setReplyLikeCount] = useState<{ [key: number]: number }>({});
+  const [replyLikeCount, setReplyLikeCount] = useState<{
+    [key: number]: number;
+  }>({});
   const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
   const [replyCount, setReplyCount] = useState(0);
 
-  const [commentLikeCount, setCommentLikeCount] = useState<{ [key: number]: number }>({});
-  const [commentLiked, setCommentLiked] = useState<{ [key: number]: boolean }>({});
+  const [commentLikeCount, setCommentLikeCount] = useState<{
+    [key: number]: number;
+  }>({});
+  const [commentLiked, setCommentLiked] = useState<{ [key: number]: boolean }>(
+    {}
+  );
   const [commentCount, setCommentCount] = useState(0);
 
   const navigate = useNavigate();
@@ -176,15 +186,21 @@ function Home() {
       setCurrentVideoDesc(response.data.description);
       const username = await getUsername(response.data.creator_id);
       setCurrentVideoCreatorName(username);
-      const date = new Date(response.data.created_at).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      const time = new Date(response.data.created_at).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const date = new Date(response.data.created_at).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
+      const time = new Date(response.data.created_at).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
       setCurrentVideoDate(`${date} at ${time}`);
     } catch (error) {
       alert(`There was an error fetching the video info!\n\n${error}`);
@@ -221,23 +237,40 @@ function Home() {
           for (const reply of comment.replies) {
             if (initialLikeCountState[reply.id] === undefined) {
               try {
-                const likeCountResponse = await axios.get(`${loginServer}/reply-like-count`, {
-                  params: { reply_id: reply.id },
-                });
-                initialLikeCountState[reply.id] = likeCountResponse.data.like_count;
+                const likeCountResponse = await axios.get(
+                  `${loginServer}/reply-like-count`,
+                  {
+                    params: { reply_id: reply.id },
+                  }
+                );
+                initialLikeCountState[reply.id] =
+                  likeCountResponse.data.like_count;
               } catch (err) {
-                console.error(`Error fetching like count for reply ${reply.id}:`, err);
+                console.error(
+                  `Error fetching like count for reply ${reply.id}:`,
+                  err
+                );
                 initialLikeCountState[reply.id] = 0;
               }
             }
-            if (loggedIn && token && initialLikedState[reply.id] === undefined) {
+            if (
+              loggedIn &&
+              token &&
+              initialLikedState[reply.id] === undefined
+            ) {
               try {
-                const likeStatusResponse = await axios.get(`${loginServer}/fetch-reply-liked`, {
-                  params: { auth: token, reply_id: reply.id },
-                });
+                const likeStatusResponse = await axios.get(
+                  `${loginServer}/fetch-reply-liked`,
+                  {
+                    params: { auth: token, reply_id: reply.id },
+                  }
+                );
                 initialLikedState[reply.id] = likeStatusResponse.data.liked;
               } catch (err) {
-                console.error(`Error fetching like status for reply ${reply.id}:`, err);
+                console.error(
+                  `Error fetching like status for reply ${reply.id}:`,
+                  err
+                );
                 initialLikedState[reply.id] = false;
               }
             }
@@ -262,23 +295,36 @@ function Home() {
       for (const comment of comments) {
         if (initialLikeCountState[comment.id] === undefined) {
           try {
-            const likeCountResponse = await axios.get(`${loginServer}/comment-like-count`, {
-              params: { comment_id: comment.id },
-            });
-            initialLikeCountState[comment.id] = likeCountResponse.data.like_count;
+            const likeCountResponse = await axios.get(
+              `${loginServer}/comment-like-count`,
+              {
+                params: { comment_id: comment.id },
+              }
+            );
+            initialLikeCountState[comment.id] =
+              likeCountResponse.data.like_count;
           } catch (err) {
-            console.error(`Error fetching like count for comment ${comment.id}:`, err);
+            console.error(
+              `Error fetching like count for comment ${comment.id}:`,
+              err
+            );
             initialLikeCountState[comment.id] = 0;
           }
         }
         if (loggedIn && token && initialLikedState[comment.id] === undefined) {
           try {
-            const likeStatusResponse = await axios.get(`${loginServer}/fetch-comment-liked`, {
-              params: { auth: token, comment_id: comment.id },
-            });
+            const likeStatusResponse = await axios.get(
+              `${loginServer}/fetch-comment-liked`,
+              {
+                params: { auth: token, comment_id: comment.id },
+              }
+            );
             initialLikedState[comment.id] = likeStatusResponse.data.liked;
           } catch (err) {
-            console.error(`Error fetching like status for comment ${comment.id}:`, err);
+            console.error(
+              `Error fetching like status for comment ${comment.id}:`,
+              err
+            );
             initialLikedState[comment.id] = false;
           }
         }
@@ -292,7 +338,9 @@ function Home() {
   }, [comments, loggedIn]);
 
   const handleNext = () => {
-    setVideoIndex((prevIndex) => (prevIndex + initState) % filteredArray.length);
+    setVideoIndex(
+      (prevIndex) => (prevIndex + initState) % filteredArray.length
+    );
   };
 
   async function getUsername(userid: number) {
@@ -370,7 +418,9 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
-      const response = await axios.get(`${loginServer}/video-views/${fileName}`);
+      const response = await axios.get(
+        `${loginServer}/video-views/${fileName}`
+      );
       setViewCount(response.data.viewCount);
     } catch (error) {
       console.error("Error fetching view count:", error);
@@ -385,7 +435,9 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
-      const response = await axios.get(`${loginServer}/comment-count/${fileName}`);
+      const response = await axios.get(
+        `${loginServer}/comment-count/${fileName}`
+      );
       setCommentCount(response.data.commentCount);
     } catch (error) {
       console.error("Error fetching comment count:", error);
@@ -404,7 +456,11 @@ function Home() {
       if (loggedIn) {
         const token = localStorage.getItem("authToken");
         if (!token) return;
-        await axios.post(`${loginServer}/record-view`, { fileName }, { params: { auth: token } });
+        await axios.post(
+          `${loginServer}/record-view`,
+          { fileName },
+          { params: { auth: token } }
+        );
       } else {
         await axios.post(`${loginServer}/record-anonymous-view`, { fileName });
       }
@@ -432,14 +488,20 @@ function Home() {
       return;
     }
     try {
-      const response = await axios.post(`${loginServer}/like-reply`, { fileName, reply_id }, { params: { auth: token } });
+      const response = await axios.post(
+        `${loginServer}/like-reply`,
+        { fileName, reply_id },
+        { params: { auth: token } }
+      );
       setReplyLiked((prev) => {
         const newState = { ...prev, [reply_id]: !prev[reply_id] };
         setReplyLikeCount((prevCounts) => {
           const currentCount = prevCounts[reply_id] || 0;
           return {
             ...prevCounts,
-            [reply_id]: newState[reply_id] ? currentCount + 1 : Math.max(0, currentCount - 1),
+            [reply_id]: newState[reply_id]
+              ? currentCount + 1
+              : Math.max(0, currentCount - 1),
           };
         });
         return newState;
@@ -467,14 +529,20 @@ function Home() {
       return;
     }
     try {
-      const response = await axios.post(`${loginServer}/like-comment`, { fileName, comment_id }, { params: { auth: token } });
+      const response = await axios.post(
+        `${loginServer}/like-comment`,
+        { fileName, comment_id },
+        { params: { auth: token } }
+      );
       setCommentLiked((prev) => {
         const newState = { ...prev, [comment_id]: !prev[comment_id] };
         setCommentLikeCount((prevCounts) => {
           const currentCount = prevCounts[comment_id] || 0;
           return {
             ...prevCounts,
-            [comment_id]: newState[comment_id] ? currentCount + 1 : Math.max(0, currentCount - 1),
+            [comment_id]: newState[comment_id]
+              ? currentCount + 1
+              : Math.max(0, currentCount - 1),
           };
         });
         return newState;
@@ -490,7 +558,9 @@ function Home() {
     try {
       const token = localStorage.getItem("authToken");
       const fileName = currentVideo.split("/").pop();
-      const videoRes = await axios.get(`${uploadServer}/video`, { params: { fileName } });
+      const videoRes = await axios.get(`${uploadServer}/video`, {
+        params: { fileName },
+      });
       if (!videoRes.data || !videoRes.data.id) {
         setNotification("⚠️ Video not found.");
         setTimeout(() => setNotification(""), 3000);
@@ -520,7 +590,9 @@ function Home() {
 
   async function fetchReplyCount(commentId: number) {
     try {
-      const response = await axios.get(`${loginServer}/reply-count/${commentId}`);
+      const response = await axios.get(
+        `${loginServer}/reply-count/${commentId}`
+      );
       return response.data.replyCount;
     } catch (error) {
       console.error("Error fetching reply count:", error);
@@ -532,17 +604,27 @@ function Home() {
     try {
       const fileName = currentVideo.split("/").pop();
       if (!fileName) return;
-      const response = await axios.get(`${uploadServer}/get-comments`, { params: { fileName } });
+      const response = await axios.get(`${uploadServer}/get-comments`, {
+        params: { fileName },
+      });
       const fetchedComments = response.data;
       const commentsWithUsernames = await Promise.all(
         fetchedComments.map(async (comment: any) => {
-          const userResponse = await axios.get(`${uploadServer}/user`, { params: { userID: comment.user_id } });
+          const userResponse = await axios.get(`${uploadServer}/user`, {
+            params: { userID: comment.user_id },
+          });
           let replies: any[] = [];
           try {
-            const repliesResponse = await axios.get(`${uploadServer}/get-replies`, { params: { comment_id: comment.id } });
+            const repliesResponse = await axios.get(
+              `${uploadServer}/get-replies`,
+              { params: { comment_id: comment.id } }
+            );
             replies = await Promise.all(
               repliesResponse.data.map(async (reply: any) => {
-                const replyUserResponse = await axios.get(`${uploadServer}/user`, { params: { userID: reply.creator_id } });
+                const replyUserResponse = await axios.get(
+                  `${uploadServer}/user`,
+                  { params: { userID: reply.creator_id } }
+                );
                 return {
                   id: reply.id,
                   username: replyUserResponse.data.username,
@@ -658,7 +740,9 @@ function Home() {
           <div className="controls">
             <div className="video-stats">
               <LikeButton
-                fileName={currentVideo ? currentVideo.split("/").pop() || "" : ""}
+                fileName={
+                  currentVideo ? currentVideo.split("/").pop() || "" : ""
+                }
                 loggedIn={loggedIn}
                 userId={userID}
                 initialLikeCount={likeCount}
@@ -669,7 +753,11 @@ function Home() {
                 <i className="fa-solid fa-eye"></i> {viewCount}
                 <span className="desktop__text"> Views</span>
               </span>
-              <span className={`comment-button ${showComments ? "clicked" : "not-clicked"}`}>
+              <span
+                className={`comment-button ${
+                  showComments ? "clicked" : "not-clicked"
+                }`}
+              >
                 <button onClick={toggleComments} className="comment-btn">
                   <i className="fa-solid fa-comment"></i>
                   <span>{commentCount}</span>
@@ -693,7 +781,9 @@ function Home() {
                 </a>
               )}
               <a
-                className={filteredArray.length < 2 ? "button greyed" : "button"}
+                className={
+                  filteredArray.length < 2 ? "button greyed" : "button"
+                }
                 onClick={() => {
                   const videoElement = document.getElementById("video");
                   if (videoElement && filteredArray.length >= 2) {
@@ -713,17 +803,22 @@ function Home() {
             </div>
           </div>
         </div>
-  
+
         <div className="video-details">
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
-                <Follow fileName={currentVideo.split("/").pop() || ""} loggedIn={loggedIn} />
+                <Follow
+                  fileName={currentVideo.split("/").pop() || ""}
+                  loggedIn={loggedIn}
+                />
                 <h1>{currentVideoTitle}</h1>
                 <h2>
                   Engager:{" "}
                   <a
-                    onClick={() => navigate(`/profile/${currentVideoCreatorName}`)}
+                    onClick={() =>
+                      navigate(`/profile/${currentVideoCreatorName}`)
+                    }
                     className="engager-link"
                   >
                     {currentVideoCreatorName}
@@ -731,7 +826,9 @@ function Home() {
                 </h2>
                 <h3>Uploaded: {currentVideoDate}</h3>
                 <p>
-                  {currentVideoDesc !== "" ? currentVideoDesc : "No Description Provided"}
+                  {currentVideoDesc !== ""
+                    ? currentVideoDesc
+                    : "No Description Provided"}
                 </p>
               </>
             )}
@@ -746,7 +843,11 @@ function Home() {
                 <div className="comment-section">
                   <div className="comments-list">
                     {comments.map((c) => (
-                      <div key={c.id} className="comment-box" style={{ color: "black", textAlign: "left" }}>
+                      <div
+                        key={c.id}
+                        className="comment-box"
+                        style={{ color: "black", textAlign: "left" }}
+                      >
                         <p>
                           <strong>
                             <a
@@ -758,7 +859,14 @@ function Home() {
                           </strong>
                           : {c.comment}
                         </p>
-                        <div className="comment-like-section" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <div
+                          className="comment-like-section"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
+                          }}
+                        >
                           <button
                             onClick={() => handleCommentLike(c.id)}
                             style={{
@@ -773,45 +881,102 @@ function Home() {
                             <i className="fa-regular fa-thumbs-up"></i>
                           </button>
                           <div id={`comment-count-${c.id}`}>
-                            {commentLikeCount[c.id] !== undefined ? commentLikeCount[c.id] : ""}
+                            {commentLikeCount[c.id] !== undefined
+                              ? commentLikeCount[c.id]
+                              : ""}
                           </div>
                         </div>
-                        <div style={{ display: "flex", gap: "5px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px",
+                            width: "100%",
+                          }}
+                        >
+                          {/* Row for reply count and toggle button */}
                           {c.replies && c.replies.length > 0 && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "5px", color: "black" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                color: "black",
+                              }}
+                            >
                               <button
                                 onClick={() => toggleRepliesVisible(c.id)}
-                                style={{ border: "none", background: "transparent", cursor: "pointer" }}
+                                style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  cursor: "pointer",
+                                }}
                               >
                                 {repliesVisible[c.id] ? (
-                                  <i className="fa-solid fa-chevron-up" style={{ fontSize: "1.2em", color: "#333" }}></i>
+                                  <i
+                                    className="fa-solid fa-chevron-up"
+                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                  ></i>
                                 ) : (
-                                  <i className="fa-solid fa-chevron-down" style={{ fontSize: "1.2em", color: "#333" }}></i>
+                                  <i
+                                    className="fa-solid fa-chevron-down"
+                                    style={{ fontSize: "1.2em", color: "#333" }}
+                                  ></i>
                                 )}
                               </button>
                               <span className="reply-count">
-                                {c.replyCount} {c.replyCount === 1 ? "reply" : "replies"}
+                                {c.replyCount}{" "}
+                                {c.replyCount === 1 ? "reply" : "replies"}
                               </span>
                             </div>
                           )}
+
+                          {/* Reply button on its own line */}
                           {loggedIn && (
-                            <div>
-                              <button onClick={() => toggleReplyInput(c.id)}>
-                                <i className="fa-regular fa-comments"></i>
-                              </button>
+                            <div style={{ width: "100%" }}>
+                              <div style={{ marginBottom: "8px" }}>
+                                <button onClick={() => toggleReplyInput(c.id)}>
+                                  <i className="fa-regular fa-comment-dots"></i>
+                                </button>
+                              </div>
+
+                              {/* Input and send button */}
                               {replyVisible[c.id] && (
-                                <div style={{ marginTop: "5px", display: "flex", alignItems: "center", gap: "8px", minHeight: "40px" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    width: "100%",
+                                    gap: "8px",
+                                  }}
+                                >
                                   <input
                                     type="text"
                                     value={replyInputs[c.id] || ""}
                                     onChange={(e) =>
-                                      setReplyInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
+                                      setReplyInputs((prev) => ({
+                                        ...prev,
+                                        [c.id]: e.target.value,
+                                      }))
                                     }
                                     placeholder="Write a reply..."
+                                    style={{
+                                      padding: "8px",
+                                      width: "100%",
+                                      boxSizing: "border-box",
+                                    }}
                                   />
-                                  <button onClick={() => postReply(c.id)}>
-                                    <i className="fa-regular fa-paper-plane"></i>
-                                  </button>
+
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "flex-end",
+                                    }}
+                                  >
+                                    <button onClick={() => postReply(c.id)}>
+                                      <i className="fa-regular fa-paper-plane"></i>
+                                    </button>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -826,7 +991,17 @@ function Home() {
                                 <div>
                                   <div>
                                     <p key={r.id}>
-                                      <strong><a onClick={() => navigate(`/profile/${r.username}`)} className="username-link">{r.username}</a></strong>: {r.reply}
+                                      <strong>
+                                        <a
+                                          onClick={() =>
+                                            navigate(`/profile/${r.username}`)
+                                          }
+                                          className="username-link"
+                                        >
+                                          {r.username}
+                                        </a>
+                                      </strong>
+                                      : {r.reply}
                                     </p>
                                   </div>
                                   <div
@@ -930,4 +1105,3 @@ function App() {
 }
 
 export default App;
-
