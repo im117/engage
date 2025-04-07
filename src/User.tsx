@@ -1,10 +1,11 @@
-import "./styles/User.scss";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useSwipeable } from "react-swipeable";
+import "./styles/User.scss"; // Import styles for component layout
+import { useState, useEffect, useRef } from "react"; // Added useRef for file input
+import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
+import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
+import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import axios from "axios";
 
+// Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
 
 let uploadServer = "http://localhost:3001";
@@ -17,15 +18,19 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 }
 
 function User() {
-  // --- Existing state ---
   const [userVideos, setUserVideos] = useState<string[]>([]);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
+  // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
-  const [role, setRole] = useState("User");
+  const [role, setRole] = useState("User"); // Default role is "User"
+
+  // New state for profile picture; using an online placeholder to ensure a visible image.
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>(
     "https://via.placeholder.com/100"
   );
+
+  // useRef for hidden file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -34,21 +39,11 @@ function User() {
   const [direction, setDirection] = useState(0);
   const [selectedTab, setSelectedTab] = useState<"videos" | "likes">("videos");
 
-  // --- NEW state for liked videos + pagination ---
-  const [likedVideos, setLikedVideos] = useState<string[]>([]);
-  const [currentLikesPage, setCurrentLikesPage] = useState(0);
-
-  // Pagination for user videos
   const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
   const startIndex = currentPage * VIDEOS_PER_PAGE;
-  const currentVideos = userVideos.slice(startIndex, startIndex + VIDEOS_PER_PAGE);
-
-  // Pagination for liked videos
-  const totalLikesPages = Math.ceil(likedVideos.length / VIDEOS_PER_PAGE);
-  const startLikesIndex = currentLikesPage * VIDEOS_PER_PAGE;
-  const currentLikedVideos = likedVideos.slice(
-    startLikesIndex,
-    startLikesIndex + VIDEOS_PER_PAGE
+  const currentVideos = userVideos.slice(
+    startIndex,
+    startIndex + VIDEOS_PER_PAGE
   );
 
   const navigate = useNavigate();
@@ -59,11 +54,13 @@ function User() {
     if (token) {
       try {
         const response = await axios.get(`${loginServer}/get-user-videos`, {
-          params: { auth: token },
+          params: {
+            auth: token ? token : "",
+          },
         });
-        const userVideoArray: string[] = response.data.videos.map(
-          (v: { fileName: string }) => `./media/${v.fileName}`
-        );
+        response.data.videos.forEach((element: { fileName: string }) => {
+          userVideoArray.push("./media/" + element.fileName);
+        });
         setUserVideos(userVideoArray);
       } catch (error) {
         console.error("Error fetching user videos:", error);
@@ -90,20 +87,28 @@ function User() {
     }
   }
 
+  // Get logged in user ID
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
-        const response = await axios.get(`${loginServer}/current-user-id`, {
-          params: { auth: token },
-        });
-        setUserID(response.data.userId);
+        await axios
+          .get(`${loginServer}/current-user-id`, {
+            params: {
+              auth: token ? token : "",
+            },
+          })
+          .then((response) => {
+            setUserID(response.data.userId as number);
+          });
       } catch (error) {
         console.error("Error fetching user ID:", error);
+        return null;
       }
+    } else {
+      return null;
     }
   }
-
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -113,23 +118,22 @@ function User() {
     });
   };
 
+  // Modified getUsername to also set the profile picture URL and date joined if available
   async function getUsername(userid: number) {
-    try {
-      const response = await axios.get(`${uploadServer}/user`, {
-        params: { userID: userid },
-      });
-      setUsername(response.data.username);
-      if (response.data.profilePictureUrl) {
-        setProfilePictureUrl(response.data.profilePictureUrl);
-      }
-      if (response.data.dateCreated) {
-        const joinDate = new Date(response.data.dateCreated);
-        setDateJoined(formatDate(joinDate));
-      }
-      setRole("User");
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    let username = "";
+    const response = await axios.get(`${uploadServer}/user`, {
+      params: { userID: userid },
+    });
+    username = response.data.username;
+    if (response.data.profilePictureUrl) {
+      setProfilePictureUrl(response.data.profilePictureUrl);
     }
+    if (response.data.dateCreated) {
+      const joinDate = new Date(response.data.dateCreated);
+      setDateJoined(formatDate(joinDate));
+    }
+    setUsername(username);
+    setRole("User");
   }
 
   // Load user ID and user’s own videos on mount
@@ -152,25 +156,24 @@ function User() {
     }
   }, [selectedTab]);
 
-  // Basic handlers for opening/closing video modals
   const handleOpenVideo = (videoSrc: string) => setSelectedVideo(videoSrc);
   const handleCloseVideo = () => setSelectedVideo(null);
 
-  // Paging for user videos
   const handleNextPage = () => {
     if (currentPage < totalPages - 1) {
-      setDirection(1);
+      setDirection(1); // Set direction to right (next page)
       setCurrentPage((prevPage) => prevPage + 1);
     } else {
-      triggerJitter();
+      triggerJitter(); // Call jitter effect if no more pages
     }
   };
+
   const handlePrevPage = () => {
     if (currentPage > 0) {
-      setDirection(-1);
+      setDirection(-1); // Set direction to left (previous page)
       setCurrentPage((prevPage) => prevPage - 1);
     } else {
-      triggerJitter();
+      triggerJitter(); // Call jitter effect if already on the first page
     }
   };
 
@@ -192,20 +195,21 @@ function User() {
     }
   };
 
+  /**
+   * Triggers a short "jitter" animation when the user tries to go beyond available pages.
+   * This gives feedback to indicate there is no more content.
+   */
   const triggerJitter = () => {
     setIsJittering(true);
-    setTimeout(() => setIsJittering(false), 500);
+    setTimeout(() => setIsJittering(false), 500); // Reset jitter state after 500ms
   };
 
+  /**
+   * Handles swipe gestures (both touch and mouse) for navigation.
+   */
   const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (selectedTab === "videos") handleNextPage();
-      else handleNextLikesPage();
-    },
-    onSwipedRight: () => {
-      if (selectedTab === "videos") handlePrevPage();
-      else handlePrevLikesPage();
-    },
+    onSwipedLeft: handleNextPage,
+    onSwipedRight: handlePrevPage,
     preventScrollOnSwipe: true,
     trackMouse: true,
   });
@@ -219,6 +223,7 @@ function User() {
     fileInputRef.current?.click();
   };
 
+  // Handles the file upload and updates profile picture
   const handleProfilePictureChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -235,6 +240,7 @@ function User() {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
+        // Assume the backend returns the new profile picture URL and updates the user record
         setProfilePictureUrl(response.data.profilePictureUrl);
       } catch (error) {
         console.error("Error uploading profile picture:", error);
@@ -242,14 +248,58 @@ function User() {
     }
   };
 
+
+  const revertPFP = async () => {
+    if (!userID) {
+      console.error("Error: User ID is not set.");
+      return;
+    }
+
+    // const formData = new FormData();
+    // formData.append("userId", userID.toString());
+    try {
+      const response = await axios.post(
+        `${uploadServer}/revert-profile-picture`,
+        {userId: userID.toString()}
+      );
+      if (response.data) {
+        setProfilePictureUrl("/src/assets/engage default pfp.png");
+      } else {
+        console.error("Error reverting profile picture: Backend did not confirm success.");
+      }
+    } catch (error) {
+      console.error("Error reverting profile picture:", error);
+    }
+  };
+
+  // set role
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const response = await axios.get(
+          `${loginServer}/user-profile/${userID}`
+        );
+        setRole(response.data.profile.role);
+      } catch (err) {
+        console.error("Error fetching role:", err);
+      }
+    };
+
+    if (userID) {
+      fetchRole();
+    }
+  }, [userID]);
+
   return (
     <div className="user-page-wrapper">
+      {/* Main content container with swipe handlers */}
       <div
         className={`user-container ${selectedVideo ? "blur" : ""} ${
           isJittering ? "jitter" : ""
         }`}
         {...handlers}
       >
+        {/* Logout button */}
         <div className="logout__section">
           <a className="button warning" onClick={handleLogout}>
             <i className="fas fa-door-open"></i>
@@ -259,10 +309,13 @@ function User() {
 
         <div className="content-container">
           <div className="profile-picture-wrapper">
+            
+            <div className="pfp__container">
+              
             <img
               src={profilePictureUrl}
               alt="Profile"
-              className="profile-picture"
+              className="profile-picture pfp-own-user"
               onClick={handleProfilePictureClick}
             />
             <input
@@ -272,30 +325,31 @@ function User() {
               ref={fileInputRef}
               onChange={handleProfilePictureChange}
             />
+            {(profilePictureUrl != "/src/assets/engage default pfp.png") && <a className="button" onClick={revertPFP}>Revert</a>}
+            </div>
             <div className="user-info">
               <div className="username-display">{username}</div>
-              <div className="user-role">Role: {role}</div>
+                {role !== "User" && <div className={`${role}-flair`}>{role}</div>}
               <div className="date-joined">Joined: {dateJoined}</div>
             </div>
           </div>
 
-          {/* Tab Navigation Section */}
-          <div className="my-videos-container tab-toggle">
-            <div
-              className={`tab-item ${selectedTab === "videos" ? "active" : ""}`}
-              onClick={() => setSelectedTab("videos")}
-            >
-              My Videos
-            </div>
-            <div
-              className={`tab-item ${selectedTab === "likes" ? "active" : ""}`}
-              onClick={() => setSelectedTab("likes")}
-            >
-              My Likes
+          {/* Engagements Section */}
+          <div className="my-videos-container">
+            <div className="text">
+              <h2>Your engagements</h2>
+              <p style={{ fontSize: "1rem" }} className="mobile__text">
+                Swipe left and right to navigate.<br></br> Touch video to play.{" "}
+                <br></br>Tap background to return.
+              </p>
+              <p className="desktop__text">
+                Click and drag left and right to navigate.
+                <br></br> Click video to play.
+                <br></br>Click background to return.
+              </p>
             </div>
           </div>
 
-          {/* My Videos Tab */}
           {selectedTab === "videos" && (
             <AnimatePresence mode="popLayout">
               <motion.div
@@ -328,105 +382,37 @@ function User() {
                   <div className="no-videos-text">No Videos Added</div>
                 )}
               </motion.div>
-              {/* Pagination Buttons for "My Videos" */}
-              {userVideos.length > VIDEOS_PER_PAGE && (
-                <div className="pagination-controls">
-                  <button onClick={handlePrevPage} disabled={currentPage === 0}>
-                    Prev
-                  </button>
-                  <span>
-                    Page {currentPage + 1} of {totalPages}
-                  </span>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages - 1}
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
             </AnimatePresence>
           )}
 
-          {/* My Likes Tab */}
           {selectedTab === "likes" && (
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                key={currentLikesPage}
-                className="video-grid"
-                initial={{ x: direction * 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: direction * 100, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-              >
-                {currentLikedVideos.length > 0 ? (
-                  currentLikedVideos.map((video, index) => (
-                    <div
-                      key={index}
-                      className="video-thumbnail"
-                      onClick={() => handleOpenVideo(video)}
-                    >
-                      <motion.video
-                        src={video}
-                        className="thumbnail-video"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        whileHover={{ scale: 1.05 }}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-videos-text">No liked videos yet.</div>
-                )}
-              </motion.div>
-              {/* Pagination Buttons for "My Likes" */}
-              {likedVideos.length > VIDEOS_PER_PAGE && (
-                <div className="pagination-controls">
-                  <button
-                    onClick={handlePrevLikesPage}
-                    disabled={currentLikesPage === 0}
-                  >
-                    Prev
-                  </button>
-                  <span>
-                    Page {currentLikesPage + 1} of {totalLikesPages}
-                  </span>
-                  <button
-                    onClick={handleNextLikesPage}
-                    disabled={currentLikesPage === totalLikesPages - 1}
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </AnimatePresence>
+            <div className="likes-placeholder">
+              <p>No liked videos yet.</p>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Fullscreen Video Overlay */}
       <AnimatePresence>
         {selectedVideo && (
           <motion.div
             className="fullscreen-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleCloseVideo}
+            initial={{ opacity: 0 }} // Start with opacity 0
+            animate={{ opacity: 1 }} // Fade in smoothly
+            exit={{ opacity: 0 }} // Fade out when closed
+            onClick={handleCloseVideo} // Clicking outside the video closes it
           >
             <motion.video
               src={selectedVideo}
               className="fullscreen-video"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
+              initial={{ scale: 0.8 }} // Start smaller
+              animate={{ scale: 1 }} // Expand to full size
+              exit={{ scale: 0.8 }} // Shrink when closing
               autoPlay
               playsInline
               controls
               loop
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
             />
           </motion.div>
         )}

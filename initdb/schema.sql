@@ -5,7 +5,7 @@ CREATE TABLE users (
     username VARCHAR(30) UNIQUE,
     email VARCHAR(50) UNIQUE,
     password VARCHAR(250),
-    role VARCHAR(10),
+    role VARCHAR(10) DEFAULT 'User',
     isVerified BOOLEAN DEFAULT FALSE,
     verificationToken VARCHAR(255),  -- This column stores the verification token
     recoveryToken VARCHAR(255),        -- This column stores the password recovery token

@@ -41,7 +41,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 20vw;
+    max-width: 10vw;
     display: inline-block;
     position: relative;
     top: 7px;
@@ -50,7 +50,11 @@
 
 .user{
     position: relative;
-    top: -3px;
+    
+    // margin: 0;
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 .topbar__logo {
@@ -92,14 +96,57 @@
     margin-top: 35px;
     // margin:auto;
     li{
-
         list-style: none;
-        margin: auto;
+        // margin: auto;
         padding: 5px;
     }
 }
 
+.profile-picture-bar{
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px $text-color solid;
+    object-fit: cover;
+    top: -25px;
+    transition: all ease 0.3s;
+    &:hover{
+        transition: all ease 0.3s;
+        width: 90px;
+        height: 90px;
+        top: -37px;
+    }
+}
+
 @media screen and (max-width: 1250px) {
+    .profile-picture-bar{
+        position: relative;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        top: -13px;
+        &:hover{
+            transition: all ease 0.3s;
+            width: 50px;
+            height: 50px;
+            top: -13px;
+        }
+    }
+    .topbar__container{
+        max-width: 90vw;
+        width: 90vw;
+        margin: 0px 25px;
+        left: 0px;
+    }
+    .link__items{
+        display: flex;
+        justify-content: flex-start;
+        li{
+            align-items: flex-start;
+        }
+        align-items: flex-start;
+    }
     .topbar__icon{
         margin-top:15px;
     }
