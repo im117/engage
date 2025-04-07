@@ -911,7 +911,7 @@ function Home() {
                 <h2>
                   Engager:{" "}
                   <a
-                    href={`/profile/${currentVideoCreatorName}`}
+                    onClick={() => navigate(`/profile/${currentVideoCreatorName}`)}
                     className="engager-link"
                   >
                     {currentVideoCreatorName}
@@ -963,7 +963,7 @@ function Home() {
                         style={{ color: "black", textAlign: "left" }}
                       >
                         <p>
-                          <strong><a href={`/profile/${c.username}`} className="username-link">{c.username}</a></strong> ({c.created_at}):{" "}
+                          <strong><a onClick={() => navigate(`/profile/${c.username}`)} className="username-link">{c.username}</a></strong>:{" "}
                           {c.comment}
                         </p>
 
@@ -1082,9 +1082,7 @@ function Home() {
                                 <div>
                                   <div>
                                     <p key={r.id}>
-                                      <strong><a href={`/profile/${r.username}`} className="username-link">{r.username}</a></strong> (
-                                      {r.created_at}
-                                      ): {r.reply}
+                                      <strong><a onClick={() => navigate(`/profile/${r.username}`)} className="username-link">{r.username}</a></strong>: {r.reply}
                                     </p>
                                   </div>
                                   <div
