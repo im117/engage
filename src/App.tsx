@@ -1015,6 +1015,10 @@ function Home() {
                                         </a>
                                       </strong>
                                       : {r.reply}
+                                      <br />
+                                      <span className="comment-date">
+                                        ({formatDate(r.created_at)})
+                                      </span>
                                     </p>
                                   </div>
                                   <div
