@@ -393,6 +393,26 @@ body {
   align-self: flex-end;
 }
 
+.username-link {
+  text-decoration: underline;
+  color: rgb(85, 86, 97); /* General color for usernames */
+  &:hover{
+    cursor: pointer;
+  }
+}
+
+.engager-link {
+  text-decoration: underline;
+  color: rgb(245, 245, 245); /* Specific color for the engager's name */
+  transition: transform 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(2); /* Enlarge the text */
+    color: orange; /* Change color on hover */
+  }
+}
+
 // Mobile SCSS
 .comment-text {
   @media screen and (max-width: 870px) {
@@ -469,4 +489,5 @@ body {
     margin: 10px 0;
     text-align: center;
   }
+  
 }

@@ -309,6 +309,26 @@ app.post("/upload-profile-picture", upload.single("profilePicture"), (req, res) 
   });
 });
 
+app.post("/revert-profile-picture", (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  const db = dbRequest(dbHost);
+  const updateQuery = "UPDATE users SET profilePictureUrl = '/src/assets/engage default pfp.png' WHERE id = ?";
+  db.query(updateQuery, [userId], (err) => {
+    db.destroy();
+    if (err) {
+      console.error("Error updating user with profile picture: ", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    return res
+      .status(200)
+      .json({ message: "Profile picture reverted successfully"});
+  });
+});
+
 // Get user info
 app.get("/user", (req, res) => {
   const db = dbRequest(dbHost);

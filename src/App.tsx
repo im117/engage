@@ -18,7 +18,7 @@ import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
 import UserProfile from "./userProfile.tsx";
 import CombinedSearch from "./combinedSearch.tsx";
-
+import UsernameLink from "./components/UsernameLink";
 import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
 import { color } from "framer-motion";
@@ -713,7 +713,15 @@ function Home() {
                 {/* Pass the authToken to the Follow component */}
                 <Follow fileName={currentVideo.split("/").pop() || ""} loggedIn={loggedIn}/>
                 <h1>{currentVideoTitle}</h1>
-                <h2>Engager: {currentVideoCreatorName}</h2>
+                <h2>
+                  Engager:{" "}
+                  <a
+                    onClick={() => navigate(`/profile/${currentVideoCreatorName}`)}
+                    className="engager-link"
+                  >
+                    {currentVideoCreatorName}
+                  </a>
+                </h2>
                 <h3>Uploaded: {currentVideoDate}</h3>
                 <p>
                   {currentVideoDesc !== "" ? currentVideoDesc : "No Description Provided"}
@@ -740,7 +748,8 @@ function Home() {
                     {comments.map((c) => (
                       <div key={c.id} className="comment-box" style={{ color: "black", textAlign: "left" }}>
                         <p>
-                          <strong>{c.username}</strong> ({c.created_at}): {c.comment}
+                          <strong><a onClick={() => navigate(`/profile/${c.username}`)} className="username-link">{c.username}</a></strong>:{" "}
+                          {c.comment}
                         </p>
                         <div className="comment-like-section" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                           <button
@@ -806,30 +815,44 @@ function Home() {
                             {c.replies.map((r) => (
                               <div key={r.id}>
                                 <div>
-                                  <p>
-                                    <strong>{r.username}</strong> ({r.created_at}): {r.reply}
-                                  </p>
-                                </div>
-                                <div style={{ display: "flex", gap: "3px", position: "relative", top: "-10px", marginBottom: "-10px" }}>
-                                  <button
-                                    onClick={() => handleReplyLike(r.id)}
+                                  <div>
+                                    <p key={r.id}>
+                                      <strong><a onClick={() => navigate(`/profile/${r.username}`)} className="username-link">{r.username}</a></strong>: {r.reply}
+                                    </p>
+                                  </div>
+                                  <div
                                     style={{
-                                      backgroundColor: "transparent",
-                                      border: "none",
-                                      cursor: "pointer",
-                                      color: replyLiked[r.id] ? "red" : "black",
+                                      display: "flex",
+                                      gap: "3px",
+                                      position: "relative",
+                                      top: "-10px",
+                                      marginBottom: "-10px",
                                     }}
                                   >
-                                    <i className="fa-regular fa-thumbs-up"></i>
-                                  </button>
-                                  <div id={`like-count-${r.id}`}>
-                                    {replyLikeCount[r.id] !== undefined ? replyLikeCount[r.id] : ""}
+                                    <button
+                                      onClick={() => handleReplyLike(r.id)}
+                                      style={{
+                                        backgroundColor: "transparent",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: replyLiked[r.id]
+                                          ? "red"
+                                          : "black",
+                                      }}
+                                    >
+                                      <i className="fa-regular fa-thumbs-up"></i>
+                                    </button>
+                                    <div id={`like-count-${r.id}`}>
+                                      {replyLikeCount[r.id] !== undefined
+                                        ? replyLikeCount[r.id]
+                                        : ""}
+                                    </div>{" "}
+                                    {/* Unique ID for like count */}
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                              ))}
+                            </div>
+                          )}
                       </div>
                     ))}
                   </div>

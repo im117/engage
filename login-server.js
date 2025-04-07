@@ -1338,3 +1338,26 @@ app.post("/addReply", addReply);
 app.listen(port, () => {
   console.log(`Login Server is running at http://localhost:${port}`);
 });
+app.get("/get-user-liked-videos", authenticateTokenGet, (req, res) => {
+  const userId = req.user.userId;
+  const db = dbRequest(dbHost);
+  
+  // Query to get videos liked by the user by joining the likes and videos tables.
+  const query = `
+    SELECT v.*
+    FROM videos v
+    INNER JOIN likes l ON v.id = l.video_id
+    WHERE l.user_id = ?
+    ORDER BY l.id DESC
+  `;
+  
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+    db.destroy();
+    return res.status(200).json({ videos: results });
+  });
+});
