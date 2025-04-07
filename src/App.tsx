@@ -18,8 +18,9 @@ import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
 import UserProfile from "./userProfile.tsx";
 import CombinedSearch from "./combinedSearch.tsx";
-
+import UsernameLink from "./components/UsernameLink";
 import About from "./About.tsx";
+
 import { color } from "framer-motion";
 // import { createContext, useContext } from 'react';
 // import VideoPlayer from './components/VideoPlayerUser.tsx';
@@ -746,7 +747,6 @@ function Home() {
         })
       );
       setComments(commentsWithReplyCounts);
-      // setComments(commentsWithUsernames);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
@@ -908,7 +908,15 @@ function Home() {
             {filteredArray.length > 0 && (
               <>
                 <h1>{currentVideoTitle}</h1>
-                <h2>Engager: {currentVideoCreatorName}</h2>
+                <h2>
+                  Engager:{" "}
+                  <a
+                    href={`/profile/${currentVideoCreatorName}`}
+                    className="engager-link"
+                  >
+                    {currentVideoCreatorName}
+                  </a>
+                </h2>
                 <h3>Uploaded: {currentVideoDate}</h3>
                 <p>
                   {currentVideoDesc !== ""
@@ -955,7 +963,7 @@ function Home() {
                         style={{ color: "black", textAlign: "left" }}
                       >
                         <p>
-                          <strong>{c.username}</strong> ({c.created_at}):{" "}
+                          <strong><a href={`/profile/${c.username}`} className="username-link">{c.username}</a></strong> ({c.created_at}):{" "}
                           {c.comment}
                         </p>
 
@@ -1074,7 +1082,7 @@ function Home() {
                                 <div>
                                   <div>
                                     <p key={r.id}>
-                                      <strong>{r.username}</strong> (
+                                      <strong><a href={`/profile/${r.username}`} className="username-link">{r.username}</a></strong> (
                                       {r.created_at}
                                       ): {r.reply}
                                     </p>
