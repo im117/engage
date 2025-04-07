@@ -19,30 +19,13 @@
   margin: 20px 0 20px 20px; // Top, right, bottom, left margins
 }
 
-.pfp__container{
-  display: flex;
-  flex-direction: column;
-  .button{
-    padding: 2px;
-    font-size: 0.9rem;
-    text-align: center;
-  }
-}
 .profile-picture {
   width: 100px; // Adjust size as needed
   height: 100px;
   border-radius: 50%;
   border: 2px solid #ffffff;
   object-fit: cover;
-}
-
-.pfp-own-user{
-  transition: all 0.3s ease;
-  &:hover{
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid #8afa74;
-  }
+  cursor: pointer;
 }
 
 .user-profile__stats {
@@ -84,18 +67,9 @@
   color: #dddddd;
 }
 
-.Developer-flair {
+.user-role {
   font-size: 0.9rem;
-  text-align: center;
-  color: #e6e4e4;
-  background-color: rgba(79, 255, 79, 0.685);
-  border-radius: 25px;
-  padding: 2px 0px;
-  box-shadow: 0 0 10px 2px rgba(136, 255, 136, 0.8); // Adds a glowing border effect
-}
-
-.flair-search{
-  width: max-content;
+  color: #dddddd;
 }
 
 //  Main container with smooth transition effects
@@ -160,29 +134,14 @@
   align-items: flex-end;
 }
 //  "My Videos" section title
-.my-videos-container {
+.my-videos-container.tab-toggle {
   display: flex;
-
-  padding: 0px 10px;
-  // background-color: darkgreen;
-  // display: flex;
-  justify-content: space-between;
-  color: white;
-  // padding: 10px 20px;
-  border-radius: 5px;
-  // gap: 50vw; // Adds space between elements
-  // margin-bottom: 10px;
-  font-size: 1.4rem;
-  font-weight: bold;
-  .button {
-    font-size: 1.5rem;
-    height: 40px;
-    width: 80px;
-    // padding: 2px 15px;
-    text-align: center;
-    padding: auto;
-  }
+  justify-content: center;  // Center horizontally
+  align-items: center;      // Center vertically if needed
+  gap: 3rem;                // Space between "My Videos" and "My Likes"
+  margin: 1rem auto;        // Center the container within its parent
 }
+
 
 //  Video grid container with smooth page transition effect
 .video-grid {
@@ -346,4 +305,41 @@
   .user-container {
     padding: 10px; // Reduce padding to better fit small screens
   }
+}
+.tab-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto;
+  gap: 3rem;
+
+  .tab-item {
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 8px 16px;
+    color: white;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &.active {
+      border-color: white;
+    }
+  }
+}
+
+.likes-placeholder {
+  width: 90vw;
+  height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: #ccc;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
