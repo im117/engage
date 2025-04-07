@@ -540,10 +540,16 @@ app.get("/get-replies", async (req, res) => {
 // Follow a user (requires authentication)
 app.post("/follow-user", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
-  const { fileName } = req.query;
+  const { fileName } = req.body;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
 
-  console.log(fileName);
+  console.log("Received fileName in /follow-user:", fileName);
+
+  if (!fileName) {
+    db.destroy();
+    return res.status(400).json({ message: "File name is required" });
+  }
+
   try {
     // Step 1: Get the videoId from the fileName
     const videoId = await getVideoIdFromFileName(db, fileName);
@@ -570,15 +576,18 @@ app.post("/follow-user", authenticateToken, async (req, res) => {
       db.destroy();
       return res.status(200).json({ message: "Already following" });
     }
+
     // Insert follow record
     const insertQuery = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
     await db.promise().query(insertQuery, [userId, otherUserId]);
+
     // Optionally, create a notification for the followed user
     const notifQuery = `
       INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type)
       VALUES (?, ?, ?, 'follow', 'follow')
     `;
-    await db.promise().query(notifQuery, [userId, followerId, userId]);
+    await db.promise().query(notifQuery, [otherUserId, userId, videoId]);
+
     db.destroy();
     return res.status(200).json({ message: "Followed successfully" });
   } catch (error) {
@@ -592,18 +601,41 @@ app.post("/follow-user", authenticateToken, async (req, res) => {
 app.post("/unfollow-user", authenticateToken, async (req, res) => {
   // alert("unfollow-user endpoint hit");
   const db = dbRequest(dbHost);
-  const { userId } = req.body; // ID of the user to unfollow
-  const followerId = req.user.userId;
+  const { fileName } = req.body;
+  // const { userId } = req.body; // ID of the user to unfollow
+  const userId = req.user.userId; // Get the logged-in user's ID from the token
   
   if (!userId) {
     db.destroy();
-    return res.status(400).json({ message: "User ID to unfollow is required" });
+    return res.status(400).json({ message: "User ID is required" });
   }
   try {
-    const deleteQuery = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?";
-    await db.promise().query(deleteQuery, [followerId, userId]);
+    // Step 1: Get the videoId from the fileName
+    const videoId = await getVideoIdFromFileName(db, fileName);
+    if (!videoId) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Step 2: Get the creator_id (userId of the video creator)
+    const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
+    const [creatorResults] = await db.promise().query(getCreatorQuery, [videoId]);
+
+    if (creatorResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video creator not found" });
+    }
+
+    const otherUserId = creatorResults[0].creator_id; // The userId of the video creator
+
+    // Step 3: Check if the logged-in user is following the video creator
+    const deleteQuery = `
+      DELETE FROM follows WHERE follower_id = ? AND following_id = ?
+    `;
+    const [followResults] = await db.promise().query(deleteQuery, [userId, otherUserId]);
+
     db.destroy();
-    return res.status(200).json({ message: "Unfollowed successfully" });
+    return res.status(200).json({ message: "Successfully unfollowed" });
   } catch (error) {
     console.error("Error unfollowing user:", error);
     db.destroy();
@@ -615,7 +647,12 @@ app.get("/get-follow-status", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.query;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
-  // console.log("filename " + fileName);
+  console.log("filename ........ " + fileName);
+  // console.log("FILENAMW" + fileName);
+  if (!fileName){
+    db.destroy();
+    return res.status(400).json({ message: "File name is required" });
+  }
 
   try {
     // Step 1: Get the videoId from the fileName
