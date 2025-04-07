@@ -513,7 +513,33 @@ function User() {
             </motion.div>
           </AnimatePresence> */}
 
+{/* Fullscreen video overlay (shown when a video is clicked) */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div
+            className="fullscreen-overlay"
+            initial={{ opacity: 0 }} // Start with opacity 0
+            animate={{ opacity: 1 }} // Fade in smoothly
+            exit={{ opacity: 0 }} // Fade out when closed
+            onClick={handleCloseVideo} // Clicking outside the video closes it
+          >
+            <motion.video
+              src={selectedVideo}
+              className="fullscreen-video"
+              initial={{ scale: 0.8 }} // Start smaller
+              animate={{ scale: 1 }} // Expand to full size
+              exit={{ scale: 0.8 }} // Shrink when closing
+              autoPlay
+              playsInline
+              controls
+              loop
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on video
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+    
   );
 }
 
