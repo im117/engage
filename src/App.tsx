@@ -593,12 +593,20 @@ function Home() {
     toggleReplyInput(commentId);
   }
 
+  // Toggle visibility of replies for a specific comment.
   const toggleRepliesVisible = (commentId: number) => {
-    setRepliesVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+    setRepliesVisible((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
   };
 
+  // Toggle the reply input for a specific comment.
   const toggleReplyInput = (commentId: number) => {
-    setReplyVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+    setReplyVisible((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
   };
 
   useEffect(() => {
@@ -809,6 +817,51 @@ function Home() {
                             </div>
                           )}
                         </div>
+
+                        {repliesVisible[c.id] &&
+                          c.replies &&
+                          c.replies.length > 0 && (
+                            <div style={{ marginLeft: "20px" }}>
+                              {c.replies.map((r) => (
+                                <div>
+                                  <div>
+                                    <p key={r.id}>
+                                      <strong><a onClick={() => navigate(`/profile/${r.username}`)} className="username-link">{r.username}</a></strong>: {r.reply}
+                                    </p>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: "3px",
+                                      position: "relative",
+                                      top: "-10px",
+                                      marginBottom: "-10px",
+                                    }}
+                                  >
+                                    <button
+                                      onClick={() => handleReplyLike(r.id)}
+                                      style={{
+                                        backgroundColor: "transparent",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: replyLiked[r.id]
+                                          ? "red"
+                                          : "black",
+                                      }}
+                                    >
+                                      <i className="fa-regular fa-thumbs-up"></i>
+                                    </button>
+                                    <div id={`like-count-${r.id}`}>
+                                      {replyLikeCount[r.id] !== undefined
+                                        ? replyLikeCount[r.id]
+                                        : ""}
+                                    </div>{" "}
+                                    {/* Unique ID for like count */}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </div>
                     ))}
                   </div>

@@ -12,6 +12,7 @@ services:
       - VITE_UPLOAD_SERVER=https://upload.ngage.lol
       - VITE_LOGIN_SERVER=https://login.ngage.lol
       - VITE_FRONTEND_URL=https://ngage.lol
+      - VITE_HMR_OVERLAY="false"
       #- TZ="America/Detroit"
     env_file:
       - .env
