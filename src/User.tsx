@@ -44,6 +44,9 @@ function User() {
     // --- NEW state for liked videos + pagination ---
     const [likedVideos, setLikedVideos] = useState<string[]>([]);
     const [currentLikesPage, setCurrentLikesPage] = useState(0);
+
+    // Follow count
+    const [followCount, setFollowCount] = useState(0);
   
     // Pagination for user videos
     const totalPages = Math.ceil(userVideos.length / VIDEOS_PER_PAGE);
@@ -81,6 +84,28 @@ function User() {
   useEffect(() => {
     loadUserVideos();
   }, []);
+
+  // Fetch follow count
+  const fetchFollowCount = async () => {
+      
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.error("No token found for fetching follow count.");
+      return;
+    }
+    try {
+      
+      const response = await axios.get(`${uploadServer}/get-follow-count-user`, {
+        headers: { Authorization: token },
+      });
+      // console.log("Follow count response:", response.data); // Debugging log
+
+      setFollowCount(response.data.follow_count || 0); 
+      // alert(followCount); // Display the follow count in an alert
+    } catch (error) {
+      console.error("Error fetching follow count:", (error as any).response?.data || (error as any).message);
+    }
+  };
 
   // -- Fetch user's liked videos --
   async function loadUserLikedVideos() {
@@ -158,6 +183,7 @@ function User() {
   useEffect(() => {
     getLoggedInUserId();
     getUsername(userID);
+    fetchFollowCount();
   });
 
   const navigate = useNavigate(); // Hook for navigating between routes
@@ -384,6 +410,8 @@ function User() {
               <div className="username-display">{username}</div>
                 {role !== "User" && <div className={`${role}-flair`}>{role}</div>}
               <div className="date-joined">Joined: {dateJoined}</div>
+              {/* New line for follower count */}
+              <div className="followers">Engagers: {followCount}</div>
             </div>
           </div>
 
