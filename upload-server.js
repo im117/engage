@@ -789,6 +789,29 @@ app.get("/get-follow-count", async (req, res) => {
   }
 });
 
+app.get("/get-follow-count-user", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const userID = req.user.userId;
+
+
+  try {
+
+    const selectQuery = `
+      SELECT COUNT(*) AS follow_count FROM follows WHERE following_id = ?
+    `;
+    const [result] = await db.promise().query(selectQuery, [userID]);
+
+    // console.log("Follows fetched: ", result[0].follow_count);
+    
+    db.destroy();
+    return res.status(200).json({ follow_count: result[0].follow_count }); // Return the count
+  } catch (error) {
+    console.error("Error displaying follower count:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
 function deleteFile(filePath) {
   fs.unlink(filePath, (err) => {
     if (err) {

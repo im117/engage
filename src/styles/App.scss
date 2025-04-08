@@ -350,8 +350,8 @@ body {
 
 .comment-section {
   // position:fixed;
-  max-width: 250px;
-  width: 250px;
+  max-width: 80vw;
+  width: 400px;
   height: 20vh;
   max-height: 20vh;
   align-self: flex-end;
@@ -383,6 +383,13 @@ body {
 
 .comment-input-div {
   margin-top: 20px;
+}
+#comment-input{
+  width: 90%;
+}
+
+.details-metadata{
+  margin-top: 10px;
 }
 
 // Remove this once comments is fixed
@@ -423,6 +430,11 @@ body {
     display: none;
   }
 }
+@media screen and (max-width: 1300px){
+  .comment-section{
+    width: 25vw;
+  }
+}
 
 @media screen and (max-width: 870px) {
   .comment-notice {
@@ -440,6 +452,7 @@ body {
     align-self: center;
     height: 40vh;
     max-height: 40vh;
+    width: 80vw;
   }
   .app-container {
     width: 90vw;
