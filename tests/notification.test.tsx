@@ -150,3 +150,62 @@ describe('Notification Endpoints', () => {
         expect(error.response.status).toBe(401);
       }
     });
+
+    // Test 1: Test case for authenticated user
+    it('should return user notifications when authenticated', async () => {
+      // Sample response data
+      const mockNotifications: Notification[] = [
+        {
+          id: testNotificationIds[0],
+          sender_username: 'sender1',
+          action_type: 'like',
+          content_type: 'video',
+          content_preview: 'Test Video',
+          is_read: false,
+          created_at: new Date().toISOString()
+        },
+        {
+          id: testNotificationIds[1],
+          sender_username: 'sender2',
+          action_type: 'comment',
+          content_type: 'video',
+          content_preview: 'Test Video',
+          is_read: false,
+          created_at: new Date().toISOString()
+        },
+        {
+          id: testNotificationIds[2],
+          sender_username: 'sender1',
+          action_type: 'reply',
+          content_type: 'comment',
+          content_preview: 'This is a test comment that is...',
+          is_read: true,
+          created_at: new Date().toISOString()
+        }
+      ];
+
+      // Mock the axios response
+      mockedAxios.get.mockResolvedValueOnce({
+        data: { notifications: mockNotifications },
+        status: 200
+      });
+
+      // Test the endpoint
+      const response = await axios.get<NotificationResponse>(
+        `${loginServer}/notifications`,
+        { params: { auth: authToken } }
+      );
+      
+      expect(response.status).toBe(200);
+      expect(response.data.notifications).toHaveLength(3);
+      
+      // Check structure of notification
+      const notification = response.data.notifications[0];
+      expect(notification).toHaveProperty('id');
+      expect(notification).toHaveProperty('sender_username');
+      expect(notification).toHaveProperty('action_type');
+      expect(notification).toHaveProperty('content_type');
+      expect(notification).toHaveProperty('content_preview');
+      expect(notification).toHaveProperty('is_read');
+      expect(notification).toHaveProperty('created_at');
+    });
