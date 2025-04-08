@@ -20,29 +20,41 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
   const [loading, setLoading] = useState(false);
   const [isSelf, setIsSelf] = useState(false); // Track if the user is trying to follow themselves
   const [followCount, setFollowCount] = useState(0); // Track the follow count
+  const [targetUserId, setTargetUserId] = useState<number | null>(null); // Track the target user ID
 
-  // Consolidated useEffect
   useEffect(() => {
     if (!fileName) {
       console.error("fileName is missing or empty in Follow component.");
       return;
     }
 
-    // Fetch follow count
+    const fetchTargetUserId = async () => {
+      try {
+        const response = await axios.get(`${uploadServer}/userid-by-filename`, {
+          params: { fileName },
+        });
+        setTargetUserId(response.data.userId); // Correctly set the target user ID
+      } catch (error) {
+        console.error("Error fetching target user ID:", (error as any).response?.data || (error as any).message);
+      }
+    };
+
+    fetchTargetUserId();
+  }, [fileName]);
+
+  useEffect(() => {
+    if (targetUserId === null) return; // Wait until targetUserId is set
+
     const fetchFollowCount = async () => {
       try {
         const response = await axios.get(`${uploadServer}/get-follow-count`, {
-          params: { fileName },   
+          params: { targetUserId },
         });
-        // console.log("Follow count response:", response.data); // Debugging log
-        setFollowCount(response.data.follow_count || 0); 
-        // alert(followCount); // Display the follow count in an alert
+        setFollowCount(response.data.follow_count || 0);
       } catch (error) {
         console.error("Error fetching follow count:", (error as any).response?.data || (error as any).message);
       }
     };
-
-    // Fetch isSelf status
     const fetchIsSelfStatus = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -52,16 +64,16 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
       }
       try {
         const response = await axios.get(`${uploadServer}/get-is-self`, {
-          params: { fileName },
+          params: { targetUserId },
           headers: { Authorization: token },
         });
         setIsSelf(response.data.isSelf);
+        // console.log(isSelf)
       } catch (error) {
         console.error("Error fetching isSelf status:", (error as any).response?.data || (error as any).message);
       }
     };
 
-    // Fetch follow status
     const fetchFollowStatus = async () => {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -71,7 +83,7 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
       }
       try {
         const response = await axios.get(`${uploadServer}/get-follow-status`, {
-          params: { fileName },
+          params: { targetUserId },
           headers: { Authorization: token },
         });
         setFollowing(response.data.following);
@@ -80,11 +92,10 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
       }
     };
 
-    // Call all fetch functions
     fetchFollowCount();
     fetchIsSelfStatus();
     fetchFollowStatus();
-  }, [fileName]);
+  }, [targetUserId]);
 
   // Handle follow action
   const handleFollow = async () => {
@@ -98,13 +109,11 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
       return;
     }
 
-
     setLoading(true);
     try {
-
       await axios.post(
         `${uploadServer}/follow-user`,
-        { fileName }, // Send fileName in the body
+        { targetUserId, fileName },
         {
           headers: { Authorization: token }, // Send token in the Authorization header
         }
@@ -131,10 +140,9 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
 
     setLoading(true);
     try {
-
       await axios.post(
         `${uploadServer}/unfollow-user`,
-        { fileName }, // Send fileName in the body
+        { targetUserId }, // Send fileName in the body
         {
           headers: { Authorization: token }, // Send token in the Authorization header
         }
