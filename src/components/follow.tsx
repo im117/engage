@@ -30,20 +30,11 @@ const Follow: React.FC<FollowProps> = ({ fileName, loggedIn }) => {
 
     // Fetch follow count
     const fetchFollowCount = async () => {
-      
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        console.error("No token found for fetching follow count.");
-        return;
-      }
       try {
-        
         const response = await axios.get(`${uploadServer}/get-follow-count`, {
-          params: { fileName },
-          headers: { Authorization: token },
+          params: { fileName },   
         });
         // console.log("Follow count response:", response.data); // Debugging log
-
         setFollowCount(response.data.follow_count || 0); 
         // alert(followCount); // Display the follow count in an alert
       } catch (error) {
