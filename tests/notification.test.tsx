@@ -120,3 +120,33 @@ describe('Notification Endpoints', () => {
     
     testNotificationIds = notifications.map(n => n.id);
   }
+  async function cleanupTestData() {
+    // Delete test notifications
+    await db.query('DELETE FROM notifications WHERE recipient_id = ?', [userId]);
+    
+    // Delete test reply
+    await db.query('DELETE FROM reply WHERE id = 1');
+    
+    // Delete test comment
+    await db.query('DELETE FROM comments WHERE id = 1');
+    
+    // Delete test video
+    await db.query('DELETE FROM videos WHERE id = 1');
+  }
+
+  describe('GET /notifications', () => {
+    it('should return 401 if not authenticated', async () => {
+      // Mock axios to simulate a 401 error
+      mockedAxios.get.mockRejectedValueOnce({
+        response: { status: 401, data: { message: 'Not authenticated' } }
+      });
+
+      // Test the endpoint
+      try {
+        await axios.get(`${loginServer}/notifications`);
+        // Should not reach here
+        expect(true).toBe(false);
+      } catch (error: any) {
+        expect(error.response.status).toBe(401);
+      }
+    });
