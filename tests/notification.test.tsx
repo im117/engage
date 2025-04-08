@@ -73,3 +73,50 @@ describe('Notification Endpoints', () => {
     // Close database connection
     await db.end();
   });
+
+  async function setupTestData() {
+    // Ensure users exist
+    await db.query(`
+      INSERT IGNORE INTO users (id, username, email, password)
+      VALUES 
+        (1, 'testuser', 'test@example.com', 'password'),
+        (2, 'sender1', 'sender1@example.com', 'password'),
+        (3, 'sender2', 'sender2@example.com', 'password')
+    `);
+
+    // Insert test video
+    await db.query(`
+      INSERT IGNORE INTO videos (id, user_id, title)
+      VALUES (1, 1, 'Test Video')
+    `);
+
+    // Insert test comment
+    await db.query(`
+      INSERT IGNORE INTO comments (id, video_id, user_id, content)
+      VALUES (1, 1, 2, 'This is a test comment that is longer than 30 characters to test truncation')
+    `);
+
+    // Insert test reply
+    await db.query(`
+      INSERT IGNORE INTO reply (id, comment_id, user_id, content)
+      VALUES (1, 1, 3, 'This is a test reply that is also longer than 30 characters')
+    `);
+
+    // Insert test notifications
+    const [result] = await db.query(`
+      INSERT INTO notifications 
+        (recipient_id, sender_id, action_type, content_type, content_id, is_read, created_at)
+      VALUES
+        (1, 2, 'like', 'video', 1, false, NOW() - INTERVAL 3 HOUR),
+        (1, 3, 'comment', 'video', 1, false, NOW() - INTERVAL 2 HOUR),
+        (1, 2, 'reply', 'comment', 1, true, NOW() - INTERVAL 1 HOUR)
+    `);
+
+    // Get the IDs of the inserted notifications
+    const [notifications] = await db.query<any[]>(
+      'SELECT id FROM notifications WHERE recipient_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+    
+    testNotificationIds = notifications.map(n => n.id);
+  }
