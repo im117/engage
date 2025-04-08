@@ -17,3 +17,16 @@ interface Notification {
   is_read: boolean;
   created_at: string;
 }
+
+interface NotificationResponse {
+  notifications: Notification[];
+}
+
+interface UnreadCountResponse {
+  count: number;
+}
+
+interface MarkReadResponse {
+  message: string;
+  affected: number;
+}
