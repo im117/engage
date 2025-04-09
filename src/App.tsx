@@ -213,7 +213,7 @@ function Home() {
         });
 
         alert("Video deleted successfully.");
-        setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length);
+        setVideoIndex((prevIndex) => (prevIndex) % filteredArray.length);
       } catch (error) {
         console.error("Error deleting video:", error);
         alert("Failed to delete video. Please try again.");
