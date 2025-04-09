@@ -302,9 +302,9 @@ const CombinedSearch = ({
                   <div className="result-content">
                     <div className="search-result-title">{user.username}</div>
                     {user.role !== "user" && (
-                      <div className={`${user.role}-flair flair-search search-result-description`}>
-                      {user.role.charAt(0).toUpperCase + user.role.slice(1)}
-                      </div>
+                        <div className={`${user.role}-flair flair-search search-result-description`}>
+                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        </div>
                     )}
                   </div>
                   <span className="arrow">&rarr;</span>
