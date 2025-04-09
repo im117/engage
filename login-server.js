@@ -1329,6 +1329,79 @@ app.get("/user-by-username/:username", (req, res) => {
   });
 });
 
+
+//Ban user
+app.post("/ban-user", authenticateTokenGet, (req, res) => {
+  const { userIdToBan } = req.body;
+  const adminId = req.user.userId;
+  const db = dbRequest(dbHost);
+
+  if (!userIdToBan) {
+    db.destroy();
+    return res.status(400).json({ message: "User ID to ban is required" });
+  }
+
+  // Check if the current user is an admin
+  const checkDevQuery = "SELECT role FROM users WHERE id = ?";
+  db.query(checkDevQuery, [adminId], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0 || results[0].role !== "developer") {
+      db.destroy();
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    // Get the email of the user to be banned
+    const getUserEmailQuery = "SELECT email FROM users WHERE id = ?";
+    const userEmail = "";
+    db.query(getUserEmailQuery, [userIdToBan], (err, emailResults) => {
+      if (err) {
+        console.error("Database error:", err);
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      if (emailResults.length === 0) {
+        db.destroy();
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      userEmail = emailResults[0].email;
+      console.log(`User email to ban: ${userEmail}`);
+    });
+
+    // Ban the user by setting a banned flag
+    const banUserQuery = "INSERT INTO blacklist (email) VALUES (?)";
+    db.query(banUserQuery, [userEmail], (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      db.destroy();
+    });
+
+    // Delete the user from the users table
+    const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+    db.query(deleteUserQuery, [userIdToBan], (err, result) => {
+      if (err) {
+      console.error("Database error:", err);
+      db.destroy();
+      return res.status(500).json({ message: "Database error" });
+      }
+
+      db.destroy();
+      return res.status(200).json({ message: "User banned and deleted successfully" });
+    });
+
+  });
+});
+
 // Register routes
 app.post("/signup", signup);
 app.post("/addReply", addReply);

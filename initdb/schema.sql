@@ -5,7 +5,7 @@ CREATE TABLE users (
     username VARCHAR(30) UNIQUE,
     email VARCHAR(50) UNIQUE,
     password VARCHAR(250),
-    role VARCHAR(10) DEFAULT "User",
+    role VARCHAR(10) DEFAULT 'user',
     isVerified BOOLEAN DEFAULT FALSE,
     verificationToken VARCHAR(255),  -- This column stores the verification token
     recoveryToken VARCHAR(255),        -- This column stores the password recovery token
@@ -101,3 +101,8 @@ CREATE TABLE follows (
     FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE blacklist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(50) UNIQUE,
+    dateBanned TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)

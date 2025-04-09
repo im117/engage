@@ -408,7 +408,7 @@ function User() {
             </div>
             <div className="user-info">
               <div className="username-display">{username}</div>
-                {role !== "User" && <div className={`${role}-flair`}>{role}</div>}
+                {role !== "user" && <div className={`${role}-flair`}>{role.charAt(0).toUpperCase() + role.slice(1)}</div>}
               <div className="date-joined">Joined: {dateJoined}</div>
               {/* New line for follower count */}
               <div className="followers">Engagers: {followCount}</div>
