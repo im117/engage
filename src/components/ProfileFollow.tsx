@@ -112,6 +112,9 @@ const ProfileFollow: React.FC<ProfileFollowProps> = ({ targetUsername }) => {
 
   // Handle follow action
   const handleFollow = async () => {
+    if (isSelf) {
+      return;
+    }
     if (!loggedIn) {
       alert("You must be logged in to follow.");
       return;
