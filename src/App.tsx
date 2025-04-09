@@ -717,6 +717,18 @@ function Home() {
       }
     }
   };
+  const formatDate = (dateString: string | number | Date) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "numeric",
+      hour: "numeric",
+      day: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZoneName: "short",
+    });
+  };
 
   return (
     <div className="app">
@@ -848,17 +860,19 @@ function Home() {
                         className="comment-box"
                         style={{ color: "black", textAlign: "left" }}
                       >
-                        <p>
-                          <strong>
-                            <a
-                              onClick={() => navigate(`/profile/${c.username}`)}
-                              className="username-link"
-                            >
-                              {c.username}
-                            </a>
-                          </strong>
-                          : {c.comment}
-                        </p>
+                        <strong>
+                          <a
+                            onClick={() => navigate(`/profile/${c.username}`)}
+                            className="username-link"
+                          >
+                            {c.username}
+                          </a>
+                        </strong>
+                        : <span>{c.comment}</span>
+                        <br />
+                        <span className="comment-date">
+                          ({formatDate(c.created_at)})
+                        </span>
                         <div
                           className="comment-like-section"
                           style={{
@@ -945,7 +959,7 @@ function Home() {
                                 <div
                                   style={{
                                     display: "flex",
-                                    flexDirection: "column",
+                                    flexDirection: "row",
                                     width: "100%",
                                     gap: "8px",
                                   }}
@@ -962,7 +976,7 @@ function Home() {
                                     placeholder="Write a reply..."
                                     style={{
                                       padding: "8px",
-                                      width: "100%",
+                                      width: "80%",
                                       boxSizing: "border-box",
                                     }}
                                   />
@@ -982,7 +996,6 @@ function Home() {
                             </div>
                           )}
                         </div>
-
                         {repliesVisible[c.id] &&
                           c.replies &&
                           c.replies.length > 0 && (
@@ -1002,6 +1015,10 @@ function Home() {
                                         </a>
                                       </strong>
                                       : {r.reply}
+                                      <br />
+                                      <span className="comment-date">
+                                        ({formatDate(r.created_at)})
+                                      </span>
                                     </p>
                                   </div>
                                   <div
@@ -1041,16 +1058,37 @@ function Home() {
                     ))}
                   </div>
                   {loggedIn && (
-                    <div className="comment-input-div">
-                      <textarea
-                        id="comment-input"
+                    <div
+                      //className="comment-input-div"
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        width: "100%",
+                        gap: "8px",
+                      }}
+                    >
+                      <input
+                        //id="comment-input"
+                        type="text"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Write a comment..."
-                      ></textarea>
-                      <button onClick={postComment}>
-                        <i className="fa-solid fa-paper-plane"></i>
-                      </button>
+                        style={{
+                          padding: "5px",
+                          width: "100%",
+                          boxSizing: "border-box",
+                        }}
+                      ></input>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <button onClick={postComment}>
+                          <i className="fa-solid fa-paper-plane"></i>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

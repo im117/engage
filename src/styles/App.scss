@@ -350,8 +350,8 @@ body {
 
 .comment-section {
   // position:fixed;
-  max-width: 250px;
-  width: 250px;
+  max-width: 80vw;
+  width: 400px;
   height: 20vh;
   max-height: 20vh;
   align-self: flex-end;
@@ -384,6 +384,13 @@ body {
 .comment-input-div {
   margin-top: 20px;
 }
+#comment-input{
+  width: 90%;
+}
+
+.details-metadata{
+  margin-top: 10px;
+}
 
 // Remove this once comments is fixed
 .comment-notice {
@@ -396,9 +403,13 @@ body {
 .username-link {
   text-decoration: underline;
   color: rgb(85, 86, 97); /* General color for usernames */
-  &:hover{
+  &:hover {
     cursor: pointer;
   }
+}
+.comment-date {
+  color: #000;
+  font-size: 12px;
 }
 
 .engager-link {
@@ -419,6 +430,11 @@ body {
     display: none;
   }
 }
+@media screen and (max-width: 1300px){
+  .comment-section{
+    width: 25vw;
+  }
+}
 
 @media screen and (max-width: 870px) {
   .comment-notice {
@@ -436,6 +452,7 @@ body {
     align-self: center;
     height: 40vh;
     max-height: 40vh;
+    width: 80vw;
   }
   .app-container {
     width: 90vw;
@@ -489,5 +506,4 @@ body {
     margin: 10px 0;
     text-align: center;
   }
-  
 }
