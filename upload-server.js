@@ -329,6 +329,31 @@ app.post("/revert-profile-picture", (req, res) => {
   });
 });
 
+// app.get("/get-user-id", async (req, res) => {
+//   const db = dbRequest(dbHost);
+//   const { username } = req.query;
+
+//   if (!username) {
+//     return res.status(400).json({ message: "Username is required" });
+//   }
+
+//   try {
+//     const query = "SELECT id FROM users WHERE username = ?";
+//     const [results] = await db.promise().query(query, [username]);
+
+//     if (results.length === 0) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     return res.status(200).json({ userId: results[0].id });
+//   } catch (error) {
+//     console.error("Error fetching user ID by username:", error);
+//     return res.status(500).json({ message: "Database error", error });
+//   } finally {
+//     db.destroy();
+//   }
+// });
+
 // Get user info
 app.get("/user", (req, res) => {
   const db = dbRequest(dbHost);
@@ -761,6 +786,40 @@ app.get("/get-follow-count-user", authenticateToken, async (req, res) => {
     return res.status(200).json({ follow_count: result[0].follow_count }); // Return the count
   } catch (error) {
     console.error("Error displaying follower count:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
+app.post("/follow-user-profile", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { targetUserId } = req.body;
+  const userId = req.user.userId; // Get the logged-in user's ID from the token
+
+  // console.log("Received fileName in /follow-user:", fileName);
+
+  if (!targetUserId) {
+    db.destroy();
+    return res.status(400).json({ message: "targetUserId is required" });
+  }
+
+  try {
+    // Check if already following
+    const checkQuery = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+    const [existing] = await db.promise().query(checkQuery, [userId, targetUserId]);
+    if (existing.length > 0) {
+      db.destroy();
+      return res.status(200).json({ message: "Already following" });
+    }
+
+    // Insert follow record
+    const insertQuery = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
+    await db.promise().query(insertQuery, [userId, targetUserId]);
+
+    db.destroy();
+    return res.status(200).json({ message: "Followed successfully" });
+  } catch (error) {
+    console.error("Error following user:", error);
     db.destroy();
     return res.status(500).json({ message: "Database error", error });
   }
