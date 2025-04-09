@@ -283,6 +283,29 @@ function getVideoIdFromFileName(db, fileName) {
   });
 }
 
+// Get video ID from filename
+app.get("/video-id-from-filename", async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { fileName } = req.query;
+
+  if (!fileName) {
+    db.destroy();
+    return res.status(400).json({ message: "File name is required" });
+  }
+
+  try {
+    console.log(fileName);
+    const videoId = await getVideoIdFromFileName(db, fileName);
+    console.log(videoId);
+    db.destroy();
+    return res.status(200).json({ videoId });
+  } catch (error) {
+    console.error("Error fetching video ID from filename:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
 // **** ADDED ENDPOINT: Upload Profile Picture ****
 app.post(
   "/upload-profile-picture",
@@ -849,7 +872,6 @@ app.delete("/delete-video-admin", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { videoId } = req.body;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
-
   if (!videoId) {
     db.destroy();
     return res.status(400).json({ message: "Video ID is required" });
@@ -860,7 +882,7 @@ app.delete("/delete-video-admin", authenticateToken, async (req, res) => {
     // Check if the video exists and belongs to the user
     
     const selectQuery = "SELECT fileName FROM videos WHERE id = ?";
-    const [videoResults] = await db.promise().query(selectQuery, [videoId, userId]);
+    const [videoResults] = await db.promise().query(selectQuery, videoId);
 
     // Check if the user is a Developer
     const userQuery = "SELECT role FROM users WHERE id = ?";
@@ -872,11 +894,11 @@ app.delete("/delete-video-admin", authenticateToken, async (req, res) => {
     }
     if (videoResults.length === 0) {
       db.destroy();
-      return res.status(404).json({ message: "Video not found or unauthorized" });
+      return res.status(404).json({ message: "Video not found" });
     }
 
     const fileName = videoResults[0].fileName;
-    const filePath = path.join("./media", fileName);
+    const filePath = path.join("./media/", fileName);
 
     // Delete the video record from the database
     const deleteQuery = "DELETE FROM videos WHERE id = ?";

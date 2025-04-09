@@ -201,11 +201,11 @@ function Home() {
       );
       if (!confirmDelete) return;
 
-      const fileNameWithoutExtension = fileName.split(".").slice(0, -1).join(".");
-      const videoIdResponse = await axios.get(`${uploadServer}/video-id`, {
-        params: { fileName: fileNameWithoutExtension },
+      // const fileNameWithoutExtension = fileName.split(".").slice(0, -1).join(".");
+      const videoIdResponse = await axios.get(`${uploadServer}/video-id-from-filename`, {
+        params: { fileName: fileName },
       });
-      const videoId = videoIdResponse.data.id;
+      const videoId = videoIdResponse.data.videoId;
       try {
         await axios.delete(`${uploadServer}/delete-video-admin`, {
           headers: { Authorization: token },
