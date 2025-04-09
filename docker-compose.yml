@@ -8,11 +8,6 @@ services:
     ports:
       - "81:5173"
       # - "7070:7070"
-    environment:
-      - VITE_UPLOAD_SERVER=https://upload.ngage.lol
-      - VITE_LOGIN_SERVER=https://login.ngage.lol
-      - VITE_FRONTEND_URL=https://ngage.lol
-      - VITE_HMR_OVERLAY="false"
       #- TZ="America/Detroit"
     env_file:
       - .env
@@ -26,10 +21,6 @@ services:
     restart: unless-stopped
   upload-server:
     image: upload-server:latest
-    environment:
-      - DATABASE_HOST=db
-      #- TZ="America/Detroit"
-      - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
     build:
@@ -50,10 +41,6 @@ services:
     restart: unless-stopped
   login-server:
     image: login-server:latest
-    environment:
-      - DATABASE_HOST=db
-      #- TZ="America/Detroit"
-      - VITE_FRONTEND_URL=https://ngage.lol
     env_file:
       - .env
     build:
@@ -69,13 +56,7 @@ services:
     restart: unless-stopped
   db:
     image: mysql:latest
-    environment:
-      #TZ: "America/Detroit"
-      MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
-      MYSQL_ROOT_PASSWORD: pass123
-      MYSQL_DATABASE: engage
-      MYSQL_USER: engageuser
-      MYSQL_PASSWORD: engagepassword
+    env_file: .env
     ports:
       - "3306:3306"
     volumes:

@@ -1,6 +1,11 @@
 import mysql from "mysql2";
+import dotenv from "dotenv";
 export default function dbRequest (dbHost){
 // MySQL connection
+
+dotenv.config();
+
+
 const db = mysql.createConnection({
     host: dbHost,
     user: "engageuser",
