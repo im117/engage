@@ -221,9 +221,9 @@ function Home() {
     }
 
     return (
-      <button onClick={handleDelete} className="delete-video-button">
-        Delete Video
-      </button>
+      <a onClick={handleDelete} className="button danger delete-button">
+        <i className="fas fa-trash"></i> Delete Video
+      </a>
     );
   }
   // Function to grab video information from API
@@ -893,15 +893,16 @@ function Home() {
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
-              {(loggedIn) && (role != "user") &&(
-                <>
-                <DeleteVideo />
-                </>
-              )}
+              
                 <Follow
                   fileName={currentVideo.split("/").pop() || ""}
                   loggedIn={loggedIn}
                 />
+                {(loggedIn) && (role != "user") &&(
+                <>
+                <DeleteVideo />
+                </>
+              )}
                 <h1>{currentVideoTitle}</h1>
                 <h2>
                   Engager:{" "}
