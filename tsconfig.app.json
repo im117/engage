@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "tests/react-player.d.ts"]
+  "include": ["src", "tests/react-player.d.ts", "tests/user.test.tsx"]
 }
