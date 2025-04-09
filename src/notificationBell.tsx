@@ -34,6 +34,8 @@ function formatNotificationMessage(notification: Notification): string {
       return `${sender_username} commented on your video "${content_preview}"`;
     case "reply":
       return `${sender_username} replied to your comment "${content_preview}..."`;
+    case "follow":
+      return `${sender_username} started following you`;
   }
 
   return `${sender_username} interacted with your content`;

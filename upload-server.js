@@ -1,4 +1,4 @@
-import express from "express"; 
+import express from "express";
 import mysql from "mysql2";
 import multer from "multer";
 import path from "path";
@@ -40,7 +40,7 @@ app.use(
 );
 
 // **** ADDED LINE: Serve static files from the media folder ****
-app.use('/media', express.static(path.join(process.cwd(), 'media')));
+app.use("/media", express.static(path.join(process.cwd(), "media")));
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
@@ -284,30 +284,37 @@ function getVideoIdFromFileName(db, fileName) {
 }
 
 // **** ADDED ENDPOINT: Upload Profile Picture ****
-app.post("/upload-profile-picture", upload.single("profilePicture"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-  const { userId } = req.body;
-  if (!userId) {
-    return res.status(400).json({ message: "User ID is required" });
-  }
-  // Construct the full URL for the uploaded file
-  const fileUrl = `/media/${req.file.filename}`;
-  
-  const db = dbRequest(dbHost);
-  const updateQuery = "UPDATE users SET profilePictureUrl = ? WHERE id = ?";
-  db.query(updateQuery, [fileUrl, userId], (err, result) => {
-    db.destroy();
-    if (err) {
-      console.error("Error updating user with profile picture: ", err);
-      return res.status(500).json({ message: "Database error", error: err });
+app.post(
+  "/upload-profile-picture",
+  upload.single("profilePicture"),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
-    return res
-      .status(200)
-      .json({ message: "Profile picture uploaded successfully", profilePictureUrl: fileUrl });
-  });
-});
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    // Construct the full URL for the uploaded file
+    const fileUrl = `/media/${req.file.filename}`;
+
+    const db = dbRequest(dbHost);
+    const updateQuery = "UPDATE users SET profilePictureUrl = ? WHERE id = ?";
+    db.query(updateQuery, [fileUrl, userId], (err, result) => {
+      db.destroy();
+      if (err) {
+        console.error("Error updating user with profile picture: ", err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      return res
+        .status(200)
+        .json({
+          message: "Profile picture uploaded successfully",
+          profilePictureUrl: fileUrl,
+        });
+    });
+  }
+);
 
 app.post("/revert-profile-picture", (req, res) => {
   const { userId } = req.body;
@@ -316,7 +323,8 @@ app.post("/revert-profile-picture", (req, res) => {
   }
 
   const db = dbRequest(dbHost);
-  const updateQuery = "UPDATE users SET profilePictureUrl = '/src/assets/engage default pfp.png' WHERE id = ?";
+  const updateQuery =
+    "UPDATE users SET profilePictureUrl = '/src/assets/engage default pfp.png' WHERE id = ?";
   db.query(updateQuery, [userId], (err) => {
     db.destroy();
     if (err) {
@@ -325,7 +333,7 @@ app.post("/revert-profile-picture", (req, res) => {
     }
     return res
       .status(200)
-      .json({ message: "Profile picture reverted successfully"});
+      .json({ message: "Profile picture reverted successfully" });
   });
 });
 
@@ -405,8 +413,8 @@ app.get("/video", (req, res) => {
 app.get("/userid-by-filename", async (req, res) => {
   const db = dbRequest(dbHost);
   const { fileName } = req.query;
-  
-  if (!fileName){
+
+  if (!fileName) {
     db.destroy();
     return res.status(400).json({ message: "File name is required" });
   }
@@ -421,7 +429,9 @@ app.get("/userid-by-filename", async (req, res) => {
 
     // Step 2: Get the creator_id (userId of the video creator)
     const getCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
-    const [creatorResults] = await db.promise().query(getCreatorQuery, [videoId]);
+    const [creatorResults] = await db
+      .promise()
+      .query(getCreatorQuery, [videoId]);
 
     if (creatorResults.length === 0) {
       db.destroy();
@@ -623,7 +633,7 @@ app.get("/get-replies", async (req, res) => {
 // Follow a user (requires authentication)
 app.post("/follow-user", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
-  const { targetUserId,fileName } = req.body;
+  const { targetUserId, fileName } = req.body;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
 
   // console.log("Received fileName in /follow-user:", fileName);
@@ -639,15 +649,19 @@ app.post("/follow-user", authenticateToken, async (req, res) => {
 
   try {
     // Check if already following
-    const checkQuery = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
-    const [existing] = await db.promise().query(checkQuery, [userId, targetUserId]);
+    const checkQuery =
+      "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+    const [existing] = await db
+      .promise()
+      .query(checkQuery, [userId, targetUserId]);
     if (existing.length > 0) {
       db.destroy();
       return res.status(200).json({ message: "Already following" });
     }
 
     // Insert follow record
-    const insertQuery = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
+    const insertQuery =
+      "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
     await db.promise().query(insertQuery, [userId, targetUserId]);
 
     const videoId = await getVideoIdFromFileName(db, fileName);
@@ -659,7 +673,7 @@ app.post("/follow-user", authenticateToken, async (req, res) => {
     // Optionally, create a notification for the followed user
     const notifQuery = `
       INSERT INTO notifications (recipient_id, sender_id, content_id, content_type, action_type)
-      VALUES (?, ?, ?, 'follow', 'follow')
+      VALUES (?, ?, ?, 'video', 'follow')
     `;
     await db.promise().query(notifQuery, [targetUserId, userId, videoId]);
 
@@ -678,7 +692,7 @@ app.post("/unfollow-user", authenticateToken, async (req, res) => {
   const db = dbRequest(dbHost);
   const { targetUserId } = req.body;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
-  
+
   if (!userId) {
     db.destroy();
     return res.status(400).json({ message: "User ID is required" });
@@ -688,11 +702,12 @@ app.post("/unfollow-user", authenticateToken, async (req, res) => {
     return res.status(400).json({ message: "Target User ID is required" });
   }
   try {
-
     const deleteQuery = `
       DELETE FROM follows WHERE follower_id = ? AND following_id = ?
     `;
-    const [followResults] = await db.promise().query(deleteQuery, [userId, targetUserId]);
+    const [followResults] = await db
+      .promise()
+      .query(deleteQuery, [userId, targetUserId]);
 
     db.destroy();
     return res.status(200).json({ message: "Successfully unfollowed" });
@@ -708,18 +723,19 @@ app.get("/get-follow-status", authenticateToken, async (req, res) => {
   const { targetUserId } = req.query;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
 
-  if (!targetUserId){
+  if (!targetUserId) {
     db.destroy();
     return res.status(400).json({ message: "Target User ID is required" });
   }
 
   try {
-
     // Check if the logged-in user is following the video creator
     const selectQuery = `
       SELECT * FROM follows WHERE follower_id = ? AND following_id = ?
     `;
-    const [followResults] = await db.promise().query(selectQuery, [userId, targetUserId]);
+    const [followResults] = await db
+      .promise()
+      .query(selectQuery, [userId, targetUserId]);
 
     db.destroy();
     return res.status(200).json({ following: followResults.length > 0 });
@@ -734,11 +750,11 @@ app.get("/get-is-self", authenticateToken, async (req, res) => {
   const { targetUserId } = req.query;
   const userId = req.user.userId; // Get the logged-in user's ID from the token
 
-  if (!userId){
+  if (!userId) {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  if (!targetUserId){
+  if (!targetUserId) {
     return res.status(400).json({ message: "Target User ID is required" });
   }
   // console.log(userId + " " + targetUserId);
@@ -774,14 +790,13 @@ app.get("/get-follow-count-user", authenticateToken, async (req, res) => {
   const userID = req.user.userId;
 
   try {
-
     const selectQuery = `
       SELECT COUNT(*) AS follow_count FROM follows WHERE following_id = ?
     `;
     const [result] = await db.promise().query(selectQuery, [userID]);
 
     // console.log("Follows fetched: ", result[0].follow_count);
-    
+
     db.destroy();
     return res.status(200).json({ follow_count: result[0].follow_count }); // Return the count
   } catch (error) {
@@ -805,15 +820,19 @@ app.post("/follow-user-profile", authenticateToken, async (req, res) => {
 
   try {
     // Check if already following
-    const checkQuery = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
-    const [existing] = await db.promise().query(checkQuery, [userId, targetUserId]);
+    const checkQuery =
+      "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+    const [existing] = await db
+      .promise()
+      .query(checkQuery, [userId, targetUserId]);
     if (existing.length > 0) {
       db.destroy();
       return res.status(200).json({ message: "Already following" });
     }
 
     // Insert follow record
-    const insertQuery = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
+    const insertQuery =
+      "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
     await db.promise().query(insertQuery, [userId, targetUserId]);
 
     db.destroy();
