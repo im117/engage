@@ -1334,6 +1334,7 @@ app.get("/user-by-username/:username", (req, res) => {
 app.post("/ban-user", authenticateTokenGet, (req, res) => {
   const { username } = req.body;
   const adminId = req.user.userId;
+  console.log(adminId);
   const db = dbRequest(dbHost);
 
   if (!username) {
@@ -1342,7 +1343,7 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
   }
 
   // Check if the current user is an admin
-  const checkDevQuery = "SELECT role FROM users WHERE username = ?";
+  const checkDevQuery = "SELECT role FROM users WHERE id = ?";
   db.query(checkDevQuery, [adminId], (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -1384,6 +1385,16 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
       }
 
       db.destroy();
+    });
+
+    // Delete the user's videos
+    const deleteUserVideosQuery = "DELETE FROM videos WHERE creator_id = (SELECT id FROM users WHERE username = ?)";
+    db.query(deleteUserVideosQuery, [username], (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
+      }
     });
 
     // Delete the user from the users table

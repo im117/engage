@@ -235,7 +235,8 @@ const UserProfile = () => {
       const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
       const response = await axios.post(
         `${API_BASE_URL}/ban-user`,
-        { username: userName },
+        { username: userName
+         },
         {
           headers: {
         Authorization: `${authToken}`, // Pass the token in the Authorization header
