@@ -7,11 +7,11 @@ dotenv.config();
 
 
 const db = mysql.createConnection({
-    host: dbHost,
-    user: "engageuser",
-    password: "engagepassword",
-    database: "engage",
-    port: 3306
+  host: dbHost,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  port: 3306
   });
   
   // Connect to MySQL
