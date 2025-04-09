@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"; // Hook for programmatic navigat
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import "./styles/userProfile.scss";
+import ProfileFollow from "./components/ProfileFollow";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
@@ -205,6 +206,9 @@ const UserProfile = () => {
               {profile.role !== "User" && <div className={`${profile.role}-flair`}>{profile.role}</div>}
               <div className="date-joined">
                 Joined: {formatDate(profile.dateCreated)}
+              </div>
+              <div>
+                <ProfileFollow targetUsername={profile.username} />
               </div>
             </div>
           </div>
