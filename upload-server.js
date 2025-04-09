@@ -888,7 +888,7 @@ app.delete("/delete-video-admin", authenticateToken, async (req, res) => {
     const userQuery = "SELECT role FROM users WHERE id = ?";
     const [userResults] = await db.promise().query(userQuery, [userId]);
 
-    if (userResults.length === 0 || userResults[0].role !== "Developer") {
+    if (userResults.length === 0 || userResults[0].role !== "developer") {
       db.destroy();
       return res.status(403).json({ message: "Unauthorized: Not a Developer" });
     }

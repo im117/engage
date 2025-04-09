@@ -1350,7 +1350,7 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
       return res.status(500).json({ message: "Database error" });
     }
 
-    if (results.length === 0 || results[0].role !== "Developer") {
+    if (results.length === 0 || results[0].role !== "developer") {
       db.destroy();
       return res.status(403).json({ message: "Unauthorized action" });
     }

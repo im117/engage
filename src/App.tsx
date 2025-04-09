@@ -893,7 +893,7 @@ function Home() {
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
-              {(loggedIn) && (role != "User") &&(
+              {(loggedIn) && (role != "user") &&(
                 <>
                 <DeleteVideo />
                 </>
