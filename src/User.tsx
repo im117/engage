@@ -25,7 +25,7 @@ function User() {
   const [userID, setUserID] = useState(0);
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
-  const [role, setRole] = useState("User"); // Default role is "User"
+  const [role, setRole] = useState("user"); // Default role is "User"
 
   // New state for profile picture; using an online placeholder to ensure a visible image.
   const [profilePictureUrl, setProfilePictureUrl] = useState<string>(

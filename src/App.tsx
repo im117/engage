@@ -143,7 +143,7 @@ function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
-  const [role, setRole] = useState("User")
+  const [role, setRole] = useState("user")
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [viewCount, setViewCount] = useState(0);

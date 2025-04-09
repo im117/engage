@@ -16,6 +16,9 @@ const UserProfile = () => {
   // New state for date joined
   const [dateJoined, setDateJoined] = useState("");
 
+  const [userID, setUserID] = useState(0);
+  const [loggedInRole, setLoggedInRole] = useState("user");
+
   interface UserProfile {
     username: string;
     role: string;
@@ -148,6 +151,47 @@ const UserProfile = () => {
     }
   }, [userName]);
 
+  
+  async function getLoggedInUserId() {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/current-user-id`, {
+          params: { auth: token },
+        });
+        setUserID(response.data.userId);
+        // setLoggedIn(true);
+        return response.data.userId;
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+  getLoggedInUserId();
+
+  useEffect(() => {
+      const fetchRole = async () => {
+        try {
+          const response = await axios.get(
+            `${API_BASE_URL}/user-profile/${userID}`
+          );
+          setLoggedInRole(response.data.profile.role);
+          // console.log(role);
+        } catch (err) {
+          console.error("Error fetching role:", err);
+        }
+      };
+  
+      if (userID) {
+        fetchRole();
+      }
+    }, [userID]);
+
+
+
   if (loading) {
     return <div className="user-profile__loading">Loading profile...</div>;
   }
@@ -173,6 +217,43 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  /**
+   * Bans a user by sending a request to the server.
+   * Displays an alert on success or failure.
+   */
+  const handleBanUser = async () => {
+    if (!userName) return;
+
+    const confirmBan = window.confirm(
+      `Are you sure you want to ban the user "${userName}"?`
+    );
+
+    if (!confirmBan) return;
+
+    try {
+      const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
+      const response = await axios.post(
+        `${API_BASE_URL}/ban-user`,
+        { username: userName },
+        {
+          headers: {
+        Authorization: `${authToken}`, // Pass the token in the Authorization header
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert(`User "${userName}" has been banned successfully.`);
+        navigate("/"); // Redirect to home or another page after banning
+      } else {
+        alert(`Failed to ban user "${userName}".`);
+      }
+    } catch (err) {
+      console.error("Error banning user:", err);
+      alert("An error occurred while trying to ban the user.");
+    }
+  };
 
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString);
@@ -210,6 +291,9 @@ const UserProfile = () => {
               <div>
                 <ProfileFollow targetUsername={profile.username} />
               </div>
+              {loggedInRole == "developer" && <>
+              <a className="button danger" onClick={handleBanUser}>Ban User</a>
+              </>}
             </div>
           </div>
 

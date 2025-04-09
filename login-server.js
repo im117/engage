@@ -1332,17 +1332,17 @@ app.get("/user-by-username/:username", (req, res) => {
 
 //Ban user
 app.post("/ban-user", authenticateTokenGet, (req, res) => {
-  const { userIdToBan } = req.body;
+  const { username } = req.body;
   const adminId = req.user.userId;
   const db = dbRequest(dbHost);
 
-  if (!userIdToBan) {
+  if (!username) {
     db.destroy();
-    return res.status(400).json({ message: "User ID to ban is required" });
+    return res.status(400).json({ message: "Username to ban is required" });
   }
 
   // Check if the current user is an admin
-  const checkDevQuery = "SELECT role FROM users WHERE id = ?";
+  const checkDevQuery = "SELECT role FROM users WHERE username = ?";
   db.query(checkDevQuery, [adminId], (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -1356,9 +1356,9 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
     }
 
     // Get the email of the user to be banned
-    const getUserEmailQuery = "SELECT email FROM users WHERE id = ?";
+    const getUserEmailQuery = "SELECT email FROM users WHERE username = ?";
     const userEmail = "";
-    db.query(getUserEmailQuery, [userIdToBan], (err, emailResults) => {
+    db.query(getUserEmailQuery, [username], (err, emailResults) => {
       if (err) {
         console.error("Database error:", err);
         db.destroy();
@@ -1387,7 +1387,7 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
     });
 
     // Delete the user from the users table
-    const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+    const deleteUserQuery = "DELETE FROM users WHERE username = ?";
     db.query(deleteUserQuery, [userIdToBan], (err, result) => {
       if (err) {
       console.error("Database error:", err);
