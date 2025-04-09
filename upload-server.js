@@ -844,6 +844,56 @@ app.post("/follow-user-profile", authenticateToken, async (req, res) => {
   }
 });
 
+// Delete video (requires authentication)
+app.delete("/delete-video-admin", authenticateToken, async (req, res) => {
+  const db = dbRequest(dbHost);
+  const { videoId } = req.body;
+  const userId = req.user.userId; // Get the logged-in user's ID from the token
+
+  if (!videoId) {
+    db.destroy();
+    return res.status(400).json({ message: "Video ID is required" });
+  }
+
+
+  try {
+    // Check if the video exists and belongs to the user
+    
+    const selectQuery = "SELECT fileName FROM videos WHERE id = ?";
+    const [videoResults] = await db.promise().query(selectQuery, [videoId, userId]);
+
+    // Check if the user is a Developer
+    const userQuery = "SELECT role FROM users WHERE id = ?";
+    const [userResults] = await db.promise().query(userQuery, [userId]);
+
+    if (userResults.length === 0 || userResults[0].role !== "Developer") {
+      db.destroy();
+      return res.status(403).json({ message: "Unauthorized: Not a Developer" });
+    }
+    if (videoResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found or unauthorized" });
+    }
+
+    const fileName = videoResults[0].fileName;
+    const filePath = path.join("./media", fileName);
+
+    // Delete the video record from the database
+    const deleteQuery = "DELETE FROM videos WHERE id = ?";
+    await db.promise().query(deleteQuery, [videoId]);
+
+    // Delete the video file from the filesystem
+    deleteFile(filePath);
+
+    db.destroy();
+    return res.status(200).json({ message: "Video deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting video:", error);
+    db.destroy();
+    return res.status(500).json({ message: "Database error", error });
+  }
+});
+
 function deleteFile(filePath) {
   fs.unlink(filePath, (err) => {
     if (err) {

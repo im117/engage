@@ -113,6 +113,9 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  
+
+  
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   interface CommentType {
     id: number;
@@ -140,6 +143,7 @@ function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
+  const [role, setRole] = useState("User")
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [viewCount, setViewCount] = useState(0);
@@ -172,6 +176,56 @@ function Home() {
   // Extract fileName from currentVideo
   const fileName = currentVideo.split("/").pop() || "";
 
+  function DeleteVideo() {
+    async function handleDelete() {
+      if (!loggedIn) {
+        alert("You must be logged in to delete videos.");
+        return;
+      }
+
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Authentication error. Please log in again.");
+        setLoggedIn(false);
+        return;
+      }
+
+      const fileName = currentVideo.split("/").pop();
+      if (!fileName) {
+        alert("Error: No video selected for deletion.");
+        return;
+      }
+
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this video? This action cannot be undone."
+      );
+      if (!confirmDelete) return;
+
+      const fileNameWithoutExtension = fileName.split(".").slice(0, -1).join(".");
+      const videoIdResponse = await axios.get(`${uploadServer}/video-id`, {
+        params: { fileName: fileNameWithoutExtension },
+      });
+      const videoId = videoIdResponse.data.id;
+      try {
+        await axios.delete(`${uploadServer}/delete-video-admin`, {
+          headers: { Authorization: token },
+          data: { videoId },
+        });
+
+        alert("Video deleted successfully.");
+        setVideoIndex((prevIndex) => (prevIndex + 1) % filteredArray.length);
+      } catch (error) {
+        console.error("Error deleting video:", error);
+        alert("Failed to delete video. Please try again.");
+      }
+    }
+
+    return (
+      <button onClick={handleDelete} className="delete-video-button">
+        Delete Video
+      </button>
+    );
+  }
   // Function to grab video information from API
   async function setVideoInfo() {
     try {
@@ -375,6 +429,7 @@ function Home() {
   }
   getLoggedInUserId();
 
+
   async function assignUsername() {
     if (loggedIn) {
       const name = await getUsername(userID);
@@ -382,6 +437,24 @@ function Home() {
     }
   }
   assignUsername();
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const response = await axios.get(
+          `${loginServer}/user-profile/${userID}`
+        );
+        setRole(response.data.profile.role);
+        console.log(role);
+      } catch (err) {
+        console.error("Error fetching role:", err);
+      }
+    };
+
+    if (userID) {
+      fetchRole();
+    }
+  }, [userID]);
 
   async function checkIfLiked() {
     if (!loggedIn) {
@@ -820,6 +893,11 @@ function Home() {
           <div className="details-metadata">
             {filteredArray.length > 0 && (
               <>
+              {(loggedIn) && (role != "User") &&(
+                <>
+                <DeleteVideo />
+                </>
+              )}
                 <Follow
                   fileName={currentVideo.split("/").pop() || ""}
                   loggedIn={loggedIn}
