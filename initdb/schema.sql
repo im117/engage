@@ -21,7 +21,7 @@ CREATE TABLE videos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fileName TEXT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+    FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE comments (
@@ -88,8 +88,8 @@ CREATE TABLE notifications (
     action_type ENUM('like', 'comment', 'reply', 'follow') NOT NULL,
     is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (recipient_id) REFERENCES users(id),
-    FOREIGN KEY (sender_id) REFERENCES users(id)
+    FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE TABLE follows (
     id INT AUTO_INCREMENT PRIMARY KEY,

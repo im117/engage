@@ -55,8 +55,8 @@ describe("Login Component", () => {
     );
 
     // Enter a valid email
-    const uesrnameOrEmail = screen.getByPlaceholderText(/Enter Username OR Email/i);
-    fireEvent.change(uesrnameOrEmail, { target: { value: "valid@example.com" } });
+    const usernameOrEmail = screen.getByPlaceholderText(/Enter Username OR Email/i);
+    fireEvent.change(usernameOrEmail, { target: { value: "valid@example.com" } });
 
     // Enter a valid password
     const passwordInput = screen.getByPlaceholderText(/enter password/i);

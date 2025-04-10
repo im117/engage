@@ -1332,13 +1332,13 @@ app.get("/user-by-username/:username", (req, res) => {
 
 //Ban user
 app.post("/ban-user", authenticateTokenGet, (req, res) => {
-  const { userIdToBan } = req.body;
   const adminId = req.user.userId;
+  const { username } = req.body;
   const db = dbRequest(dbHost);
 
-  if (!userIdToBan) {
+  if (!username) {
     db.destroy();
-    return res.status(400).json({ message: "User ID to ban is required" });
+    return res.status(400).json({ message: "Username to ban is required" });
   }
 
   // Check if the current user is an admin
@@ -1355,50 +1355,76 @@ app.post("/ban-user", authenticateTokenGet, (req, res) => {
       return res.status(403).json({ message: "Unauthorized action" });
     }
 
-    // Get the email of the user to be banned
-    const getUserEmailQuery = "SELECT email FROM users WHERE id = ?";
-    const userEmail = "";
-    db.query(getUserEmailQuery, [userIdToBan], (err, emailResults) => {
-      if (err) {
-        console.error("Database error:", err);
-        db.destroy();
-        return res.status(500).json({ message: "Database error" });
-      }
+// Get the user ID and email of the user to be banned
+const getUserDetailsQuery = "SELECT id, email FROM users WHERE username = ?";
+db.query(getUserDetailsQuery, [username], (err, userDetailsResults) => {
+  if (err) {
+    console.error("Database error:", err);
+    db.destroy();
+    return res.status(500).json({ message: "Database error" });
+  }
 
-      if (emailResults.length === 0) {
-        db.destroy();
-        return res.status(404).json({ message: "User not found" });
-      }
+  if (userDetailsResults.length === 0) {
+    db.destroy();
+    return res.status(404).json({ message: "User not found" });
+  }
 
-      userEmail = emailResults[0].email;
-      console.log(`User email to ban: ${userEmail}`);
-    });
+  const userBanId = userDetailsResults[0].id;
+  const userEmail = userDetailsResults[0].email;
 
-    // Ban the user by setting a banned flag
-    const banUserQuery = "INSERT INTO blacklist (email) VALUES (?)";
-    db.query(banUserQuery, [userEmail], (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        db.destroy();
-        return res.status(500).json({ message: "Database error" });
-      }
-
-      db.destroy();
-    });
-
-    // Delete the user from the users table
-    const deleteUserQuery = "DELETE FROM users WHERE id = ?";
-    db.query(deleteUserQuery, [userIdToBan], (err, result) => {
-      if (err) {
+  // Ban the user by adding their email to the blacklist
+  const banUserQuery = "INSERT INTO blacklist (email) VALUES (?)";
+  db.query(banUserQuery, [userEmail], (err) => {
+    if (err) {
       console.error("Database error:", err);
       db.destroy();
       return res.status(500).json({ message: "Database error" });
+    }
+
+    // Delete the user from the users table
+    const deleteUserQuery = "DELETE FROM users WHERE id = ?";
+    db.query(deleteUserQuery, [userBanId], (err) => {
+      if (err) {
+        console.error("Database error:", err);
+        db.destroy();
+        return res.status(500).json({ message: "Database error" });
       }
 
       db.destroy();
-      return res.status(200).json({ message: "User banned and deleted successfully" });
+      return res
+        .status(200)
+        .json({ message: "User banned and deleted successfully" });
     });
+  });
+});
 
+  });
+});
+
+
+// Check if email is banned
+app.get("/is-email-banned", (req, res) => {
+  const { email } = req.query;
+  const db = dbRequest(dbHost);
+
+  if (!email) {
+    db.destroy();
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const query = "SELECT * FROM blacklist WHERE email = ?";
+  db.query(query, [email], (err, results) => {
+    db.destroy();
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length > 0) {
+      return res.status(200).json({ banned: true });
+    } else {
+      return res.status(200).json({ banned: false });
+    }
   });
 });
 
