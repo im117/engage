@@ -34,19 +34,35 @@ const Signup: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     const formValues = { username, email, password, confirmPassword };
     const validationErrors = validation(formValues);
     setErrors(validationErrors);
     setErrorMessage("");
     setSuccessMessage("");
+    let banned = false;
+
+    // Check if the email is banned
+    try {
+      const response = await axios.get(`${loginServer}/is-email-banned`, { params: { email } });
+      if (response.data.banned) {
+        setErrorMessage("You have been banned from Engage.");
+        banned = true;
+      }
+    } catch (error) {
+      if (!banned) {
+        setErrorMessage("An error occurred while checking the email. Please try again.");
+        console.log(error);
+      }
+    }
 
     if (
       !validationErrors.username &&
       !validationErrors.email &&
       !validationErrors.password &&
       !validationErrors.confirmPassword &&
+      !banned &&
       agreeToTerms // Ensure checkbox is checked
     ) {
       axios

@@ -235,11 +235,10 @@ const UserProfile = () => {
       const authToken = localStorage.getItem("authToken"); // Retrieve auth token from local storage
       const response = await axios.post(
         `${API_BASE_URL}/ban-user`,
-        { username: userName
-         },
+        { username: userName },
         {
-          headers: {
-        Authorization: `${authToken}`, // Pass the token in the Authorization header
+          params: {
+            auth: authToken, // Pass the token in the Authorization header with Bearer prefix
           },
         }
       );
@@ -292,7 +291,7 @@ const UserProfile = () => {
               <div>
                 <ProfileFollow targetUsername={profile.username} />
               </div>
-              {loggedInRole == "developer" && <>
+              {loggedInRole == "developer" && profile.role !== "developer" && <>
               <a className="button danger" onClick={handleBanUser}>Ban User</a>
               </>}
             </div>
