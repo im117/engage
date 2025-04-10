@@ -292,7 +292,21 @@ const UserProfile = () => {
                 <ProfileFollow targetUsername={profile.username} />
               </div>
               {loggedInRole == "developer" && profile.role !== "developer" && <>
-              <a className="button danger" onClick={handleBanUser}>Ban User</a>
+                <a
+                  style={{
+                  // display: "inline-block",
+                  padding: "3px",
+                  margin: "4px 0px",
+                  // fontSize: "12px",
+                  textDecoration: "none",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  }}
+                  className="button danger"
+                  onClick={handleBanUser}
+                >
+                  <i className="fas fa-gavel"></i> Ban User
+                </a>
               </>}
             </div>
           </div>

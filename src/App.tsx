@@ -221,9 +221,15 @@ function Home() {
     }
 
     return (
-      <a onClick={handleDelete} className="button danger delete-button">
-        <i className="fas fa-trash"></i> Delete Video
-      </a>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <a
+          onClick={handleDelete}
+          className="button danger delete-button"
+          style={{ maxWidth: "200px" }}
+        >
+          <i className="fas fa-trash"></i> Delete Video
+        </a>
+      </div>
     );
   }
   // Function to grab video information from API

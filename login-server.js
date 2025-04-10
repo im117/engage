@@ -1373,8 +1373,8 @@ db.query(getUserDetailsQuery, [username], (err, userDetailsResults) => {
   const userEmail = userDetailsResults[0].email;
 
   // Ban the user by adding their email to the blacklist
-  const banUserQuery = "INSERT INTO blacklist (email) VALUES (?)";
-  db.query(banUserQuery, [userEmail], (err) => {
+  const banUserQuery = "INSERT INTO blacklist (email, admin_id) VALUES (?, ?)";
+  db.query(banUserQuery, [userEmail, adminId], (err) => {
     if (err) {
       console.error("Database error:", err);
       db.destroy();
