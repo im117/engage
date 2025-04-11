@@ -50,7 +50,7 @@ function About(){
         <DevInfo
             reverse={false}
             name="Riyat Leiyate" 
-            title="a guy" 
+            title="Head of Moderation" 
             profileUrl="/src/assets/riyat.jpg" 
             bio="CompSci Major with Art Minor, Currently Senior, Part of EMU Esports LOL Team, Hate warm fruit."
             website=""
