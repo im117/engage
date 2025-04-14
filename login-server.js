@@ -1218,7 +1218,6 @@ app.get("/user-profile/:userId", (req, res) => {
       FROM videos
       WHERE creator_id = ?
       ORDER BY created_at DESC
-      LIMIT 10
     `;
 
     db.query(videosQuery, [userId], (videoErr, videos) => {
@@ -1278,7 +1277,6 @@ app.get("/user-profile-by-username/:userName", (req, res) => {
       FROM videos
       WHERE creator_id = ?
       ORDER BY created_at DESC
-      LIMIT 10
     `;
 
     db.query(videosQuery, [userId], (videoErr, videos) => {
