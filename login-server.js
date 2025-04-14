@@ -357,7 +357,7 @@ app.get("/current-user-id", authenticateTokenGet, (req, res) => {
 app.get("/get-user-videos", authenticateTokenGet, (req, res) => {
   const db = dbRequest(dbHost);
   const userid = req.user.userId;
-  const getVideosQuery = "SELECT * FROM videos WHERE creator_id = ?";
+  const getVideosQuery = "SELECT * FROM videos WHERE creator_id = ? ORDER BY created_at DESC";
   db.query(getVideosQuery, [userid], (err, results) => {
     if (err) {
       console.error("Database error:", err);
