@@ -275,7 +275,7 @@ function Home() {
 
   useEffect(() => {
     if (currentVideo) {
-      console.log("Video changed to:", currentVideo.split("/").pop());
+      // console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
       getCommentCount();
       if (loggedIn && userID) {
@@ -451,7 +451,7 @@ function Home() {
           `${loginServer}/user-profile/${userID}`
         );
         setRole(response.data.profile.role);
-        console.log(role);
+        // console.log(role);
       } catch (err) {
         console.error("Error fetching role:", err);
       }
@@ -478,11 +478,11 @@ function Home() {
       return;
     }
     try {
-      console.log("Making API request to check like status for:", fileName);
+      // console.log("Making API request to check like status for:", fileName);
       const response = await axios.get(`${loginServer}/check-like-status`, {
         params: { auth: token, fileName: fileName },
       });
-      console.log("Like status response:", response.data);
+      // console.log("Like status response:", response.data);
       setLiked(response.data.liked);
     } catch (error) {
       console.error("Error checking like status:", error);

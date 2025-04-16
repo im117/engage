@@ -159,56 +159,55 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
       const timeMatch = output.match(/time=(\d+:\d+:\d+\.\d+)/);
 
       if (timeMatch && duration > 0) {
-        const timeStr = timeMatch[1];
-        const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
-        const currentTime = hours * 3600 + minutes * 60 + seconds;
-        const progressPercent = Math.min(
-          Math.round((currentTime / duration) * 100),
-          99
-        );
+      const timeStr = timeMatch[1];
+      const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
+      const currentTime = hours * 3600 + minutes * 60 + seconds;
+      const progressPercent = Math.min(
+        Math.round((currentTime / duration) * 100),
+        99
+      );
 
-        if (progressPercent > lastProgress) {
-          lastProgress = progressPercent;
-          io.emit("transcode-progress", {
-            sessionId: sessionId,
-            progress: progressPercent,
-          });
-          // console.log(`Transcoding progress: ${progressPercent}%`);
-        }
+      if (progressPercent > lastProgress) {
+        lastProgress = progressPercent;
+        io.emit("transcode-progress", {
+        sessionId: sessionId,
+        progress: progressPercent,
+        });
+      }
       }
     });
 
-    ffmpeg.stderr.on("data", (data) => {
-      // ffmpeg outputs detailed information to stderr
-      const output = data.toString();
-      console.log(`ffmpeg stderr: ${output}`);
+    // ffmpeg.stderr.on("data", (data) => {
+    //   // ffmpeg outputs detailed information to stderr
+    //   const output = data.toString();
+    //   // console.log(`ffmpeg stderr: ${output}`);
 
-      // Parse progress from stderr if needed (as alternative to stdout progress)
-      const frameMatch = output.match(/frame=\s*(\d+)/);
-      const fpsMatch = output.match(/fps=\s*(\d+)/);
-      const timeMatch = output.match(/time=\s*(\d+:\d+:\d+\.\d+)/);
+    //   // Parse progress from stderr if needed (as alternative to stdout progress)
+    //   const frameMatch = output.match(/frame=\s*(\d+)/);
+    //   const fpsMatch = output.match(/fps=\s*(\d+)/);
+    //   const timeMatch = output.match(/time=\s*(\d+:\d+:\d+\.\d+)/);
 
-      if (timeMatch && duration > 0) {
-        const timeStr = timeMatch[1];
-        const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
-        const currentTime = hours * 3600 + minutes * 60 + seconds;
-        const progressPercent = Math.min(
-          Math.round((currentTime / duration) * 100),
-          99
-        );
+    //   if (timeMatch && duration > 0) {
+    //     const timeStr = timeMatch[1];
+    //     const [hours, minutes, seconds] = timeStr.split(":").map(parseFloat);
+    //     const currentTime = hours * 3600 + minutes * 60 + seconds;
+    //     const progressPercent = Math.min(
+    //       Math.round((currentTime / duration) * 100),
+    //       99
+    //     );
 
-        if (progressPercent > lastProgress) {
-          lastProgress = progressPercent;
-          io.emit("transcode-progress", {
-            sessionId: sessionId,
-            progress: progressPercent,
-          });
-        }
-      }
-    });
+    //     if (progressPercent > lastProgress) {
+    //       lastProgress = progressPercent;
+    //       io.emit("transcode-progress", {
+    //         sessionId: sessionId,
+    //         progress: progressPercent,
+    //       });
+    //     }
+    //   }
+    // });
 
     ffmpeg.on("close", (code) => {
-      console.log(`Transcoding process exited with code ${code}`);
+      // console.log(`Transcoding process exited with code ${code}`);
       io.emit("transcode-progress", {
         sessionId: sessionId,
         progress: 100,
@@ -236,7 +235,26 @@ app.post("/upload", authenticateToken, upload.single("file"), (req, res) => {
                 .status(500)
                 .json({ message: "Database error", error: err });
             }
+            // Get the username from creator_id
+            const getUsernameQuery = "SELECT username FROM users WHERE id = ?";
+            db.query(getUsernameQuery, [creatorId], (err, userResults) => {
+              if (err) {
+                console.error("Error fetching username from database: ", err);
+                deleteFile(outputPath);
+                db.destroy();
+                return res.status(500).json({ message: "Database error", error: err });
+              }
 
+              if (userResults.length === 0) {
+                console.error("Creator not found");
+                deleteFile(outputPath);
+                db.destroy();
+                return res.status(404).json({ message: "Creator not found" });
+              }
+
+              const username = userResults[0].username;
+              console.log(`Video "${title}" uploaded by: ${username}`);
+            });
             // console.log("Insert result:", result);
             db.destroy();
             return res.status(200).json({
@@ -517,7 +535,25 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
       .promise()
       .query(insertQuery, [userId, video_id, comment]);
     const commentId = result.insertId;
-    // console.log("Comment successfully stored in database!");
+
+    // Get the username from user_id
+    const getUsernameQuery = "SELECT username FROM users WHERE id = ?";
+    const [userResults] = await db.promise().query(getUsernameQuery, [userId]);
+    if (userResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "User not found" });
+    }
+    const username = userResults[0].username;
+
+    // Get the video title from video_id
+    const getVideoTitleQuery = "SELECT title FROM videos WHERE id = ?";
+    const [videos] = await db.promise().query(getVideoTitleQuery, [video_id]);
+    if (videos.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "Video not found" });
+    }
+    const videoTitle = videos[0].title;
+    console.log(username + " commented " + '"' + comment + '"' + " on " + videoTitle);
 
     // Get the video creator's ID
     const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
@@ -618,6 +654,16 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
         .promise()
         .query(createNotificationQuery, [commentCreatorId, userId, comment_id]);
     }
+    // Get the username from user_id
+    const getUsernameQuery = "SELECT username FROM users WHERE id = ?";
+    const [userResults] = await db.promise().query(getUsernameQuery, [userId]);
+    if (userResults.length === 0) {
+      db.destroy();
+      return res.status(404).json({ message: "User not found" });
+    }
+    const username = userResults[0].username;
+
+    console.log(`${username} posted a reply (${replyId}) that says "${reply}"`);
     db.destroy();
     return res
       .status(200)
@@ -921,7 +967,7 @@ function deleteFile(filePath) {
     if (err) {
       console.error(`Error deleting file ${filePath}: `, err);
     } else {
-      console.log(`File ${filePath} deleted successfully`);
+      // console.log(`File ${filePath} deleted successfully`);
     }
   });
 }

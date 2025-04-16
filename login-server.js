@@ -688,6 +688,8 @@ app.get("/comment-count/:fileName", (req, res) => {
       db.destroy();
       return res.status(400).json({ commentCount: 0, message: error.message });
     });
+
+
 });
 
 // Get total reply count for a specific comment
