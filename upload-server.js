@@ -312,9 +312,9 @@ app.get("/video-id-from-filename", async (req, res) => {
   }
 
   try {
-    console.log(fileName);
+    // console.log(fileName);
     const videoId = await getVideoIdFromFileName(db, fileName);
-    console.log(videoId);
+    // console.log(videoId);
     db.destroy();
     return res.status(200).json({ videoId });
   } catch (error) {
