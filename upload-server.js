@@ -553,7 +553,7 @@ app.post("/post-comment", authenticateToken, async (req, res) => {
       return res.status(404).json({ message: "Video not found" });
     }
     const videoTitle = videos[0].title;
-    console.log(username + " commented " + '"' + comment + '"' + " on " + videoTitle);
+    console.log(username + " commented " + '"' + comment + '"' + " on video: " + videoTitle);
 
     // Get the video creator's ID
     const getVideoCreatorQuery = "SELECT creator_id FROM videos WHERE id = ?";
@@ -676,7 +676,7 @@ app.post("/post-reply", authenticateToken, async (req, res) => {
     }
     const videoTitle = videoResults[0].title;
 
-    console.log(`${username} posted a reply (${replyId}) that says "${reply}" on ${videoTitle}`);
+    console.log(`${username} posted a reply (${replyId}) that says "${reply}" on video: ${videoTitle}`);
     db.destroy();
     return res
       .status(200)
