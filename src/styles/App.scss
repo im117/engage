@@ -355,8 +355,9 @@ body {
   padding: auto;
 }
 
-.comment-section {
+.comment-section-container {
   // position:fixed;
+  position: relative;
   max-width: 80vw;
   width: 400px;
   height: 20vh;
@@ -368,9 +369,36 @@ body {
   background-color: #000;
   border: 3px solid #ddd;
   border-radius: 10px;
-  padding: 10px;
-  overflow-y: scroll;
+
+  .comment-section {
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  .overlay-top {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 10px;
+    border-radius: 10px 10px 0px 0px;
+    background-image: linear-gradient(to top, transparent, rgba(0, 0, 0, 0.5));
+  }
+  
+  .overlay-bottom {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 10px;
+    border-radius: 0px 0px 10px 10px;
+    background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
+  }
 }
+
+
 
 .comment {
   background-color: #ddd;
@@ -381,6 +409,10 @@ body {
 .comment-box {
   background-color: white;
   padding-bottom: 15px; /* Padding inside each comment */
+  border-bottom: 2px solid black; /* Optional: Separator */
+  &:first-child {
+    border-radius: 4px 4px 0px 0px;
+  }
 }
 
 .reply-icon {

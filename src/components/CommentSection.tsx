@@ -28,8 +28,8 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
         displayComments: () => void,
         currentVideo: string,
         setNotification: Dispatch<SetStateAction<string>>,
-        replyLiked: { [key: number] : boolean },
-        setReplyLiked: Dispatch<SetStateAction<{ [key: number] : boolean }>>,
+        replyLiked: { [key: number]: boolean },
+        setReplyLiked: Dispatch<SetStateAction<{ [key: number]: boolean }>>,
     }) {
 
     // state
@@ -39,7 +39,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
     const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
     const [comment, setComment] = useState("");
-    const [replyLikeCount, setReplyLikeCount] = useState<{[key: number]: number}>({});
+    const [replyLikeCount, setReplyLikeCount] = useState<{ [key: number]: number }>({});
 
 
 
@@ -97,64 +97,64 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     }, [comments]);
 
     useEffect(() => {
-    const fetchReplyLikes = async () => {
-      if (!comments.length) return;
-      const token = localStorage.getItem("authToken");
-      const initialLikedState = { ...replyLiked };
-      const initialLikeCountState = { ...replyLikeCount };
+        const fetchReplyLikes = async () => {
+            if (!comments.length) return;
+            const token = localStorage.getItem("authToken");
+            const initialLikedState = { ...replyLiked };
+            const initialLikeCountState = { ...replyLikeCount };
 
-      for (const comment of comments) {
-        if (Array.isArray(comment.replies)) {
-          for (const reply of comment.replies) {
-            if (initialLikeCountState[reply.id] === undefined) {
-              try {
-                const likeCountResponse = await axios.get(
-                  `${loginServer}/reply-like-count`,
-                  {
-                    params: { reply_id: reply.id },
-                  }
-                );
-                initialLikeCountState[reply.id] =
-                  likeCountResponse.data.like_count;
-              } catch (err) {
-                console.error(
-                  `Error fetching like count for reply ${reply.id}:`,
-                  err
-                );
-                initialLikeCountState[reply.id] = 0;
-              }
+            for (const comment of comments) {
+                if (Array.isArray(comment.replies)) {
+                    for (const reply of comment.replies) {
+                        if (initialLikeCountState[reply.id] === undefined) {
+                            try {
+                                const likeCountResponse = await axios.get(
+                                    `${loginServer}/reply-like-count`,
+                                    {
+                                        params: { reply_id: reply.id },
+                                    }
+                                );
+                                initialLikeCountState[reply.id] =
+                                    likeCountResponse.data.like_count;
+                            } catch (err) {
+                                console.error(
+                                    `Error fetching like count for reply ${reply.id}:`,
+                                    err
+                                );
+                                initialLikeCountState[reply.id] = 0;
+                            }
+                        }
+                        if (
+                            loggedIn &&
+                            token &&
+                            initialLikedState[reply.id] === undefined
+                        ) {
+                            try {
+                                const likeStatusResponse = await axios.get(
+                                    `${loginServer}/fetch-reply-liked`,
+                                    {
+                                        params: { auth: token, reply_id: reply.id },
+                                    }
+                                );
+                                initialLikedState[reply.id] = likeStatusResponse.data.liked;
+                            } catch (err) {
+                                console.error(
+                                    `Error fetching like status for reply ${reply.id}:`,
+                                    err
+                                );
+                                initialLikedState[reply.id] = false;
+                            }
+                        }
+                    }
+                }
             }
-            if (
-              loggedIn &&
-              token &&
-              initialLikedState[reply.id] === undefined
-            ) {
-              try {
-                const likeStatusResponse = await axios.get(
-                  `${loginServer}/fetch-reply-liked`,
-                  {
-                    params: { auth: token, reply_id: reply.id },
-                  }
-                );
-                initialLikedState[reply.id] = likeStatusResponse.data.liked;
-              } catch (err) {
-                console.error(
-                  `Error fetching like status for reply ${reply.id}:`,
-                  err
-                );
-                initialLikedState[reply.id] = false;
-              }
+            if (loggedIn) {
+                setReplyLiked(initialLikedState);
             }
-          }
-        }
-      }
-      if (loggedIn) {
-        setReplyLiked(initialLikedState);
-      }
-      setReplyLikeCount(initialLikeCountState);
-    };
-    fetchReplyLikes();
-  }, [comments, loggedIn]);
+            setReplyLikeCount(initialLikeCountState);
+        };
+        fetchReplyLikes();
+    }, [comments, loggedIn]);
 
     const formatDate = (dateString: string | number | Date) => {
         const date = new Date(dateString);
@@ -276,288 +276,292 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     };
 
     async function handleReplyLike(reply_id: number) {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like replies.");
-      return;
+        if (!userID || !loggedIn) {
+            alert("You must be logged in to like replies.");
+            return;
+        }
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            alert("Authentication error. Please log in again.");
+            setLoggedIn(false);
+            return;
+        }
+        const fileName = currentVideo.split("/").pop();
+        if (!fileName) {
+            console.error("Error: fileName is missing.");
+            return;
+        }
+        try {
+            const response = await axios.post(
+                `${loginServer}/like-reply`,
+                { fileName, reply_id },
+                { params: { auth: token } }
+            );
+            setReplyLiked((prev) => {
+                const newState = { ...prev, [reply_id]: !prev[reply_id] };
+                setReplyLikeCount((prevCounts) => {
+                    const currentCount = prevCounts[reply_id] || 0;
+                    return {
+                        ...prevCounts,
+                        [reply_id]: newState[reply_id]
+                            ? currentCount + 1
+                            : Math.max(0, currentCount - 1),
+                    };
+                });
+                return newState;
+            });
+        } catch (error) {
+            console.error("Error liking/unliking reply:", error);
+            alert("Failed to process like. Please try again.");
+        }
     }
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-reply`,
-        { fileName, reply_id },
-        { params: { auth: token } }
-      );
-      setReplyLiked((prev) => {
-        const newState = { ...prev, [reply_id]: !prev[reply_id] };
-        setReplyLikeCount((prevCounts) => {
-          const currentCount = prevCounts[reply_id] || 0;
-          return {
-            ...prevCounts,
-            [reply_id]: newState[reply_id]
-              ? currentCount + 1
-              : Math.max(0, currentCount - 1),
-          };
-        });
-        return newState;
-      });
-    } catch (error) {
-      console.error("Error liking/unliking reply:", error);
-      alert("Failed to process like. Please try again.");
-    }
-  }
 
 
     return (
         <>
-            <div className="comment-section">
-                <div className="comments-list">
-                    {comments.map((c) => (
-                        <div
-                            key={c.id}
-                            className="comment-box"
-                            style={{ color: "black", textAlign: "left" }}
-                        >
-                            <strong>
-                                <a
-                                    onClick={() => handleUsernameClick(c.username)}
-                                    className="username-link"
-                                >
-                                    {c.username}
-                                </a>
-                            </strong>
-                            : <span>{c.comment}</span>
-                            <br />
-                            <span className="comment-date">
-                                ({formatDate(c.created_at)})
-                            </span>
+            <div className="comment-section-container">
+                <div className="comment-section">
+                    <div className="comments-list">
+                        {comments.map((c) => (
                             <div
-                                className="comment-like-section"
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                }}
+                                key={c.id}
+                                className="comment-box"
+                                style={{ /*color: "black", */ textAlign: "left" }}
                             >
-                                <button
-                                    onClick={() => handleCommentLike(c.id)}
+                                <strong>
+                                    <a
+                                        onClick={() => handleUsernameClick(c.username)}
+                                        className="username-link"
+                                    >
+                                        {c.username}
+                                    </a>
+                                </strong>
+                                : <span>{c.comment}</span>
+                                <br />
+                                <span className="comment-date">
+                                    ({formatDate(c.created_at)})
+                                </span>
+                                <div
+                                    className="comment-like-section"
                                     style={{
-                                        backgroundColor: "transparent",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        padding: "4px",
-                                        transition: "background-color 0.2s ease",
-                                        color: commentLiked[c.id] ? "red" : "black",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "5px",
                                     }}
                                 >
-                                    <i className="fa-regular fa-thumbs-up"></i>
-                                </button>
-                                <div id={`comment-count-${c.id}`}>
-                                    {commentLikeCount[c.id] !== undefined
-                                        ? commentLikeCount[c.id]
-                                        : ""}
+                                    <button
+                                        onClick={() => handleCommentLike(c.id)}
+                                        style={{
+                                            backgroundColor: "transparent",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            padding: "4px",
+                                            transition: "background-color 0.2s ease",
+                                            color: commentLiked[c.id] ? "red" : "black",
+                                        }}
+                                    >
+                                        <i className="fa-regular fa-thumbs-up"></i>
+                                    </button>
+                                    <div id={`comment-count-${c.id}`}>
+                                        {commentLikeCount[c.id] !== undefined
+                                            ? commentLikeCount[c.id]
+                                            : ""}
+                                    </div>
                                 </div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "8px",
+                                        width: "100%",
+                                    }}
+                                >
+                                    {/* Row for reply count and toggle button */}
+                                    {c.replies && c.replies.length > 0 && (
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "5px",
+                                                color: "black",
+                                            }}
+                                        >
+                                            <button
+                                                onClick={() => toggleRepliesVisible(c.id)}
+                                                style={{
+                                                    border: "none",
+                                                    background: "transparent",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                {repliesVisible[c.id] ? (
+                                                    <i
+                                                        className="fa-solid fa-chevron-up"
+                                                        style={{ fontSize: "1.2em", color: "#333" }}
+                                                    ></i>
+                                                ) : (
+                                                    <i
+                                                        className="fa-solid fa-chevron-down"
+                                                        style={{ fontSize: "1.2em", color: "#333" }}
+                                                    ></i>
+                                                )}
+                                            </button>
+                                            <span className="reply-count">
+                                                {c.replyCount}{" "}
+                                                {c.replyCount === 1 ? "reply" : "replies"}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Reply button on its own line */}
+                                    {loggedIn && (
+                                        <div style={{ width: "100%" }}>
+                                            <div style={{ marginBottom: "8px" }}>
+                                                <button onClick={() => toggleReplyInput(c.id)}>
+                                                    <i className="fa-regular fa-comment-dots"></i>
+                                                </button>
+                                            </div>
+
+                                            {/* Input and send button */}
+                                            {replyVisible[c.id] && (
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        flexDirection: "row",
+                                                        width: "100%",
+                                                        gap: "8px",
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        value={replyInputs[c.id] || ""}
+                                                        onChange={(e) =>
+                                                            setReplyInputs((prev) => ({
+                                                                ...prev,
+                                                                [c.id]: e.target.value,
+                                                            }))
+                                                        }
+                                                        placeholder="Write a reply..."
+                                                        style={{
+                                                            padding: "8px",
+                                                            width: "80%",
+                                                            boxSizing: "border-box",
+                                                        }}
+                                                    />
+
+                                                    <div
+                                                        style={{
+                                                            display: "flex",
+                                                            justifyContent: "flex-end",
+                                                        }}
+                                                    >
+                                                        <button onClick={() => postReply(c.id)}>
+                                                            <i className="fa-regular fa-paper-plane"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                {repliesVisible[c.id] &&
+                                    c.replies &&
+                                    c.replies.length > 0 && (
+                                        <div style={{ marginLeft: "20px" }}>
+                                            {c.replies.map((r) => (
+                                                <div>
+                                                    <div>
+                                                        <p key={r.id}>
+                                                            <strong>
+                                                                <a
+                                                                    onClick={() =>
+                                                                        handleUsernameClick(r.username)
+                                                                    }
+                                                                    className="username-link"
+                                                                >
+                                                                    {r.username}
+                                                                </a>
+                                                            </strong>
+                                                            : {r.reply}
+                                                            <br />
+                                                            <span className="comment-date">
+                                                                ({formatDate(r.created_at)})
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            display: "flex",
+                                                            gap: "3px",
+                                                            position: "relative",
+                                                            top: "-10px",
+                                                            marginBottom: "-10px",
+                                                        }}
+                                                    >
+                                                        <button
+                                                            onClick={() => handleReplyLike(r.id)}
+                                                            style={{
+                                                                backgroundColor: "transparent",
+                                                                border: "none",
+                                                                cursor: "pointer",
+                                                                color: replyLiked[r.id]
+                                                                    ? "red"
+                                                                    : "black",
+                                                            }}
+                                                        >
+                                                            <i className="fa-regular fa-thumbs-up"></i>
+                                                        </button>
+                                                        <div id={`like-count-${r.id}`}>
+                                                            {replyLikeCount[r.id] !== undefined
+                                                                ? replyLikeCount[r.id]
+                                                                : ""}
+                                                        </div>{" "}
+                                                        {/* Unique ID for like count */}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                             </div>
+                        ))}
+                    </div>
+                    {loggedIn && (
+                        <div
+                            //className="comment-input-div"
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                width: "100%",
+                                gap: "8px",
+                            }}
+                        >
+                            <input
+                                //id="comment-input"
+                                type="text"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Write a comment..."
+                                style={{
+                                    padding: "5px",
+                                    width: "100%",
+                                    boxSizing: "border-box",
+                                }}
+                            ></input>
                             <div
                                 style={{
                                     display: "flex",
-                                    flexDirection: "column",
-                                    gap: "8px",
-                                    width: "100%",
+                                    justifyContent: "flex-end",
                                 }}
                             >
-                                {/* Row for reply count and toggle button */}
-                                {c.replies && c.replies.length > 0 && (
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "5px",
-                                            color: "black",
-                                        }}
-                                    >
-                                        <button
-                                            onClick={() => toggleRepliesVisible(c.id)}
-                                            style={{
-                                                border: "none",
-                                                background: "transparent",
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            {repliesVisible[c.id] ? (
-                                                <i
-                                                    className="fa-solid fa-chevron-up"
-                                                    style={{ fontSize: "1.2em", color: "#333" }}
-                                                ></i>
-                                            ) : (
-                                                <i
-                                                    className="fa-solid fa-chevron-down"
-                                                    style={{ fontSize: "1.2em", color: "#333" }}
-                                                ></i>
-                                            )}
-                                        </button>
-                                        <span className="reply-count">
-                                            {c.replyCount}{" "}
-                                            {c.replyCount === 1 ? "reply" : "replies"}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {/* Reply button on its own line */}
-                                {loggedIn && (
-                                    <div style={{ width: "100%" }}>
-                                        <div style={{ marginBottom: "8px" }}>
-                                            <button onClick={() => toggleReplyInput(c.id)}>
-                                                <i className="fa-regular fa-comment-dots"></i>
-                                            </button>
-                                        </div>
-
-                                        {/* Input and send button */}
-                                        {replyVisible[c.id] && (
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    flexDirection: "row",
-                                                    width: "100%",
-                                                    gap: "8px",
-                                                }}
-                                            >
-                                                <input
-                                                    type="text"
-                                                    value={replyInputs[c.id] || ""}
-                                                    onChange={(e) =>
-                                                        setReplyInputs((prev) => ({
-                                                            ...prev,
-                                                            [c.id]: e.target.value,
-                                                        }))
-                                                    }
-                                                    placeholder="Write a reply..."
-                                                    style={{
-                                                        padding: "8px",
-                                                        width: "80%",
-                                                        boxSizing: "border-box",
-                                                    }}
-                                                />
-
-                                                <div
-                                                    style={{
-                                                        display: "flex",
-                                                        justifyContent: "flex-end",
-                                                    }}
-                                                >
-                                                    <button onClick={() => postReply(c.id)}>
-                                                        <i className="fa-regular fa-paper-plane"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <button onClick={postComment}>
+                                    <i className="fa-solid fa-paper-plane"></i>
+                                </button>
                             </div>
-                            {repliesVisible[c.id] &&
-                                c.replies &&
-                                c.replies.length > 0 && (
-                                    <div style={{ marginLeft: "20px" }}>
-                                        {c.replies.map((r) => (
-                                            <div>
-                                                <div>
-                                                    <p key={r.id}>
-                                                        <strong>
-                                                            <a
-                                                                onClick={() =>
-                                                                    handleUsernameClick(r.username)
-                                                                }
-                                                                className="username-link"
-                                                            >
-                                                                {r.username}
-                                                            </a>
-                                                        </strong>
-                                                        : {r.reply}
-                                                        <br />
-                                                        <span className="comment-date">
-                                                            ({formatDate(r.created_at)})
-                                                        </span>
-                                                    </p>
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        display: "flex",
-                                                        gap: "3px",
-                                                        position: "relative",
-                                                        top: "-10px",
-                                                        marginBottom: "-10px",
-                                                    }}
-                                                >
-                                                    <button
-                                                        onClick={() => handleReplyLike(r.id)}
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            cursor: "pointer",
-                                                            color: replyLiked[r.id]
-                                                                ? "red"
-                                                                : "black",
-                                                        }}
-                                                    >
-                                                        <i className="fa-regular fa-thumbs-up"></i>
-                                                    </button>
-                                                    <div id={`like-count-${r.id}`}>
-                                                        {replyLikeCount[r.id] !== undefined
-                                                            ? replyLikeCount[r.id]
-                                                            : ""}
-                                                    </div>{" "}
-                                                    {/* Unique ID for like count */}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                         </div>
-                    ))}
+                    )}
                 </div>
-                {loggedIn && (
-                    <div
-                        //className="comment-input-div"
-                        style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            width: "100%",
-                            gap: "8px",
-                        }}
-                    >
-                        <input
-                            //id="comment-input"
-                            type="text"
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Write a comment..."
-                            style={{
-                                padding: "5px",
-                                width: "100%",
-                                boxSizing: "border-box",
-                            }}
-                        ></input>
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                            }}
-                        >
-                            <button onClick={postComment}>
-                                <i className="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <div className="overlay-top"></div>
+                <div className="overlay-bottom"></div>
             </div>
         </>
 
