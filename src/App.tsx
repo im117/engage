@@ -620,7 +620,7 @@ function Home() {
                   fileName={currentVideo.split("/").pop() || ""}
                   loggedIn={userID !== 0}
                 />
-                {(userID) && (role != "user") &&(
+                {(userID != 0) && (role != "user") &&(
                 <>
                 <DeleteVideo />
                 </>

@@ -411,7 +411,7 @@ export default function CommentSection({ comments, handleUsernameClick, displayC
                                     )}
 
                                     {/* Reply button on its own line */}
-                                    {userID && (
+                                    {userID != 0 && (
                                         <div style={{ width: "100%" }}>
                                             <div style={{ marginBottom: "8px" }}>
                                                 <button onClick={() => toggleReplyInput(c.id)}>
@@ -522,7 +522,7 @@ export default function CommentSection({ comments, handleUsernameClick, displayC
                             </div>
                         ))}
                     </div>
-                    {userID && (
+                    {userID != 0 && (
                         <div
                             //className="comment-input-div"
                             style={{
