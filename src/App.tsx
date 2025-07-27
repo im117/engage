@@ -23,6 +23,8 @@ import Follow from "./components/follow.tsx"; // Import the Follow component
 import { color } from "framer-motion";
 import CommentSection, { CommentType } from "./components/CommentSection.tsx";
 
+
+
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob("../media/*trans.mp4");
 
@@ -120,9 +122,8 @@ function Home() {
   const [comments, setComments] = useState<CommentType[]>([]);
   
 
-  const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const [userID, setUserID] = useState(0);
+  const [userID, setUserID] = useState<number>(0);
   const [role, setRole] = useState("user")
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -150,7 +151,7 @@ function Home() {
 
   function DeleteVideo() {
     async function handleDelete() {
-      if (!loggedIn) {
+      if (!userID) {
         alert("You must be logged in to delete videos.");
         return;
       }
@@ -158,7 +159,7 @@ function Home() {
       const token = localStorage.getItem("authToken");
       if (!token) {
         alert("Authentication error. Please log in again.");
-        setLoggedIn(false);
+        setUserID(0);
         return;
       }
 
@@ -250,7 +251,7 @@ function Home() {
       // console.log("Video changed to:", currentVideo.split("/").pop());
       getViewCount();
       getCommentCount();
-      if (loggedIn && userID) {
+      if (userID) {
         checkIfLiked();
       }
       displayComments();
@@ -287,7 +288,6 @@ function Home() {
           params: { auth: token },
         });
         setUserID(response.data.userId);
-        setLoggedIn(true);
         return response.data.userId;
       } catch (error) {
         console.error("Error fetching user ID:", error);
@@ -301,7 +301,7 @@ function Home() {
 
 
   async function assignUsername() {
-    if (loggedIn) {
+    if (userID) {
       const name = await getUsername(userID);
       setUsername(name);
     }
@@ -327,7 +327,7 @@ function Home() {
   }, [userID]);
 
   async function checkIfLiked() {
-    if (!loggedIn) {
+    if (!userID) {
       setLiked(false);
       return;
     }
@@ -396,7 +396,7 @@ function Home() {
         console.error("Error: fileName is missing.");
         return;
       }
-      if (loggedIn) {
+      if (userID) {
         const token = localStorage.getItem("authToken");
         if (!token) return;
         await axios.post(
@@ -550,7 +550,7 @@ function Home() {
                 fileName={
                   currentVideo ? currentVideo.split("/").pop() || "" : ""
                 }
-                loggedIn={loggedIn}
+                loggedIn={userID != 0}
                 userId={userID}
                 initialLikeCount={likeCount}
                 initialLiked={liked}
@@ -618,9 +618,9 @@ function Home() {
               
                 <Follow
                   fileName={currentVideo.split("/").pop() || ""}
-                  loggedIn={loggedIn}
+                  loggedIn={userID !== 0}
                 />
-                {(loggedIn) && (role != "user") &&(
+                {(userID != 0) && (role != "user") &&(
                 <>
                 <DeleteVideo />
                 </>
@@ -654,10 +654,9 @@ function Home() {
             {showComments && (
               <CommentSection
               userID={userID}
+              setUserID={setUserID}
               comments={comments}
               handleUsernameClick={(username) => navigate(`/profile/${username}`)}
-              loggedIn={loggedIn}
-              setLoggedIn={setLoggedIn}
               displayComments={displayComments}
               currentVideo={currentVideo}
               setNotification={setNotification}

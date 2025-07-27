@@ -18,13 +18,12 @@ export interface ReplyType {
 }
 
 // TODO port some of the state sharing over to context
-export default function CommentSection({ comments, handleUsernameClick, loggedIn, setLoggedIn, displayComments, userID, currentVideo, setNotification, replyLiked, setReplyLiked }:
+export default function CommentSection({ comments, handleUsernameClick, displayComments, userID, setUserID, currentVideo, setNotification, replyLiked, setReplyLiked }:
     {
         comments: CommentType[],
         handleUsernameClick: (username: string) => void,
-        loggedIn: boolean,
-        setLoggedIn: Dispatch<SetStateAction<boolean>>
         userID: number,
+        setUserID: Dispatch<SetStateAction<number>>
         displayComments: () => void,
         currentVideo: string,
         setNotification: Dispatch<SetStateAction<string>>,
@@ -40,8 +39,6 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>({});
     const [comment, setComment] = useState("");
     const [replyLikeCount, setReplyLikeCount] = useState<{ [key: number]: number }>({});
-
-
 
 
     useEffect(() => {
@@ -70,7 +67,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                         initialLikeCountState[comment.id] = 0;
                     }
                 }
-                if (loggedIn && token && initialLikedState[comment.id] === undefined) {
+                if (userID != undefined && token && initialLikedState[comment.id] === undefined) {
                     try {
                         const likeStatusResponse = await axios.get(
                             `${loginServer}/fetch-comment-liked`,
@@ -88,7 +85,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                     }
                 }
             }
-            if (loggedIn) {
+            if (userID != undefined) {
                 setCommentLiked(initialLikedState);
             }
             setCommentLikeCount(initialLikeCountState);
@@ -125,7 +122,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                             }
                         }
                         if (
-                            loggedIn &&
+                            userID &&
                             token &&
                             initialLikedState[reply.id] === undefined
                         ) {
@@ -148,13 +145,13 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                     }
                 }
             }
-            if (loggedIn) {
+            if (userID) {
                 setReplyLiked(initialLikedState);
             }
             setReplyLikeCount(initialLikeCountState);
         };
         fetchReplyLikes();
-    }, [comments, loggedIn]);
+    }, [comments, userID]);
 
     const formatDate = (dateString: string | number | Date) => {
         const date = new Date(dateString);
@@ -204,14 +201,14 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     };
 
     async function handleCommentLike(comment_id: number) {
-        if (!userID || !loggedIn) {
+        if (!userID) {
             alert("You must be logged in to like comments.");
             return;
         }
         const token = localStorage.getItem("authToken");
         if (!token) {
             alert("Authentication error. Please log in again.");
-            setLoggedIn(false);
+            setUserID(0);
             return;
         }
         const fileName = currentVideo.split("/").pop();
@@ -276,14 +273,14 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
     };
 
     async function handleReplyLike(reply_id: number) {
-        if (!userID || !loggedIn) {
+        if (!userID) {
             alert("You must be logged in to like replies.");
             return;
         }
         const token = localStorage.getItem("authToken");
         if (!token) {
             alert("Authentication error. Please log in again.");
-            setLoggedIn(false);
+            setUserID(0);
             return;
         }
         const fileName = currentVideo.split("/").pop();
@@ -414,7 +411,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                                     )}
 
                                     {/* Reply button on its own line */}
-                                    {loggedIn && (
+                                    {userID != 0 && (
                                         <div style={{ width: "100%" }}>
                                             <div style={{ marginBottom: "8px" }}>
                                                 <button onClick={() => toggleReplyInput(c.id)}>
@@ -525,7 +522,7 @@ export default function CommentSection({ comments, handleUsernameClick, loggedIn
                             </div>
                         ))}
                     </div>
-                    {loggedIn && (
+                    {userID != 0 && (
                         <div
                             //className="comment-input-div"
                             style={{
