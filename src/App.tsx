@@ -18,19 +18,19 @@ import TopBar from "./components/TopBar.tsx";
 import RecoverAccount from "./recoverAccount.tsx";
 import UserProfile from "./userProfile.tsx";
 import CombinedSearch from "./combinedSearch.tsx";
-import UsernameLink from "./components/UsernameLink";
 import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
 import { color } from "framer-motion";
+import CommentSection, { CommentType } from "./components/CommentSection.tsx";
 
 // Dynamically import all video files from the media folder
 const videos = import.meta.glob("../media/*trans.mp4");
 
-let uploadServer = "http://localhost:3001";
+export let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
   uploadServer = import.meta.env.VITE_UPLOAD_SERVER;
 }
-let loginServer = "http://localhost:8081";
+export let loginServer = "http://localhost:8081";
 if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
   loginServer = import.meta.env.VITE_LOGIN_SERVER;
 }
@@ -99,7 +99,6 @@ function Home() {
   const [videoIndex, setVideoIndex] = useState(initState);
   const [currentVideo, setCurrentVideo] = useState("");
   const [notification, setNotification] = useState("");
-  const [comment, setComment] = useState("");
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
 
@@ -117,28 +116,9 @@ function Home() {
 
   
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
-  interface CommentType {
-    id: number;
-    username: string;
-    comment: string;
-    created_at: string;
-    replies?: ReplyType[];
-    replyCount?: number;
-  }
-  interface ReplyType {
-    id: number;
-    username: string;
-    reply: string;
-    created_at: string;
-  }
+  
   const [comments, setComments] = useState<CommentType[]>([]);
-  const [replyInputs, setReplyInputs] = useState<{ [key: number]: string }>({});
-  const [replyVisible, setReplyVisible] = useState<{ [key: number]: boolean }>(
-    {}
-  );
-  const [repliesVisible, setRepliesVisible] = useState<{
-    [key: number]: boolean;
-  }>({});
+  
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -149,18 +129,10 @@ function Home() {
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
-  const [replyLikeCount, setReplyLikeCount] = useState<{
-    [key: number]: number;
-  }>({});
+  
   const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
   const [replyCount, setReplyCount] = useState(0);
 
-  const [commentLikeCount, setCommentLikeCount] = useState<{
-    [key: number]: number;
-  }>({});
-  const [commentLiked, setCommentLiked] = useState<{ [key: number]: boolean }>(
-    {}
-  );
   const [commentCount, setCommentCount] = useState(0);
 
   const navigate = useNavigate();
@@ -285,117 +257,9 @@ function Home() {
     }
   }, [currentVideo]);
 
-  useEffect(() => {
-    const fetchReplyLikes = async () => {
-      if (!comments.length) return;
-      const token = localStorage.getItem("authToken");
-      const initialLikedState = { ...replyLiked };
-      const initialLikeCountState = { ...replyLikeCount };
+  
 
-      for (const comment of comments) {
-        if (Array.isArray(comment.replies)) {
-          for (const reply of comment.replies) {
-            if (initialLikeCountState[reply.id] === undefined) {
-              try {
-                const likeCountResponse = await axios.get(
-                  `${loginServer}/reply-like-count`,
-                  {
-                    params: { reply_id: reply.id },
-                  }
-                );
-                initialLikeCountState[reply.id] =
-                  likeCountResponse.data.like_count;
-              } catch (err) {
-                console.error(
-                  `Error fetching like count for reply ${reply.id}:`,
-                  err
-                );
-                initialLikeCountState[reply.id] = 0;
-              }
-            }
-            if (
-              loggedIn &&
-              token &&
-              initialLikedState[reply.id] === undefined
-            ) {
-              try {
-                const likeStatusResponse = await axios.get(
-                  `${loginServer}/fetch-reply-liked`,
-                  {
-                    params: { auth: token, reply_id: reply.id },
-                  }
-                );
-                initialLikedState[reply.id] = likeStatusResponse.data.liked;
-              } catch (err) {
-                console.error(
-                  `Error fetching like status for reply ${reply.id}:`,
-                  err
-                );
-                initialLikedState[reply.id] = false;
-              }
-            }
-          }
-        }
-      }
-      if (loggedIn) {
-        setReplyLiked(initialLikedState);
-      }
-      setReplyLikeCount(initialLikeCountState);
-    };
-    fetchReplyLikes();
-  }, [comments, loggedIn]);
-
-  useEffect(() => {
-    const fetchCommentLikes = async () => {
-      if (!comments.length) return;
-      const token = localStorage.getItem("authToken");
-      const initialLikedState = { ...commentLiked };
-      const initialLikeCountState = { ...commentLikeCount };
-
-      for (const comment of comments) {
-        if (initialLikeCountState[comment.id] === undefined) {
-          try {
-            const likeCountResponse = await axios.get(
-              `${loginServer}/comment-like-count`,
-              {
-                params: { comment_id: comment.id },
-              }
-            );
-            initialLikeCountState[comment.id] =
-              likeCountResponse.data.like_count;
-          } catch (err) {
-            console.error(
-              `Error fetching like count for comment ${comment.id}:`,
-              err
-            );
-            initialLikeCountState[comment.id] = 0;
-          }
-        }
-        if (loggedIn && token && initialLikedState[comment.id] === undefined) {
-          try {
-            const likeStatusResponse = await axios.get(
-              `${loginServer}/fetch-comment-liked`,
-              {
-                params: { auth: token, comment_id: comment.id },
-              }
-            );
-            initialLikedState[comment.id] = likeStatusResponse.data.liked;
-          } catch (err) {
-            console.error(
-              `Error fetching like status for comment ${comment.id}:`,
-              err
-            );
-            initialLikedState[comment.id] = false;
-          }
-        }
-      }
-      if (loggedIn) {
-        setCommentLiked(initialLikedState);
-      }
-      setCommentLikeCount(initialLikeCountState);
-    };
-    fetchCommentLikes();
-  }, [comments, loggedIn]);
+  
 
   const handleNext = () => {
     setVideoIndex(
@@ -550,118 +414,9 @@ function Home() {
     }
   }
 
-  async function handleReplyLike(reply_id: number) {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like replies.");
-      return;
-    }
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-reply`,
-        { fileName, reply_id },
-        { params: { auth: token } }
-      );
-      setReplyLiked((prev) => {
-        const newState = { ...prev, [reply_id]: !prev[reply_id] };
-        setReplyLikeCount((prevCounts) => {
-          const currentCount = prevCounts[reply_id] || 0;
-          return {
-            ...prevCounts,
-            [reply_id]: newState[reply_id]
-              ? currentCount + 1
-              : Math.max(0, currentCount - 1),
-          };
-        });
-        return newState;
-      });
-    } catch (error) {
-      console.error("Error liking/unliking reply:", error);
-      alert("Failed to process like. Please try again.");
-    }
-  }
+  
 
-  async function handleCommentLike(comment_id: number) {
-    if (!userID || !loggedIn) {
-      alert("You must be logged in to like comments.");
-      return;
-    }
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Authentication error. Please log in again.");
-      setLoggedIn(false);
-      return;
-    }
-    const fileName = currentVideo.split("/").pop();
-    if (!fileName) {
-      console.error("Error: fileName is missing.");
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `${loginServer}/like-comment`,
-        { fileName, comment_id },
-        { params: { auth: token } }
-      );
-      setCommentLiked((prev) => {
-        const newState = { ...prev, [comment_id]: !prev[comment_id] };
-        setCommentLikeCount((prevCounts) => {
-          const currentCount = prevCounts[comment_id] || 0;
-          return {
-            ...prevCounts,
-            [comment_id]: newState[comment_id]
-              ? currentCount + 1
-              : Math.max(0, currentCount - 1),
-          };
-        });
-        return newState;
-      });
-    } catch (error) {
-      console.error("Error liking/unliking comment:", error);
-      alert("Failed to process like. Please try again.");
-    }
-  }
-
-  const postComment = async () => {
-    if (comment.trim() === "") return;
-    try {
-      const token = localStorage.getItem("authToken");
-      const fileName = currentVideo.split("/").pop();
-      const videoRes = await axios.get(`${uploadServer}/video`, {
-        params: { fileName },
-      });
-      if (!videoRes.data || !videoRes.data.id) {
-        setNotification("⚠️ Video not found.");
-        setTimeout(() => setNotification(""), 3000);
-        return;
-      }
-      const videoId = videoRes.data.id;
-      await axios.post(
-        `${uploadServer}/post-comment`,
-        { video_id: videoId, comment },
-        { headers: { Authorization: token } }
-      );
-      setComment("");
-      setNotification("✅ Successfully commented!");
-      setTimeout(() => setNotification(""), 3000);
-
-      displayComments();
-    } catch (error) {
-      console.error("Error posting comment:", error);
-      setNotification("⚠️ Failed to post comment.");
-      setTimeout(() => setNotification(""), 3000);
-    }
-  };
+  
 
   const handleVideoStart = () => {
     recordView();
@@ -736,39 +491,11 @@ function Home() {
     }
   }
 
-  async function postReply(commentId: number) {
-    const replyText = replyInputs[commentId];
-    if (!replyText || replyText.trim() === "") return;
-    try {
-      const token = localStorage.getItem("authToken");
-      await axios.post(
-        `${uploadServer}/post-reply`,
-        { comment_id: commentId, reply: replyText },
-        { headers: { Authorization: token } }
-      );
-      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-      displayComments();
-    } catch (error) {
-      console.error("Error posting reply:", error);
-    }
-    toggleReplyInput(commentId);
-  }
+  
 
-  // Toggle visibility of replies for a specific comment.
-  const toggleRepliesVisible = (commentId: number) => {
-    setRepliesVisible((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
+  
 
-  // Toggle the reply input for a specific comment.
-  const toggleReplyInput = (commentId: number) => {
-    setReplyVisible((prev) => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
+  
 
   useEffect(() => {
     if (currentVideo) {
@@ -796,18 +523,7 @@ function Home() {
       }
     }
   };
-  const formatDate = (dateString: string | number | Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "numeric",
-      hour: "numeric",
-      day: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZoneName: "short",
-    });
-  };
+  
 
   return (
     <div className="app">
@@ -936,248 +652,18 @@ function Home() {
               </>
             )}
             {showComments && (
-              <>
-                <div className="comment-section">
-                  <div className="comments-list">
-                    {comments.map((c) => (
-                      <div
-                        key={c.id}
-                        className="comment-box"
-                        style={{ color: "black", textAlign: "left" }}
-                      >
-                        <strong>
-                          <a
-                            onClick={() => navigate(`/profile/${c.username}`)}
-                            className="username-link"
-                          >
-                            {c.username}
-                          </a>
-                        </strong>
-                        : <span>{c.comment}</span>
-                        <br />
-                        <span className="comment-date">
-                          ({formatDate(c.created_at)})
-                        </span>
-                        <div
-                          className="comment-like-section"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                        >
-                          <button
-                            onClick={() => handleCommentLike(c.id)}
-                            style={{
-                              backgroundColor: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                              padding: "4px",
-                              transition: "background-color 0.2s ease",
-                              color: commentLiked[c.id] ? "red" : "black",
-                            }}
-                          >
-                            <i className="fa-regular fa-thumbs-up"></i>
-                          </button>
-                          <div id={`comment-count-${c.id}`}>
-                            {commentLikeCount[c.id] !== undefined
-                              ? commentLikeCount[c.id]
-                              : ""}
-                          </div>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "8px",
-                            width: "100%",
-                          }}
-                        >
-                          {/* Row for reply count and toggle button */}
-                          {c.replies && c.replies.length > 0 && (
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "5px",
-                                color: "black",
-                              }}
-                            >
-                              <button
-                                onClick={() => toggleRepliesVisible(c.id)}
-                                style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                {repliesVisible[c.id] ? (
-                                  <i
-                                    className="fa-solid fa-chevron-up"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
-                                  ></i>
-                                ) : (
-                                  <i
-                                    className="fa-solid fa-chevron-down"
-                                    style={{ fontSize: "1.2em", color: "#333" }}
-                                  ></i>
-                                )}
-                              </button>
-                              <span className="reply-count">
-                                {c.replyCount}{" "}
-                                {c.replyCount === 1 ? "reply" : "replies"}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Reply button on its own line */}
-                          {loggedIn && (
-                            <div style={{ width: "100%" }}>
-                              <div style={{ marginBottom: "8px" }}>
-                                <button onClick={() => toggleReplyInput(c.id)}>
-                                  <i className="fa-regular fa-comment-dots"></i>
-                                </button>
-                              </div>
-
-                              {/* Input and send button */}
-                              {replyVisible[c.id] && (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    width: "100%",
-                                    gap: "8px",
-                                  }}
-                                >
-                                  <input
-                                    type="text"
-                                    value={replyInputs[c.id] || ""}
-                                    onChange={(e) =>
-                                      setReplyInputs((prev) => ({
-                                        ...prev,
-                                        [c.id]: e.target.value,
-                                      }))
-                                    }
-                                    placeholder="Write a reply..."
-                                    style={{
-                                      padding: "8px",
-                                      width: "80%",
-                                      boxSizing: "border-box",
-                                    }}
-                                  />
-
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "flex-end",
-                                    }}
-                                  >
-                                    <button onClick={() => postReply(c.id)}>
-                                      <i className="fa-regular fa-paper-plane"></i>
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {repliesVisible[c.id] &&
-                          c.replies &&
-                          c.replies.length > 0 && (
-                            <div style={{ marginLeft: "20px" }}>
-                              {c.replies.map((r) => (
-                                <div>
-                                  <div>
-                                    <p key={r.id}>
-                                      <strong>
-                                        <a
-                                          onClick={() =>
-                                            navigate(`/profile/${r.username}`)
-                                          }
-                                          className="username-link"
-                                        >
-                                          {r.username}
-                                        </a>
-                                      </strong>
-                                      : {r.reply}
-                                      <br />
-                                      <span className="comment-date">
-                                        ({formatDate(r.created_at)})
-                                      </span>
-                                    </p>
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: "3px",
-                                      position: "relative",
-                                      top: "-10px",
-                                      marginBottom: "-10px",
-                                    }}
-                                  >
-                                    <button
-                                      onClick={() => handleReplyLike(r.id)}
-                                      style={{
-                                        backgroundColor: "transparent",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        color: replyLiked[r.id]
-                                          ? "red"
-                                          : "black",
-                                      }}
-                                    >
-                                      <i className="fa-regular fa-thumbs-up"></i>
-                                    </button>
-                                    <div id={`like-count-${r.id}`}>
-                                      {replyLikeCount[r.id] !== undefined
-                                        ? replyLikeCount[r.id]
-                                        : ""}
-                                    </div>{" "}
-                                    {/* Unique ID for like count */}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                      </div>
-                    ))}
-                  </div>
-                  {loggedIn && (
-                    <div
-                      //className="comment-input-div"
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        width: "100%",
-                        gap: "8px",
-                      }}
-                    >
-                      <input
-                        //id="comment-input"
-                        type="text"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder="Write a comment..."
-                        style={{
-                          padding: "5px",
-                          width: "100%",
-                          boxSizing: "border-box",
-                        }}
-                      ></input>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                        }}
-                      >
-                        <button onClick={postComment}>
-                          <i className="fa-solid fa-paper-plane"></i>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
+              <CommentSection
+              userID={userID}
+              comments={comments}
+              handleUsernameClick={(username) => navigate(`/profile/${username}`)}
+              loggedIn={loggedIn}
+              setLoggedIn={setLoggedIn}
+              displayComments={displayComments}
+              currentVideo={currentVideo}
+              setNotification={setNotification}
+              replyLiked={replyLiked}
+              setReplyLiked={setReplyLiked}
+              />
             )}
             {notification && (
               <div
