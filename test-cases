@@ -1,0 +1,7 @@
+- comments section
+- video deletion
+
+
+# things to change
+- video deletion does not work unless the user's role in the database is 'developer'. we should keep that in mind when showing the delete button
+- error fetching video into after successful video deletion

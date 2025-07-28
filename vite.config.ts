@@ -11,7 +11,7 @@ export default defineConfig({
   base: "./",
   root: "./",
   server: {
-    allowedHosts: ["ngage.lol", "localhost", "upload.ngage.lol", "login.ngage.lol"],
+    allowedHosts: ["ngage.lol", "localhost", "upload.ngage.lol", "login.ngage.lol", "isaacarch"],
     hmr: {
       overlay: process.env.VITE_HMR_OVERLAY === "true"
     }

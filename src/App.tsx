@@ -1,7 +1,6 @@
 import "./styles/App.scss"; // Import global and App-specific styles
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Search from "./components/search.tsx";
 import Login from "./login.tsx";
 import Signup from "./signup.tsx";
 import PrivateRoute from "./PrivateRoute";
@@ -20,7 +19,6 @@ import UserProfile from "./userProfile.tsx";
 import CombinedSearch from "./combinedSearch.tsx";
 import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
-import { color } from "framer-motion";
 import CommentSection, { CommentType } from "./components/CommentSection.tsx";
 
 
@@ -95,8 +93,6 @@ if (token && isTokenExpired(token)) {
 }
 
 function Home() {
-  const authToken = localStorage.getItem("authToken") || ""; // Retrieve the token from localStorage
-
   const initState = filteredArray.length < 2 ? 0 : 1;
   const [videoIndex, setVideoIndex] = useState(initState);
   const [currentVideo, setCurrentVideo] = useState("");
@@ -104,35 +100,20 @@ function Home() {
   // Add a new state for showing/hiding comments
   const [showComments, setShowComments] = useState(false);
 
-  interface Notification {
-    id: number;
-    is_read: boolean;
-    [key: string]: any;
-  }
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  
-
   
   // Comment type now includes an id, username, comment text, created_at, and optional replies.
   
   const [comments, setComments] = useState<CommentType[]>([]);
   
 
-  const [username, setUsername] = useState("");
   const [userID, setUserID] = useState<number>(0);
   const [role, setRole] = useState("user")
-  const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [viewCount, setViewCount] = useState(0);
   const [viewRecorded, setViewRecorded] = useState(false);
 
   
   const [replyLiked, setReplyLiked] = useState<{ [key: number]: boolean }>({});
-  const [replyCount, setReplyCount] = useState(0);
 
   const [commentCount, setCommentCount] = useState(0);
 
@@ -143,8 +124,6 @@ function Home() {
   const [currentVideoDesc, setCurrentVideoDesc] = useState("");
   const [currentVideoDate, setCurrentVideoDate] = useState("");
   const [currentVideoCreatorName, setCurrentVideoCreatorName] = useState("");
-  // New state for storing the creator ID (for the Follow button)
-  const [currentVideoCreatorId, setCurrentVideoCreatorId] = useState(0);
 
   // Extract fileName from currentVideo
   const fileName = currentVideo.split("/").pop() || "";
@@ -213,8 +192,6 @@ function Home() {
           fileName: fileName, // Use extracted fileName
         },
       });
-      // Set creator id for Follow button
-      setCurrentVideoCreatorId(response.data.creator_id);
       setCurrentVideoTitle(response.data.title);
       setCurrentVideoDesc(response.data.description);
       const username = await getUsername(response.data.creator_id);
@@ -298,15 +275,6 @@ function Home() {
     }
   }
   getLoggedInUserId();
-
-
-  async function assignUsername() {
-    if (userID) {
-      const name = await getUsername(userID);
-      setUsername(name);
-    }
-  }
-  assignUsername();
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -491,12 +459,6 @@ function Home() {
     }
   }
 
-  
-
-  
-
-  
-
   useEffect(() => {
     if (currentVideo) {
       setVideoInfo();
@@ -552,7 +514,6 @@ function Home() {
                 }
                 loggedIn={userID != 0}
                 userId={userID}
-                initialLikeCount={likeCount}
                 initialLiked={liked}
                 loginServer={loginServer}
               />

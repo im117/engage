@@ -408,6 +408,7 @@ body {
 
 .comment-box {
   background-color: white;
+  color: rgba(0, 0, 0, 0.9);
   padding-bottom: 15px; /* Padding inside each comment */
   border-bottom: 2px solid black; /* Optional: Separator */
   &:first-child {
