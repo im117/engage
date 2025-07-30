@@ -1,10 +1,10 @@
 import "./styles/User.scss"; // Import styles for component layout
 import { useState, useEffect, useRef } from "react"; // Added useRef for file input
-import { useNavigate } from "react-router-dom"; // Hook for programmatic navigation
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import axios from "axios";
-import { join } from "path";
+import { getUserInfo } from "./userUtils";
+import { profile } from "console";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
@@ -155,38 +155,23 @@ function User() {
     });
   };
 
-  // Modified getUsername to also set the profile picture URL and date joined if available
-  async function getUsername(userid: number) {
-    let username = "";
-    await axios
-      .get(`${uploadServer}/user`, {
-        params: {
-          userID: userid,
-        },
-      })
-      .then((response) => {
-        username = response.data.username;
-        if (response.data.profilePictureUrl) {
-          setProfilePictureUrl(response.data.profilePictureUrl);
-        }
-        if (response.data.dateCreated) {
-          // Format date as day/month/year using en-GB locale
-          const joinDate = new Date(response.data.dateCreated);
-          const formattedDate = joinDate.toLocaleDateString("en-GB");
-          setDateJoined(formatDate(joinDate));
-        }
-      });
-    setUsername(username as string);
-    
-  }
-
   useEffect(() => {
     getLoggedInUserId();
-    getUsername(userID);
+   
+    // replacement for old getUsername function
+    getUserInfo(userID).then((userInfo) => {
+      let {username, profilePictureUrl, dateCreated} = userInfo;
+      setUsername(username);
+      if (profilePictureUrl) {
+         setProfilePictureUrl(profilePictureUrl); 
+      }
+      if (dateCreated) { 
+        setDateJoined(formatDate(dateCreated));
+      }
+    });
+
     fetchFollowCount();
   });
-
-  const navigate = useNavigate(); // Hook for navigating between routes
 
 
   /**
