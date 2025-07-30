@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NotificationBell from "../notificationBell";
 import axios from "axios";
+import { getUserInfo } from "../userUtils";
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -17,25 +18,10 @@ if (import.meta.env.VITE_LOGIN_SERVER !== undefined) {
 }
 
 export default function TopBar() {
-  const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [userID, setUserID] = useState(0);
   const [profilePicture, setProfilePicture] = useState("");
   const navigate = useNavigate();
-
-  async function getUsername(userid: number) {
-    let creatorName = "";
-    await axios
-      .get(`${uploadServer}/user`, {
-        params: {
-          userID: userid,
-        },
-      })
-      .then((response) => {
-        creatorName = response.data.username;
-      });
-    return creatorName as string;
-  }
 
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
@@ -47,7 +33,6 @@ export default function TopBar() {
           },
         });
         setUserID(response.data.userId);
-        setLoggedIn(true);
         // userChanged = true;
         return response.data.userId;
       } catch (error) {
@@ -80,8 +65,8 @@ export default function TopBar() {
   getLoggedInUserId();
 
 async function assignUsername() {
-  if (loggedIn) {
-    const username = await getUsername(userID);
+  if (userID !== 0) {
+    const { username } = await getUserInfo(userID);
     setUsername(username);
   }
 }
@@ -140,12 +125,12 @@ useEffect(() => {
             </li> */}
             <li>
               <a
-                className={loggedIn ? "user" : "button"}
+                className={userID !== 0 ? "user" : "button"}
                 onClick={
-                  loggedIn ? () => navigate("/user") : () => navigate("/login")
+                  userID !== 0 ? () => navigate("/user") : () => navigate("/login")
                 }
               >
-                {loggedIn ? (
+                {userID !== 0 ? (
                   <>
                   <img
               src={

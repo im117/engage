@@ -20,6 +20,7 @@ import CombinedSearch from "./combinedSearch.tsx";
 import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
 import CommentSection, { CommentType } from "./components/CommentSection.tsx";
+import { getUserInfo } from "./userUtils.tsx";
 
 
 
@@ -193,7 +194,7 @@ function Home() {
       });
       setCurrentVideoTitle(response.data.title);
       setCurrentVideoDesc(response.data.description);
-      const username = await getUsername(response.data.creator_id);
+      const username = (await getUserInfo(response.data.creator_id)).username;
       setCurrentVideoCreatorName(username);
       const date = new Date(response.data.created_at).toLocaleDateString(
         "en-US",
@@ -243,18 +244,6 @@ function Home() {
       (prevIndex) => (prevIndex + initState) % filteredArray.length
     );
   };
-
-  async function getUsername(userid: number) {
-    let creatorName = "";
-    await axios
-      .get(`${uploadServer}/user`, {
-        params: { userID: userid },
-      })
-      .then((response) => {
-        creatorName = response.data.username;
-      });
-    return creatorName as string;
-  }
 
   async function getLoggedInUserId() {
     const token = localStorage.getItem("authToken");
