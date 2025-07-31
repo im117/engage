@@ -92,24 +92,6 @@ export default function FileUploader() {
     return fileExtension === "mp4" || fileExtension === "mkv" || fileExtension === "mov";
   }
 
-  function durationLimit(file: File) {
-    return new Promise<boolean>((resolve) => {
-      const video = document.createElement("video");
-      video.preload = "metadata";
-
-      video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src);
-      const duration = video.duration;
-      resolve(duration <= 60); // Check if duration is under a minute
-      };
-
-      video.onerror = () => {
-      resolve(false); // If there's an error, consider it invalid
-      };
-
-      video.src = URL.createObjectURL(file);
-    });
-  }
   async function handleFileUpload() {
     if (!file) return;
     if (!title){
