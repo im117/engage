@@ -20,7 +20,7 @@ import CombinedSearch from "./combinedSearch.tsx";
 import About from "./About.tsx";
 import Follow from "./components/follow.tsx"; // Import the Follow component
 import CommentSection, { CommentType } from "./components/CommentSection.tsx";
-import { getUserInfo } from "./userUtils.tsx";
+import { getLoggedInUserId, getUserInfo } from "./userUtils.tsx";
 
 
 
@@ -245,25 +245,10 @@ function Home() {
     );
   };
 
-  async function getLoggedInUserId() {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        const response = await axios.get(`${loginServer}/current-user-id`, {
-          params: { auth: token },
-        });
-        setUserID(response.data.userId);
-        return response.data.userId;
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-  getLoggedInUserId();
-
+  
+  getLoggedInUserId().then((userId) => {
+    setUserID(userId);
+  });
 
   useEffect(() => {
     const fetchRole = async () => {

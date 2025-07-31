@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from "react"; // Added useRef for file in
 import { motion, AnimatePresence } from "framer-motion"; // Animation library for smooth UI transitions
 import { useSwipeable } from "react-swipeable"; // Library for handling touch and mouse swipe gestures
 import axios from "axios";
-import { getUserInfo } from "./userUtils";
-import { profile } from "console";
+import { getLoggedInUserId, getUserInfo } from "./userUtils";
 
 // Set the number of videos displayed per page
 const VIDEOS_PER_PAGE = 6;
@@ -124,28 +123,7 @@ function User() {
       }
     }
   }
-  // Get logged in user ID
-  async function getLoggedInUserId() {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        await axios
-          .get(`${loginServer}/current-user-id`, {
-            params: {
-              auth: token ? token : "",
-            },
-          })
-          .then((response) => {
-            setUserID(response.data.userId as number);
-          });
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
+  
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -156,22 +134,17 @@ function User() {
   };
 
   useEffect(() => {
-    getLoggedInUserId();
-   
-    // replacement for old getUsername function
-    getUserInfo(userID).then((userInfo) => {
-      let {username, profilePictureUrl, dateCreated} = userInfo;
-      setUsername(username);
-      if (profilePictureUrl) {
-         setProfilePictureUrl(profilePictureUrl); 
-      }
-      if (dateCreated) { 
-        setDateJoined(formatDate(dateCreated));
-      }
+    getLoggedInUserId().then((userID) => {
+      setUserID(userID);
     });
-
-    fetchFollowCount();
+    // other code that was previously here is now in the hook that depends on userID
   });
+
+  useEffect(() => {
+   
+    
+  }, [userID]);
+
 
 
   /**
@@ -336,8 +309,21 @@ function User() {
     }
   };
 
-  // set role
+  // set role and other user info
   useEffect(() => {
+    getUserInfo(userID).then((userInfo) => {
+      let {username, profilePictureUrl, dateCreated} = userInfo;
+      setUsername(username);
+      if (profilePictureUrl) {
+         setProfilePictureUrl(profilePictureUrl); 
+      }
+      if (dateCreated) { 
+        setDateJoined(formatDate(dateCreated));
+      }
+    });
+
+    fetchFollowCount();
+
     const fetchRole = async () => {
       try {
         const response = await axios.get(

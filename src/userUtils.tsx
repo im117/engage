@@ -1,5 +1,5 @@
 import axios from "axios";
-import { uploadServer } from "./App";
+import { uploadServer, loginServer } from "./App";
 
 export interface UserType {
   username: string;
@@ -24,4 +24,21 @@ export async function getUserInfo(userid: number) {
       });
     
     return user;
+  }
+
+export async function getLoggedInUserId() {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      try {
+        const response = await axios.get(`${loginServer}/current-user-id`, {
+          params: { auth: token ? token : "" },
+        });
+        return response.data.userId;
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+        return 0;
+      }
+    } else {
+      return 0;
+    }
   }

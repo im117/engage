@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NotificationBell from "../notificationBell";
 import axios from "axios";
-import { getUserInfo } from "../userUtils";
+import { getLoggedInUserId, getUserInfo } from "../userUtils";
 
 let uploadServer = "http://localhost:3001";
 if (import.meta.env.VITE_UPLOAD_SERVER !== undefined) {
@@ -23,27 +23,6 @@ export default function TopBar() {
   const [profilePicture, setProfilePicture] = useState("");
   const navigate = useNavigate();
 
-  async function getLoggedInUserId() {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        const response = await axios.get(`${loginServer}/current-user-id`, {
-          params: {
-            auth: token ? token : "",
-          },
-        });
-        setUserID(response.data.userId);
-        // userChanged = true;
-        return response.data.userId;
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
   // const authButtons = async ()=>{
   //   let button = "";
   //   const userId = await getLoggedInUserId()
@@ -62,7 +41,10 @@ export default function TopBar() {
   //   )
   // }
 
-  getLoggedInUserId();
+  getLoggedInUserId().then((userID) => {
+    setUserID(userID);
+    
+  });
 
 async function assignUsername() {
   if (userID !== 0) {
